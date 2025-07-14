@@ -6,7 +6,7 @@ import t_logo from '../Assets/remote.svg'
 
 const PingPong: React.FC = () => {
   return (
-    <div className="w-full h-full flex items-center justify-center gap-44 bg-[#222831] rounded-2xl max-lg:w-full max-lg:h-[91%]">
+    <div className="w-full h-full flex items-center justify-center gap-28 bg-[#222831] rounded-2xl max-lg:w-full max-lg:h-[91%]">
 
       <div className='flex flex-col items-center justify-between bg-[#393E46] size-[500px] rounded-2xl p-20' style={{ backgroundImage: `url(${Subtract})` }}>
         <img src={s_logo} alt="Tournaments" className="size-[50%]" />

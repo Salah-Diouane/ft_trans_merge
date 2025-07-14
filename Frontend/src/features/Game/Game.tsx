@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 
 const Game: React.FC = () => {
   return (
-    <div className='p-80'>
+    <div className='w-full h-full flex items-center justify-cente'>
       <Outlet />
     </div>
   );
