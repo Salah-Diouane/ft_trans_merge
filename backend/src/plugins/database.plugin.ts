@@ -25,6 +25,24 @@ const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) 
   		);
 
 	`;
+	
+	const createMessageTable: string = `
+		CREATE TABLE IF NOT EXISTS messages (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		sender TEXT NOT NULL,
+		recipient TEXT NOT NULL,
+		text TEXT NOT NULL,
+		timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+		);
+	`;
+
+  	const createUserTable: string = `
+		CREATE TABLE IF NOT EXISTS users (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			username TEXT NOT NULL UNIQUE
+		);
+	`;
+
 
 	await new Promise <void>((resolve, rejects)  => {
 		db.run(createTablesQuery, (err) => {

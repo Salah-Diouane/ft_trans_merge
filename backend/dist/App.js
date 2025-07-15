@@ -6,4 +6,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = __importDefault(require("fastify"));
 const app = (0, fastify_1.default)({ logger: true });
 app.get("/hello", () => "hello");
-app.listen({ port: 300, host: '0.0.0.0' });
+app.listen({ port: 3000, host: '0.0.0.0' });
