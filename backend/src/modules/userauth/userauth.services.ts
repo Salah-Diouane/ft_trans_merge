@@ -30,7 +30,7 @@ export const sendemail = async (fastify: FastifyInstance, userinfo: User) => {
 	const transporter = await nodemailer.createTransport({
 		service: 'gmail',
 		auth: {
-		  user: process.env.GMAIL_ACCOUNT,
+		  user: process.env.GMAIL_ACCOUNT,     
 		  pass: process.env.GMAIL_PASSWORD
 		}
 	});

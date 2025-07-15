@@ -11,28 +11,40 @@ interface Message {
 interface User {
   id: number;
   username: string;
+  first_name: string;
+  family_name: string;
+  image_url: string;
+  cover_url: string;
 }
 
-export function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
+export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
   const db = fastify.db;
 
   io.on("connection", (socket: Socket) => {
-    console.log("🟢 A user connected:", socket.id);
+    console.log("A user connected:", socket.id);
 
     socket.on("request:init", () => {
-      db.all("SELECT * FROM users ORDER BY id ASC", (err, users: User[]) => {
-        if (!err) socket.emit("user:list", users);
+      db.all("SELECT * FROM user_authentication ORDER BY id ASC", (err, user_authentication: User[]) => {
+        if (!err)
+          socket.emit("user:list", user_authentication);
       });
 
       db.all("SELECT * FROM messages ORDER BY timestamp ASC", (err, history: Message[]) => {
-        if (!err) socket.emit("chat:history", history);
+        if (!err)
+          socket.emit("chat:history", history);
       });
     });
 
     socket.on("chat:message", (data: Partial<Message>) => {
       const { username, recipient, text } = data;
-      if (!username || !recipient || !text) return;
-
+      if (!username || !recipient || !text)
+        return;
+      console.log("username");
+      console.log(username);
+      console.log("recipient");
+      console.log(recipient);
+      console.log("text");
+      console.log(text);
       db.run(
         "INSERT INTO messages (sender, recipient, text) VALUES (?, ?, ?)",
         [username, recipient, text],
@@ -50,7 +62,7 @@ export function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
     });
 
     socket.on("disconnect", () => {
-      console.log("🔴 Disconnected:", socket.id);
+      console.log("Disconnected:", socket.id);
     });
   });
 }

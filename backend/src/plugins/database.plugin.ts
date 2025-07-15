@@ -23,7 +23,6 @@ const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) 
     	image_url VARCHAR(200) NOT NULL DEFAULT 'yassine_url',
     	cover_url VARCHAR(200) NOT NULL DEFAULT 'yassine_url'
   		);
-
 	`;
 	
 	const createMessageTable: string = `
@@ -36,16 +35,21 @@ const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) 
 		);
 	`;
 
-  	const createUserTable: string = `
-		CREATE TABLE IF NOT EXISTS users (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			username TEXT NOT NULL UNIQUE
-		);
-	`;
+  	// const createUserTable: string = `
+	// 	CREATE TABLE IF NOT EXISTS users (
+	// 		id INTEGER PRIMARY KEY AUTOINCREMENT,
+	// 		username TEXT NOT NULL UNIQUE
+	// 	);
+	// `;
 
 
 	await new Promise <void>((resolve, rejects)  => {
 		db.run(createTablesQuery, (err) => {
+			if (err)
+				rejects(err);
+			resolve();
+		})
+		db.run(createMessageTable, (err) => {
 			if (err)
 				rejects(err);
 			resolve();

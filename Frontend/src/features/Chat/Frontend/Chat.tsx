@@ -19,6 +19,7 @@ interface Message {
 
 const ChatApp: FC = () => {
   // State
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const usersRef = useRef<User[]>([]);
   const [messages, setMessages] = useState<Record<number, Message[]>>({});
@@ -29,6 +30,20 @@ const ChatApp: FC = () => {
 
   const isMobile = window.outerWidth < 1024;
 
+  // fetch user
+  useEffect(() => {
+    fetch("http://localhost:3001/user/me", {
+      credentials: "include", // IMPORTANT to send cookies
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Not authenticated");
+        return res.json();
+      })
+      .then(data => setCurrentUser(data))
+      .catch(err => console.error("Failed to fetch current user", err));
+  }, []);
+
+  
   // Keep usersRef updated with latest users state
   useEffect(() => {
     usersRef.current = users;
@@ -63,6 +78,8 @@ const ChatApp: FC = () => {
 
     socket.on('chat:message', (msg: { username: string; recipient: string; text: string; timestamp: string }) => {
       const recipientUser = usersRef.current.find(user => user.username === msg.recipient);
+      // console.log(msg.recipient)
+      // console.log(msg.username)
       if (!recipientUser)
         return;
       const key = recipientUser.id;
@@ -72,7 +89,7 @@ const ChatApp: FC = () => {
       }));
     });
 
-
+    // console.log(currentUser?.username);
 
     return () => {
       socket.off('user:list');
@@ -88,6 +105,9 @@ const ChatApp: FC = () => {
       username: 'Salah',
       recipient: selectedUser.username,
       text: input,
+      // username: currentUser?.username, // ✅ dynamic username
+      // recipient: selectedUser.username,
+      // text: input,
     });
     setInput('');
   };
@@ -142,7 +162,8 @@ const ChatApp: FC = () => {
             setInput={setInput}
             onSend={handleSend}
             onBack={() => setShowContactList(true)}
-            loggedInUsername="Salah"
+            loggedInUsername={currentUser?.username || ""}
+
           />
         )
       ) : (
@@ -162,7 +183,7 @@ const ChatApp: FC = () => {
               input={input}
               setInput={setInput}
               onSend={handleSend}
-              loggedInUsername="Salah"
+              loggedInUsername={currentUser?.username || ""}
             />
           ) : (
             <EmptyState />
