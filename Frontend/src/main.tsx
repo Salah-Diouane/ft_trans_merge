@@ -12,12 +12,13 @@ import Profile from './features/Profile/Profile';
 import PingPong from './features/Game/PingPong';
 import TicTacToe from './features/Game/TicTacToe';
 import GameHome from './features/Game/GameHome';
+import LocalGame from './features/Game/LocalGame';
+
 
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
     <BrowserRouter>
-
 
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root') as HTMLElement).render(
             <Route index element={<GameHome />} />
             <Route path="ping-pong" element={<PingPong />} />
             <Route path="tic-tac-toe" element={<TicTacToe />} />
+            <Route path="tic-tac-toe/local-game" element={<LocalGame />} />
           </Route>
 
           <Route path="settings" element={<Settings />} />
@@ -35,6 +37,7 @@ createRoot(document.getElementById('root') as HTMLElement).render(
           <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
+
 
     </BrowserRouter>
   </StrictMode>
