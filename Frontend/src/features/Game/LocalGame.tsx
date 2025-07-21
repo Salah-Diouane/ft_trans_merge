@@ -476,7 +476,7 @@ const LocalGame: React.FC = () => {
   const gameOver = winner || isDraw;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-tr from-gray-800 via-gray-900 to-black p-8">
+    <div className="flex flex-col items-center justify-center h-full w-full bg-[#393E46] rounded-2xl p-8">
 
       {!gameStarted && (
         <Choose
