@@ -40,7 +40,7 @@ const Conversation: FC<ConversationProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Auto-scroll on new message
-  useEffect(() => { 
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -109,7 +109,21 @@ const Conversation: FC<ConversationProps> = ({
                     </span>
                   </div>
                 )}
-                <div className={`flex ${isMe ? "justify-start" : "justify-end"}`}>
+                
+                <div className={`flex ${isMe ? "justify-start" : "justify-end"} mb-3`}>
+                  <div
+                    className={`max-w-xs sm:max-w-sm md:max-w-md px-4 py-2 rounded-2xl shadow-md transition-all fade-in ${!isMe
+                      ? "bg-[#222831] text-white rounded-br-none" : "bg-[#00ADB5] text-black rounded-bl-none"
+                      }`}
+                  >
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                    <span className="block text-[10px] text-right text-gray-300 mt-1">
+                      {time}
+                    </span>
+                  </div>
+                </div>
+
+                {/* <div className={`flex ${isMe ? "justify-start" : "justify-end"}`}>
                   <div className="max-w-xs sm:max-w-sm md:max-w-md break-words">
                     <div
                       className={`rounded-xl px-4 py-2 whitespace-pre-wrap ${
@@ -122,7 +136,9 @@ const Conversation: FC<ConversationProps> = ({
                     </div>
                     <span className="text-xs text-gray-400 mt-1 block text-right">{time}</span>
                   </div>
-                </div>
+                </div> */}
+
+
               </div>
             );
           })}
@@ -130,7 +146,7 @@ const Conversation: FC<ConversationProps> = ({
         </div>
 
         {/* Input field */}
-        <div className="mt-4 relative">
+        {/* <div className="mt-4 relative">
           <input
             type="text"
             placeholder="Type here..."
@@ -147,6 +163,25 @@ const Conversation: FC<ConversationProps> = ({
             onClick={onSend}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-white cursor-pointer w-10 h-10 hover:text-[#7B2431] sm:hidden max-lg:w-6 max-lg:h-6"
           />
+        </div> */}
+
+        <div className="relative mt-4">
+          <input
+            type="text"
+            placeholder="Type a message..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && onSend()}
+            className="w-full bg-[#2a2e36] text-white placeholder-gray-400 rounded-full py-3 px-5 pr-12 outline-none focus:ring-2 focus:ring-[#00ADB5] transition"
+          />
+          <VscSend
+            onClick={onSend}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-6 h-6 cursor-pointer hover:text-[#00ADB5] hidden sm:block"
+          />
+          <LuSendHorizontal
+            onClick={onSend}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-7 h-7 cursor-pointer hover:text-[#00ADB5] sm:hidden"
+          />
         </div>
       </div>
     </div>
@@ -154,3 +189,4 @@ const Conversation: FC<ConversationProps> = ({
 };
 
 export default Conversation;
+
