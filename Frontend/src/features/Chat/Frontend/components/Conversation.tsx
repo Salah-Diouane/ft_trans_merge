@@ -1,6 +1,6 @@
 // 📁 Conversation.tsx
 
-import React, { FC, useEffect, useRef } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { VscSend } from "react-icons/vsc";
 import { LuSendHorizontal } from "react-icons/lu";
 import {
@@ -14,6 +14,7 @@ import Subtract from "../Assets/Subtract.svg";
 
 import { User } from "../types/User";
 import { Message } from "../types/Message";
+import { Divide } from "lucide-react";
 
 // Props definition
 interface ConversationProps {
@@ -39,6 +40,8 @@ const Conversation: FC<ConversationProps> = ({
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  const [showDivInvite, setShowDivInvite] = useState<boolean>(false)
+
   // Auto-scroll on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,6 +63,58 @@ const Conversation: FC<ConversationProps> = ({
     );
   }
 
+
+
+  const [inviteClicked, setInviteClicked] = useState<Record<string, boolean>>({});
+  const [blockClicked, setBlockClicked] = useState<Record<string, boolean>>({});
+  const [toast, setToast] = useState<{ type: "invite" | "block" | "debloked" ; user: string } | null>(null);
+
+
+  const handleSendInvite = () => {
+
+    if (!user)
+      return;
+
+    setInviteClicked((prev) => ({ ...prev, [user.username]: true }));
+    setToast({ type: "invite", user: user.username });
+
+    setTimeout(() => {
+      setToast(null);
+    }, 4000);
+    
+    setTimeout( () => {
+      setInviteClicked( (prev) => ( { ...prev, [user.username] : false}));
+    }, 4000)
+  };
+
+  const handleBlockUser = () => {
+
+    if (!user)
+      return;
+
+    setBlockClicked((prev) => ({ ...prev, [user.username]: true }));
+    setToast({ type: "block", user: user.username });
+
+    setTimeout(() => {
+      setToast(null);
+    }, 4000);
+    
+    
+  };
+
+  const handleUnblocked = () => {
+
+    if (!user)
+      return;
+
+    setBlockClicked((prev) => ({ ...prev, [user.username]: false }));
+    setToast({ type: "debloked", user: user.username });
+
+    setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  };
+
   return (
     <div className="flex flex-col w-full h-full max-lg:h-[92%] rounded-2xl p-[2px] max-lg:bg-none">
       {/* Header */}
@@ -68,7 +123,9 @@ const Conversation: FC<ConversationProps> = ({
         style={{ backgroundImage: `url(${Subtract})` }}
       >
         <div className="flex items-center justify-between p-3 m-1 bg-[#222831] rounded-xl max-lg:rounded-b-lg max-lg:h-20 max-lg:m-[-4px]">
+
           <div className="flex items-center gap-x-3">
+
             {isMobile && (
               <button onClick={onBack} className="text-white">
                 <CircleArrowLeft01Icon className="w-6 h-6 bg-sky-800 rounded-full p-0.5" />
@@ -78,11 +135,57 @@ const Conversation: FC<ConversationProps> = ({
             <strong className="text-amber-50 text-lg max-lg:text-sm">
               {user?.username || "User"}
             </strong>
+
           </div>
+
           <div className="flex items-center gap-x-4">
-            <AddTeamIcon className="w-7 h-7 text-white cursor-pointer max-lg:w-6 max-lg:h-6" />
-            <UserBlock02Icon className="w-7 h-7 text-red-700 cursor-pointer max-lg:w-6 max-lg:h-6 max-lg:mr-2" />
+
+            {inviteClicked[user.username] ? (
+              <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center text-white max-lg:w-6 max-lg:h-6">
+                ✅
+              </div>
+              
+            ) : (
+              <AddTeamIcon
+                className="w-7 h-7 text-white cursor-pointer max-lg:w-6 max-lg:h-6"
+                onClick={handleSendInvite}
+              />
+            )}
+            
+            
+
+            {blockClicked[user.username] ? (
+              <div className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center text-white max-lg:w-6 max-lg:h-6 max-lg:mr-2 cursor-pointer" onClick={handleUnblocked}>
+                ⛔
+              </div>
+            ) : (
+              <UserBlock02Icon
+                className="w-7 h-7 text-red-700 cursor-pointer max-lg:w-6 max-lg:h-6 max-lg:mr-2"
+                onClick={handleBlockUser}
+              />
+            )}
+
           </div>
+
+          {toast?.type === "invite" && toast.user === user.username && (
+            <div className="fixed top-1/8 right-44 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
+              ✅ Invite sent to <strong>{user.username || "player#1234"}</strong>
+            </div>
+          )}
+
+          {toast?.type === "block" && toast.user === user.username && (
+            <div className="fixed top-1/8 right-44 bg-red-600 text-white px-4 py-2 rounded shadow-md z-50">
+              <strong>{user.username || "player#1234"} is blocked!</strong>
+            </div>
+          )}
+
+          {toast?.type === "debloked" && toast.user === user.username && (
+            <div className="fixed top-1/8 right-44 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
+              <strong>{user.username || "player#1234"} is unblocked!</strong>
+            </div>
+          )}
+
+
         </div>
 
         {/* Message list */}
@@ -109,7 +212,7 @@ const Conversation: FC<ConversationProps> = ({
                     </span>
                   </div>
                 )}
-                
+
                 <div className={`flex ${isMe ? "justify-start" : "justify-end"} mb-3`}>
                   <div
                     className={`max-w-xs sm:max-w-sm md:max-w-md px-4 py-2 rounded-2xl shadow-md transition-all fade-in ${!isMe
@@ -122,67 +225,41 @@ const Conversation: FC<ConversationProps> = ({
                     </span>
                   </div>
                 </div>
-
-                {/* <div className={`flex ${isMe ? "justify-start" : "justify-end"}`}>
-                  <div className="max-w-xs sm:max-w-sm md:max-w-md break-words">
-                    <div
-                      className={`rounded-xl px-4 py-2 whitespace-pre-wrap ${
-                        isMe
-                          ? "bg-[#EEEEEE] text-[#222831] self-end"
-                          : "bg-[#222831] text-white self-start"
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
-                    <span className="text-xs text-gray-400 mt-1 block text-right">{time}</span>
-                  </div>
-                </div> */}
-
-
               </div>
             );
           })}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input field */}
-        {/* <div className="mt-4 relative">
-          <input
-            type="text"
-            placeholder="Type here..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onSend()}
-            className="w-full bg-[#222831] text-white placeholder-amber-50 outline-none p-4 pr-12 rounded-2xl"
-          />
-          <VscSend
-            onClick={onSend}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white cursor-pointer w-7 h-7 hover:text-[#7B2431] max-lg:hidden"
-          />
-          <LuSendHorizontal
-            onClick={onSend}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white cursor-pointer w-10 h-10 hover:text-[#7B2431] sm:hidden max-lg:w-6 max-lg:h-6"
-          />
-        </div> */}
 
-        <div className="relative mt-4">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onSend()}
-            className="w-full bg-[#2a2e36] text-white placeholder-gray-400 rounded-full py-3 px-5 pr-12 outline-none focus:ring-2 focus:ring-[#00ADB5] transition"
-          />
-          <VscSend
-            onClick={onSend}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-6 h-6 cursor-pointer hover:text-[#00ADB5] hidden sm:block"
-          />
-          <LuSendHorizontal
-            onClick={onSend}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-7 h-7 cursor-pointer hover:text-[#00ADB5] sm:hidden"
-          />
-        </div>
+      <div className="relative mt-4">
+        <input
+          type="text"
+          placeholder="Type a message..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !blockClicked[user.username]) onSend();
+          }}
+          className="w-full bg-[#2a2e36] text-white placeholder-gray-400 rounded-full py-3 px-5 pr-12 outline-none focus:ring-2 focus:ring-[#00ADB5] transition"
+          disabled={blockClicked[user.username]} 
+        />
+
+        {!blockClicked[user.username] && (
+          <>
+            <VscSend
+              onClick={onSend}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-6 h-6 cursor-pointer hover:text-[#00ADB5] hidden sm:block"
+            />
+            <LuSendHorizontal
+              onClick={onSend}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-7 h-7 cursor-pointer hover:text-[#00ADB5] sm:hidden"
+            />
+          </>
+        )}
+      </div>
+
+
       </div>
     </div>
   );

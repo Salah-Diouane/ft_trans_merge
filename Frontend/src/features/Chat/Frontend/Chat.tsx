@@ -163,8 +163,8 @@ const ChatApp: FC = () => {
             onSend={handleSend}
             onBack={() => setShowContactList(true)}
             loggedInUsername={currentUser?.username || ""}
-
-          />
+            
+            />
         )
       ) : (
         <>
@@ -175,11 +175,11 @@ const ChatApp: FC = () => {
             setSelectedUser={handleUserSelect}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
-          />
+            />
           {selectedUser ? (
             <Conversation
-              user={selectedUser}
-              messages={userMessages}
+            user={selectedUser}
+            messages={userMessages}
               input={input}
               setInput={setInput}
               onSend={handleSend}

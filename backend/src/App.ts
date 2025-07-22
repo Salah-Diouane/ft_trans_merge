@@ -165,3 +165,123 @@ server.listen(3001, '0.0.0.0', () => {
 
 });
 
+
+
+// /// <reference types="../types/fastify" />
+
+// import fastify from "fastify";
+// import dbPlugin from './plugins/database.plugin'
+// import Modules from "./plugins/modules.plugin";
+// import jwtplugin from "./plugins/jwt.plugin";
+// import cookiePlugin from "./plugins/cookie.plugin";
+// import auth02 from "./plugins/oauth2.plugin"
+// import cors from '@fastify/cors';
+// import { RefreshToken } from "./modules/userauth/userauth.routes";
+// import { request } from "http";
+// import setupSocketIO from './plugins/chat-socket.plugin';
+
+// import { createServer } from "http";
+// import { Server as IOServer } from "socket.io";
+
+// const app = fastify();
+
+// app.register(cors, {
+//     origin: true, // React app origin
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     credentials: true, // if you want cookies/auth headers
+// });
+
+// app.register(dbPlugin);
+
+// app.register(cookiePlugin);
+
+// app.register(jwtplugin);
+
+
+// app.register(auth02);
+
+
+// app.register(Modules);
+
+// app.ready();
+
+// // app.addHook("onRequest", async (request, reply) => {
+// //     try {
+// //         const publicPaths = ["/login", "/register", "/logout"];
+// //         const isPublic = publicPaths.some(path => (request.raw.url || "").startsWith(path));
+        
+// //         if (!isPublic) {
+// //             const token = request.cookies.accessToken;
+// //             console.log("@@@@@@@@ token : ", token);
+// //             if (!token) {
+// //                 console.log("######################token : ", token);
+// //                 return reply.code(401).send({ message: "No access token in cookies" , accesstoken : false, refreshtoken : true});
+// //             }
+// //             await app.jwt.verify(token);
+// //         }
+// //     } catch (err) {
+// //         return reply.code(401).send({ message: "Unauthorized", error: err , accesstoken : false, refreshtoken : true});
+// //     }
+// // });
+
+// app.addHook("onRequest", async (request, reply) => {
+//     try {
+//       const url = request.raw.url || "";
+      
+//       // Skip auth for public routes and socket.io connection
+//       const publicPaths = ["/login", "/register", "/logout"];
+//       const isPublic = publicPaths.some(path => url.startsWith(path));
+//       const isSocketIO = url.startsWith("/socket.io");
+  
+//       if (!isPublic && !isSocketIO) {
+//         const token = request.cookies.accessToken;
+  
+//         if (!token) {
+//           return reply.code(401).send({ message: "No access token in cookies", accesstoken: false, refreshtoken: true });
+//         }
+//         await app.jwt.verify(token);
+//       }
+//     } catch (err) {
+//       return reply.code(401).send({ message: "Unauthorized", error: err, accesstoken: false, refreshtoken: true });
+//     }
+//   });
+  
+
+// app.get("/hello", (request, reply) => {
+//     return reply.send({ refreshtoken: true, accesstoken: true });
+// });
+
+// app.get('/logout',  (request, reply) => {
+// 	reply.clearCookie('accessToken', {path:'/'});
+// 	reply.clearCookie('refreshtoken', {path: '/'});
+// 	return 'logout';
+
+// })
+
+// const server = createServer(app.server);
+
+// const io = new IOServer(server, {
+
+//   cors: {
+//     origin: ["http://localhost:5173"],
+//     methods: ["GET", "POST"],
+//     credentials: true,
+
+//   },
+
+// });
+
+// app.ready().then(() => {
+
+//   setupSocketIO(app, io);
+
+// });
+
+// // app.listen({port: 3000, host: '0.0.0.0'}, (addree) => {
+// //     console.log("127.0.0.1:3000");
+// // });
+
+
+// server.listen(3000, '0.0.0.0', () => {
+//     console.log("✅ Server with Socket.IO running on http://localhost:3000");
+//   });
