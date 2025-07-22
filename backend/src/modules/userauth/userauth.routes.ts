@@ -9,19 +9,17 @@ import {generateAccessToken, generateRefreshToken} from './userauth.services'
 export const SignUp = async (fastify : FastifyInstance) => {
 	fastify.post('/signup', {
 		schema: {
-		  body: user_signup,
-		  response: {
-			201: user_signup,
-		  }
+		  body: user_signup
 		}
 	  }, async (request, reply) => {
 			const user = request.body as User;
 			try {
 				if (user.password != user.confirmpassword)
-					throw ('the password  and confirm password are not the same !');
+					throw ({message : 'the password  and confirm password are not the same !', singup: false});
 				else {
 					await addNewUser(fastify, user);
-					reply.send('done !')
+					console.log("the user : ", user);
+					return reply.code(201).send({message  : "the user is created " , singup: true});
 				}
 			} catch(err) {
 				reply.code(400).send(err);
@@ -62,26 +60,24 @@ export const Verify2fa = async (fastify: FastifyInstance) => {
 }
 
 export const RefreshToken = async (fastify: FastifyInstance) => {
-	fastify.post('/refreshtoken', async (request, reply) => {
+	fastify.get('/refreshtoken', async (request, reply) => {
 		try {
 			const refreshtoken = request.cookies.refreshtoken;
-			console.log(refreshtoken);
 			if (!refreshtoken) {
 				return reply.code(400).send({
 					message: "Refresh token expired",
-					"refreshtoken": "false"
+					"refreshtoken": false
 				});
 			}
 			const decoded = fastify.jwt.verify(refreshtoken) as {username: string};
 			const user: User | null = await getuser(fastify, decoded.username);
 			if (!user) {
-				return reply.code(404).send({ message: "User not found" , "refreshtoken" : "true"});
+				return reply.code(404).send({ message: "User not found" , refreshtoken : true});
 			}
 			const accessToken = await generateAccessToken(fastify, reply, user);
-			console.log("new token : ",accessToken);
-			return reply.send({ accessToken });
+			return reply.send({ message : "new access token created ", refreshtoken: true});
 		} catch (err) {
-			return reply.code(400).send({ message: "Invalid refresh token", error: err , "refreshtoken " : "false"});
+			return reply.code(400).send({ message: "Invalid refresh token", error: err , refreshtoken : false});
 	  }
 	});
 };
@@ -91,6 +87,7 @@ export const GoogleSign = async (fastify: FastifyInstance) => {
 		try {
 			await handle_googlesign(fastify, request, reply);
 		} catch (err) {
+			console.log( "The Error : ", err);
 			reply.code(400).send(err);
 		}
 	});

@@ -1,0 +1,57 @@
+// routesConfig.ts
+import Layout from '../features/layout/Layout';
+import ChatApp from '../features/Chat/Frontend/Chat';
+import Home from '../features/Home/Home';
+import Game from '../features/Game/Game';
+import Settings from '../features/Settings/Settings';
+import Logout from '../features/Logout/Logout';
+import Profile from '../features/Profile/Profile';
+import PingPong from '../features/Game/PingPong';
+import TicTacToe from '../features/Game/TicTacToe';
+import LocalGame from '../features/Game/LocalGame';
+import GameHome from '../features/Game/GameHome';
+import Userauth from '../features/userauth/userauth';
+import TwoFA from '../features/userauth/twofa';
+import Signin from '../features/userauth/signin';
+import Signup from '../features/userauth/signup';
+import ProtectedRoute from '../features/userauth/protectauth'
+
+export const routes  = [
+  {
+    path: '/login',
+    element: <Userauth />,
+    children: [
+      { path: 'Signin', element: <Signin /> },
+      { path: 'Signup', element: <Signup /> },
+    ],
+  },
+  {
+    path: '/login/Twofa',
+    element: <TwoFA />,
+  },
+  {
+    path: '/',
+    element:  (
+		<ProtectedRoute>
+			<Layout />
+		</ProtectedRoute>
+		),
+		children: [
+			{ index: true, element:  <Home /> },
+			{ path: 'chat', element: <ChatApp /> },
+			{
+				path: 'game',
+				element: <Game />,
+				children: [
+					{ index: true, element: <GameHome /> },
+					{ path: 'ping-pong', element: <PingPong /> },
+					{ path: 'tic-tac-toe', element: <TicTacToe /> },
+					{path: "tic-tac-toe/local-game", element: <LocalGame />},
+				],
+			},
+			{ path: 'settings', element: <Settings /> },
+			{ path: 'logout', element: <Logout /> },
+			{ path: 'profile', element: <Profile /> },
+		],
+	}
+];

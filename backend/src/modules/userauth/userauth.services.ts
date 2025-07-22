@@ -5,17 +5,19 @@ import nodemailer from 'nodemailer';
 import {env} from '../../plugins/env.plugin';
 
 export const generateRefreshToken = async (fastify: FastifyInstance, reply: FastifyReply, username: string) : Promise<string> => {
-	const token =  await fastify.jwt.sign({username : `${username}`}, { expiresIn: '15m' });
+	const token =  await fastify.jwt.sign({username : `${username}`}, { expiresIn: '7d' });
 	reply.setCookie('refreshtoken', token, {
-		path: '/login/refreshtoken',
+		path: '/',
 		secure: false,
 		httpOnly: true,
 		sameSite: true
   });
+  console.log("create token 1: ", token)
   return token;
 }
 
 export const generateAccessToken = async (fastify: FastifyInstance, reply: FastifyReply, user: User) :  Promise<string>  => {
+	reply.clearCookie('accessToken', {path: '/'});
 	const token = await fastify.jwt.sign({userid: user.id, username: user.username, email: user.email}, {expiresIn: '1h'});
 	reply.setCookie('accessToken', token, {
 		path: '/',
@@ -23,6 +25,7 @@ export const generateAccessToken = async (fastify: FastifyInstance, reply: Fasti
 		httpOnly: true,
 		sameSite: true
   });
+  console.log("create token 2: ", token)
   return token;
 }
 
@@ -30,7 +33,7 @@ export const sendemail = async (fastify: FastifyInstance, userinfo: User) => {
 	const transporter = await nodemailer.createTransport({
 		service: 'gmail',
 		auth: {
-		  user: process.env.GMAIL_ACCOUNT,     
+		  user: process.env.GMAIL_ACCOUNT,
 		  pass: process.env.GMAIL_PASSWORD
 		}
 	});

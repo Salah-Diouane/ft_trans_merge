@@ -2,7 +2,6 @@ import fp from 'fastify-plugin'
 import sqlite from 'sqlite3'
 import { FastifyInstance , FastifyPluginAsync} from 'fastify';
 
-
 const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) => {
 	const db = new sqlite.Database("./database.db", (err) => {
 		if (err)
@@ -24,7 +23,16 @@ const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) 
     	cover_url VARCHAR(200) NOT NULL DEFAULT 'yassine_url'
   		);
 	`;
-	
+
+	// sender
+	// : 
+	// "Salah"
+	// text
+	// : 
+	// "azul"
+	// timestamp
+	// : 
+	// "2025-07-22 12:04:49"
 	const createMessageTable: string = `
 		CREATE TABLE IF NOT EXISTS messages (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,25 +43,19 @@ const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) 
 		);
 	`;
 
-  	// const createUserTable: string = `
-	// 	CREATE TABLE IF NOT EXISTS users (
-	// 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-	// 		username TEXT NOT NULL UNIQUE
-	// 	);
-	// `;
-
-
 	await new Promise <void>((resolve, rejects)  => {
 		db.run(createTablesQuery, (err) => {
 			if (err)
 				rejects(err);
 			resolve();
 		})
+
 		db.run(createMessageTable, (err) => {
 			if (err)
 				rejects(err);
 			resolve();
 		})
+		
 	});
 
 	fastify.decorate('db', db);
