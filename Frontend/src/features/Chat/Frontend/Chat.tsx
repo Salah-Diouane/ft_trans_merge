@@ -26,6 +26,8 @@ const ChatApp: FC = () => {
   const [input, setInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [showContactList, setShowContactList] = useState(window.outerWidth < 1024);
+  const [currentUser, setcurrentUser] = useState<string>("")
+  const currentUserRef = useRef<string>("");
 
   const isMobile = window.outerWidth < 1024;
 
@@ -80,13 +82,23 @@ const ChatApp: FC = () => {
         [key]: [...(prev[key] || []), { sender: msg.username, text: msg.text, timestamp: msg.timestamp }],
       }));
     });
-
-    // io.emit("chat:message", {
-    //   username,
-    //   recipient,
-    //   text,
-    //   timestamp: new Date().toISOString(),
+    // const currentUserRef = useRef("")
+    socket.on("get-my-profile", (socket_data: {user: string}) => {
+      setcurrentUser(socket_data.user); // For UI updates
+      currentUserRef.current = socket_data.user; // For immediate access in logic
+    });
+    
+    // socket.on("get-my-profile", (socket_data: {user: string}) => {
+    //   setcurrentUser(socket_data.user)
+    //   // const originalToken = socket.originalToken;
+      
+    //   socket.emit("profile-data", {
+    //     user: socket_data.user,
+    //     // token: originalToken // If you need to send the original token back
+    //   });
     // });
+
+
 
     return () => {
       socket.off('user:list');
@@ -97,28 +109,45 @@ const ChatApp: FC = () => {
 
  
   // Send a message
-  const handleSend = () => {
-    if (!input.trim() || !selectedUser) return;
+  // const handleSend = () => {
+  //   if (!input.trim() || !selectedUser || !currentUser){
+  //     console.log("ERROOOOOOOR")
+  //     return;
+  //   }
+  //   socket.emit('chat:message', {
+  //     username: currentUser,
+  //     recipient: selectedUser.username,
+  //     text: input,
+  //   });
+  //   console.log("username")
 
+
+    
+  //   setInput('');
+  // };
+
+  const handleSend = () => {
+    const username = currentUserRef.current;
+  
+    if (!input.trim() || !selectedUser || !username) {
+      console.warn("Cannot send message - missing input / selected user / current user");
+      return;
+    }
+  
     socket.emit('chat:message', {
-      username:"ahmed",
+      username,
       recipient: selectedUser.username,
       text: input,
     });
-    // socket.emit('chat:message', {
-    //   recipient: selectedUser.username,
-    //   text: input,
-    // });
-    
+  
+    console.log("Message sent by:", username);
     setInput('');
   };
-
-  // Filter users by search term
+  
   const filteredUsers = users.filter(user =>
     user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Select a contact
   const handleUserSelect = (user: User): void => {
     setSelectedUser(user);
     if (isMobile) setShowContactList(false);
@@ -126,7 +155,6 @@ const ChatApp: FC = () => {
 
   const userMessages = selectedUser?.id ? messages[selectedUser.id] || [] : [];
 
-  // Empty state component
   const EmptyState = () => (
     <div className="flex flex-col w-full h-full rounded-2xl p-[2px] max-lg:h-full ">
       <div
@@ -163,7 +191,7 @@ const ChatApp: FC = () => {
             setInput={setInput}
             onSend={handleSend}
             onBack={() => setShowContactList(true)}
-            loggedInUsername='ahmed'
+            loggedInUsername={currentUser}
           />
         )
       ) : (
@@ -183,7 +211,7 @@ const ChatApp: FC = () => {
               input={input}
               setInput={setInput}
               onSend={handleSend}
-              loggedInUsername='ahmed'
+              loggedInUsername={currentUser}
             />
           ) : (
             <EmptyState />
