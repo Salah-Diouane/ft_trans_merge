@@ -36,6 +36,8 @@ const Conversation: FC<ConversationProps> = ({
   onBack,
   loggedInUsername,
 }) => {
+  console.log("-----> : messages")
+  console.log(messages)
   const isMobile = typeof window !== "undefined" && window.outerWidth < 1024;
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -200,7 +202,7 @@ const Conversation: FC<ConversationProps> = ({
                 : null;
 
             const time = msgDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-            const isMe = msg.username === loggedInUsername;
+            const isMe = msg.sender === loggedInUsername;
             const showDate = index === 0 || currentDateStr !== previousDateStr;
 
             return (
@@ -213,9 +215,9 @@ const Conversation: FC<ConversationProps> = ({
                   </div>
                 )}
 
-                <div className={`flex ${isMe ? "justify-start" : "justify-end"} mb-3`}>
+                <div className={`flex ${!isMe ? "justify-start" : "justify-end"} mb-3`}>
                   <div
-                    className={`max-w-xs sm:max-w-sm md:max-w-md px-4 py-2 rounded-2xl shadow-md transition-all fade-in ${!isMe
+                    className={`max-w-xs sm:max-w-sm md:max-w-md px-4 py-2 rounded-2xl shadow-md transition-all fade-in ${isMe
                       ? "bg-[#222831] text-white rounded-br-none" : "bg-[#00ADB5] text-black rounded-bl-none"
                       }`}
                   >
