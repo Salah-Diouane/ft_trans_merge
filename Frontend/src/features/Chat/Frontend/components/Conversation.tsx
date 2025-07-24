@@ -8,6 +8,7 @@ import {
   CircleArrowLeft01Icon,
   UserBlock02Icon,
 } from "hugeicons-react";
+import { LuImagePlus } from "react-icons/lu";
 
 import meProfile from "../Assets/me.jpeg";
 import Subtract from "../Assets/Subtract.svg";
@@ -116,6 +117,10 @@ const Conversation: FC<ConversationProps> = ({
       setToast(null);
     }, 4000);
   };
+  
+  const handleImage = () => {
+    console.log("image clicked !!!!!!")
+  }
 
   return (
     <div className="flex flex-col w-full h-full max-lg:h-[92%] rounded-2xl p-[2px] max-lg:bg-none">
@@ -217,9 +222,8 @@ const Conversation: FC<ConversationProps> = ({
 
                 <div className={`flex ${!isMe ? "justify-start" : "justify-end"} mb-3`}>
                   <div
-                    className={`max-w-xs sm:max-w-sm md:max-w-md px-4 py-2 rounded-2xl shadow-md transition-all fade-in ${isMe
-                      ? "bg-[#222831] text-white rounded-br-none" : "bg-[#00ADB5] text-black rounded-bl-none"
-                      }`}
+                    className={`max-w-xs sm:max-w-sm md:max-w-md px-4 py-2 rounded-2xl shadow-md transition-all fade-in 
+                       bg-white text-black rounded-br-none`}
                   >
                     <p className="whitespace-pre-wrap">{msg.text}</p>
                     <span className="block text-[10px] text-right text-gray-300 mt-1">
@@ -234,7 +238,7 @@ const Conversation: FC<ConversationProps> = ({
         </div>
 
 
-      <div className="relative mt-4">
+      <div className=" relative mt-4">
         <input
           type="text"
           placeholder="Type a message..."
@@ -246,13 +250,16 @@ const Conversation: FC<ConversationProps> = ({
           className="w-full bg-[#2a2e36] text-white placeholder-gray-400 rounded-full py-3 px-5 pr-12 outline-none focus:ring-2 focus:ring-[#00ADB5] transition"
           disabled={blockClicked[user.username]} 
         />
-
+          
         {!blockClicked[user.username] && (
           <>
+
             <VscSend
               onClick={onSend}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-6 h-6 cursor-pointer hover:text-[#00ADB5] hidden sm:block"
             />
+            <LuImagePlus className="absolute top-2   right-11  text-white size-7 cursor-pointer hover:text-[#00ADB5]" onClick={handleImage} />
+
             <LuSendHorizontal
               onClick={onSend}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white w-7 h-7 cursor-pointer hover:text-[#00ADB5] sm:hidden"

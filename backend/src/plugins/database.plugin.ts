@@ -39,6 +39,7 @@ const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) 
 		sender TEXT NOT NULL,
 		recipient TEXT NOT NULL,
 		text TEXT NOT NULL,
+		image_url text NOT NULL,
 		timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 		);
 	`;
