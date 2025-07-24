@@ -24,15 +24,14 @@ const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) 
   		);
 	`;
 
-	// sender
-	// : 
-	// "Salah"
-	// text
-	// : 
-	// "azul"
-	// timestamp
-	// : 
-	// "2025-07-22 12:04:49"
+	const createBlockedUsersTable = `
+		CREATE TABLE IF NOT EXISTS blocked_users (
+			blocker TEXT NOT NULL,
+			blocked TEXT NOT NULL,
+			UNIQUE(blocker, blocked)
+		);
+	`;
+
 	const createMessageTable: string = `
 		CREATE TABLE IF NOT EXISTS messages (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,6 +39,7 @@ const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) 
 		recipient TEXT NOT NULL,
 		text TEXT NOT NULL,
 		image_url text NOT NULL,
+		blocked BOOLEAN DEFAULT false, 
 		timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 		);
 	`;
@@ -51,6 +51,12 @@ const  database_plugin : FastifyPluginAsync = async (fastify : FastifyInstance) 
 			resolve();
 		})
 
+		db.run(createBlockedUsersTable, (err) => {
+			if (err)
+				rejects(err);
+			resolve();
+		});
+		
 		db.run(createMessageTable, (err) => {
 			if (err)
 				rejects(err);

@@ -1,5 +1,3 @@
-
-
 import { Server as IOServer, Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
 
@@ -8,6 +6,7 @@ interface Message {
   recipient: string;
   text: string;
   timestamp: string;
+  blocked: boolean;
 }
 
 interface User {
@@ -106,36 +105,114 @@ export default function setupSocketIO(
       });
     });
 
+    // socket.on("chat:message", (data: Partial<Message>) => {
+    //   const { username, recipient, text, blocked } = data;
+      
+    //   if (!username || !recipient || !text || !blocked) {
+    //     console.log("Missing required fields in message");
+    //     return;
+    //   }
+
+    //   console.log("New message:", { username, recipient, text });
+
+    //   db.run(
+    //     "INSERT INTO messages (sender, recipient, text, blocked) VALUES (?, ?, ?, ?)",
+    //     [username, recipient, text, blocked],
+    //     function(err) {
+    //       if (!err) {
+    //         const messageData = {
+    //           sender: username,
+    //           recipient,
+    //           text,
+    //           timestamp: new Date().toISOString(),
+    //           blocked,
+    //         };
+            
+    //         console.log("Broadcasting message:", messageData);
+    //         io.emit("chat:message", messageData);
+    //       } else {
+    //         console.error("Error saving message:", err);
+    //       }
+    //     }
+    //   );
+    // });
+
     socket.on("chat:message", (data: Partial<Message>) => {
       const { username, recipient, text } = data;
-      
+
       if (!username || !recipient || !text) {
         console.log("Missing required fields in message");
         return;
       }
 
-      console.log("New message:", { username, recipient, text });
-
-      db.run(
-        "INSERT INTO messages (sender, recipient, text) VALUES (?, ?, ?)",
-        [username, recipient, text],
-        function(err) {
-          if (!err) {
-            const messageData = {
-              sender: username,
-              recipient,
-              text,
-              timestamp: new Date().toISOString(),
-            };
-            
-            console.log("Broadcasting message:", messageData);
-            io.emit("chat:message", messageData);
-          } else {
-            console.error("Error saving message:", err);
+      // Check if recipient has blocked the sender
+      db.get(
+        "SELECT 1 FROM blocked_users WHERE blocker = ? AND blocked = ?",
+        [recipient, username],
+        (err, row) => {
+          if (err) {
+            console.error("Error checking block status:", err);
+            return;
           }
+
+          if (row) {
+            console.log(`❌ Message from ${username} to ${recipient} is blocked.`);
+            return;
+          }
+
+          // Insert the message
+          db.run(
+            "INSERT INTO messages (sender, recipient, text) VALUES (?, ?, ?)",
+            [username, recipient, text],
+            function (err) {
+              if (err) {
+                console.error("Error saving message:", err);
+                return;
+              }
+
+              const messageData = {
+                sender: username,
+                recipient,
+                text,
+                timestamp: new Date().toISOString(),
+              };
+
+              console.log("✅ Broadcasting message:", messageData);
+              io.emit("chat:message", messageData);
+            }
+          );
         }
       );
     });
+
+// Block user
+socket.on("block:user", ({ blocker, blocked }) => {
+  console.log("blocker")
+  console.log(blocker)
+  console.log("blocked")
+  console.log(blocked)
+  db.run(
+    "INSERT OR IGNORE INTO blocked_users (blocker, blocked) VALUES (?, ?)",
+    [blocker, blocked],
+    (err) => {
+      if (err) console.error("Failed to block user:", err);
+      else console.log(`🚫 ${blocker} blocked ${blocked}`);
+    }
+  );
+});
+
+// Unblock user
+socket.on("unblock:user", ({ blocker, blocked }) => {
+  db.run(
+    "DELETE FROM blocked_users WHERE blocker = ? AND blocked = ?",
+    [blocker, blocked],
+    (err) => {
+      if (err) console.error("Failed to unblock user:", err);
+      else console.log(`✅ ${blocker} unblocked ${blocked}`);
+    }
+  );
+});
+
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);

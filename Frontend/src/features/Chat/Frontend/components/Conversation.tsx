@@ -16,6 +16,7 @@ import Subtract from "../Assets/Subtract.svg";
 import { User } from "../types/User";
 import { Message } from "../types/Message";
 import { Divide } from "lucide-react";
+import socket from "../services/socket";
 
 // Props definition
 interface ConversationProps {
@@ -90,34 +91,62 @@ const Conversation: FC<ConversationProps> = ({
     }, 4000)
   };
 
-  const handleBlockUser = () => {
+  // const handleBlockUser = () => {
 
-    if (!user)
-      return;
+  //   if (!user)
+  //     return;
 
-    setBlockClicked((prev) => ({ ...prev, [user.username]: true }));
-    setToast({ type: "block", user: user.username });
+  //   setBlockClicked((prev) => ({ ...prev, [user.username]: true }));
+  //   setToast({ type: "block", user: user.username });
 
-    setTimeout(() => {
-      setToast(null);
-    }, 4000);
+  //   setTimeout(() => {
+  //     setToast(null);
+  //   }, 4000);
     
     
-  };
+  // };
 
-  const handleUnblocked = () => {
+  // const handleUnblocked = () => {
 
-    if (!user)
-      return;
+  //   if (!user)
+  //     return;
 
-    setBlockClicked((prev) => ({ ...prev, [user.username]: false }));
-    setToast({ type: "debloked", user: user.username });
+  //   setBlockClicked((prev) => ({ ...prev, [user.username]: false }));
+  //   setToast({ type: "debloked", user: user.username });
 
-    setTimeout(() => {
-      setToast(null);
-    }, 4000);
-  };
+  //   setTimeout(() => {
+  //     setToast(null);
+  //   }, 4000);
+  // };
   
+  const handleBlockUser = () => {
+  if (!user) return;
+
+  socket.emit("block:user", {
+    blocker: loggedInUsername,
+    blocked: user.username,
+  });
+
+  setBlockClicked((prev) => ({ ...prev, [user.username]: true }));
+  setToast({ type: "block", user: user.username });
+
+  setTimeout(() => setToast(null), 4000);
+};
+
+const handleUnblocked = () => {
+  if (!user) return;
+
+  socket.emit("unblock:user", {
+    blocker: loggedInUsername,
+    blocked: user.username,
+  });
+
+  setBlockClicked((prev) => ({ ...prev, [user.username]: false }));
+  setToast({ type: "debloked", user: user.username });
+
+  setTimeout(() => setToast(null), 4000);
+};
+
   const handleImage = () => {
     console.log("image clicked !!!!!!")
   }

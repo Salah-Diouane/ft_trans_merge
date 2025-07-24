@@ -100,18 +100,20 @@ const ChatApp: FC = () => {
       processHistory(history);
     });
 
-    socket.on('chat:message', (msg: { sender: string; recipient: string; text: string; timestamp: string }) => {
-      console.log("Received new message:", msg);
+    socket.on('chat:message', (msg: { sender: string; recipient: string; text: string; timestamp: string, blocked: boolean}) => {
+      console.log("------------------------> Received new message:", msg);
       
       const current = currentUserRef.current;
       if (!current) {
         console.warn("Current user not set, cannot process message");
         return;
       }
-
+      // if ()
       const isSender = msg.sender === current;
       const otherUsername = isSender ? msg.recipient : msg.sender;
       const otherUser = usersRef.current.find(user => user.username === otherUsername);
+
+
 
       if (!otherUser) {
         console.warn("User not found in current list", msg);
@@ -123,6 +125,8 @@ const ChatApp: FC = () => {
         ...prev,
         [key]: [...(prev[key] || []), { sender: msg.sender, text: msg.text, timestamp: msg.timestamp }],
       }));
+
+
     });
 
     socket.on("profile-data", (socket_data: {user: string}) => {
