@@ -1,6 +1,7 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef , useEffect } from "react";
 import confetti from "canvas-confetti";
+import socket from "../Chat/Frontend/services/socket";
 
 
 function triggerConfetti() {
@@ -206,11 +207,29 @@ function Board({
 }
 
 type ChooseProps = {
-  onChoose: (playerName: string, choice: "X" | "O") => void;
+  onChoose: (playerName: string, choice: "X" | "O", currentUser: string) => void;
 };
 
 function Choose({ onChoose }: ChooseProps) {
   const [name, setName] = useState("");
+  const [currentUser, setCurrentUser] = useState<string>("default user");
+
+
+
+
+  useEffect( () => {
+      socket.emit('request:init');
+      socket.emit('get-my-profile');
+
+      socket.on("profile-data", (socket_data: {user: string}) => {
+
+        setCurrentUser(socket_data.user);
+      })
+
+      return () => {
+        socket.off("profile-data");
+      }
+  }, []);
 
   return (
     <div className="bg-[#393E46] rounded-xl shadow-lg p-8 max-w-md w-full text-white">
@@ -228,21 +247,23 @@ function Choose({ onChoose }: ChooseProps) {
         <p className="text-center mb-2">Choose your symbol:</p>
         <div className="flex gap-4 justify-center">
           <button
-            onClick={() => onChoose(name || "Player", "X")}
+            onClick={() => onChoose(name || "Player", "X", currentUser)}
             className="bg-[#0077FF] hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-md"
           >
             X
           </button>
           <button
-            onClick={() => onChoose(name || "Player", "O")}
+            onClick={() => onChoose(name || "Player", "O", currentUser)}
             className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2 rounded-md"
           >
             O
           </button>
+
+
         </div>
       </div>
       <p className="text-xs text-center text-gray-300">
-        You'll play against Computer
+        You'll play against {currentUser}
       </p>
     </div>
   );
@@ -282,12 +303,12 @@ const LocalGame: React.FC = () => {
     <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4">
       {!gameStarted ? (
         <Choose
-          onChoose={(playerName, choice) => {
+          onChoose={(playerName, choice, currentUser) => {
             if (choice === "X") {
               setPlayerXName(playerName);
-              setPlayerOName("Computer");
+              setPlayerOName(currentUser);
             } else {
-              setPlayerXName("Computer");
+              setPlayerXName(currentUser);
               setPlayerOName(playerName);
             }
             setGameStarted(true);
@@ -338,3 +359,7 @@ const LocalGame: React.FC = () => {
 };
 
 export default LocalGame;
+function useREf<T>(arg0: number) {
+  throw new Error("Function not implemented.");
+}
+
