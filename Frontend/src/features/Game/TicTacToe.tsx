@@ -20,8 +20,9 @@ const TicTacToe: React.FC = () => {
 
       <div className='flex flex-col items-center justify-between bg-[#393E46] size-[500px] rounded-2xl p-20 transition duration-150 ease-in-out hover:scale-105 hover:shadow-lg' style={{ backgroundImage: `url(${Subtract})` }}>
         <img src={t_logo} alt="Tournaments" className="size-[50%]" />
-        <button className=" text-white bg-[#0077FF] rounded-2xl p-2 text-2xl font-russo m-10 " >Remote</button>
-      </div>
+        <Link to="remote-game" className="text-white bg-[#0077FF] rounded-2xl p-2 text-2xl font-russo m-10 text-center">
+        Remote
+        </Link>      </div>
       {/* <Outlet /> */}
     </div>
   );

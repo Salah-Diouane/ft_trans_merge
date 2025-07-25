@@ -1,4 +1,4 @@
-// routesConfig.ts
+
 import Layout from '../features/layout/Layout';
 import ChatApp from '../features/Chat/Frontend/Chat';
 import Home from '../features/Home/Home';
@@ -15,6 +15,7 @@ import TwoFA from '../features/userauth/twofa';
 import Signin from '../features/userauth/signin';
 import Signup from '../features/userauth/signup';
 import ProtectedRoute from '../features/userauth/protectauth'
+import RemoteGame from "../features/Game/RemoteGame"
 
 export const routes  = [
   {
@@ -47,6 +48,7 @@ export const routes  = [
 					{ path: 'ping-pong', element: <PingPong /> },
 					{ path: 'tic-tac-toe', element: <TicTacToe /> },
 					{path: "tic-tac-toe/local-game", element: <LocalGame />},
+					{path: "tic-tac-toe/remote-game", element: <RemoteGame />},
 				],
 			},
 			{ path: 'settings', element: <Settings /> },

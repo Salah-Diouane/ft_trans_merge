@@ -22,8 +22,10 @@ interface AuthenticatedSocket extends Socket {
   user?: any;
 }
 
+const rooms = {};
+
 export default function setupSocketIO(
-  fastify: FastifyInstance, 
+  fastify: FastifyInstance,
   io: IOServer
 ) {
   const db = fastify.db;
@@ -32,7 +34,7 @@ export default function setupSocketIO(
   io.use(async (socket: AuthenticatedSocket, next) => {
     try {
       const cookies = socket.request.headers.cookie;
-      
+
       if (!cookies) {
         throw new Error("No cookie transmitted.");
       }
@@ -45,10 +47,10 @@ export default function setupSocketIO(
       }
 
       const decodedToken = await fastify.jwt.verify(token);
-      
+
       socket.user = decodedToken;
       console.log("User authenticated:", decodedToken);
-      
+
       next();
     } catch (error) {
       console.log("Authentication failed:", error);
@@ -71,7 +73,7 @@ export default function setupSocketIO(
     socket.on("get-my-profile", () => {
       const userData = (socket as AuthenticatedSocket).user;
       console.log("🔵 Sending profile-data for:", userData?.username);
-      
+
       socket.emit("profile-data", {
         user: userData?.username,
       });
@@ -80,7 +82,7 @@ export default function setupSocketIO(
     socket.on("request:init", () => {
       // Send profile first, then users, then history
       const userData = (socket as AuthenticatedSocket).user;
-      
+
       // 1. Send profile data first
       socket.emit("profile-data", {
         user: userData?.username,
@@ -91,51 +93,20 @@ export default function setupSocketIO(
         if (!err) {
 
           socket.emit("user:list", user_authentication);
-          
+
           // 3. Finally send chat history after a small delay to ensure profile and users are processed
           // setTimeout(() => {
-            db.all("SELECT * FROM messages ORDER BY timestamp ASC", (err, history: Message[]) => {
-              if (!err) {
-                console.log("Sending chat history:", history.length, "messages");
-                socket.emit("chat:history", history);
-              }
-            });
+          db.all("SELECT * FROM messages ORDER BY timestamp ASC", (err, history: Message[]) => {
+            if (!err) {
+              console.log("Sending chat history:", history.length, "messages");
+              socket.emit("chat:history", history);
+            }
+          });
           // }, 100); // Small delay to ensure order
         }
       });
     });
 
-    // socket.on("chat:message", (data: Partial<Message>) => {
-    //   const { username, recipient, text, blocked } = data;
-      
-    //   if (!username || !recipient || !text || !blocked) {
-    //     console.log("Missing required fields in message");
-    //     return;
-    //   }
-
-    //   console.log("New message:", { username, recipient, text });
-
-    //   db.run(
-    //     "INSERT INTO messages (sender, recipient, text, blocked) VALUES (?, ?, ?, ?)",
-    //     [username, recipient, text, blocked],
-    //     function(err) {
-    //       if (!err) {
-    //         const messageData = {
-    //           sender: username,
-    //           recipient,
-    //           text,
-    //           timestamp: new Date().toISOString(),
-    //           blocked,
-    //         };
-            
-    //         console.log("Broadcasting message:", messageData);
-    //         io.emit("chat:message", messageData);
-    //       } else {
-    //         console.error("Error saving message:", err);
-    //       }
-    //     }
-    //   );
-    // });
 
     socket.on("chat:message", (data: Partial<Message>) => {
       const { username, recipient, text } = data;
@@ -185,37 +156,43 @@ export default function setupSocketIO(
       );
     });
 
-// Block user
-socket.on("block:user", ({ blocker, blocked }) => {
-  console.log("blocker")
-  console.log(blocker)
-  console.log("blocked")
-  console.log(blocked)
-  db.run(
-    "INSERT OR IGNORE INTO blocked_users (blocker, blocked) VALUES (?, ?)",
-    [blocker, blocked],
-    (err) => {
-      if (err) console.error("Failed to block user:", err);
-      else console.log(`🚫 ${blocker} blocked ${blocked}`);
-    }
-  );
-});
+    // Block user
+    socket.on("block:user", ({ blocker, blocked }) => {
+      console.log("blocker")
+      console.log(blocker)
+      console.log("blocked")
+      console.log(blocked)
+      db.run(
+        "INSERT OR IGNORE INTO blocked_users (blocker, blocked) VALUES (?, ?)",
+        [blocker, blocked],
+        (err) => {
+          if (err) console.error("Failed to block user:", err);
+          else console.log(`🚫 ${blocker} blocked ${blocked}`);
+        }
+      );
+    });
 
-// Unblock user
-socket.on("unblock:user", ({ blocker, blocked }) => {
-  db.run(
-    "DELETE FROM blocked_users WHERE blocker = ? AND blocked = ?",
-    [blocker, blocked],
-    (err) => {
-      if (err) console.error("Failed to unblock user:", err);
-      else console.log(`✅ ${blocker} unblocked ${blocked}`);
-    }
-  );
-});
+    // Unblock user
+    socket.on("unblock:user", ({ blocker, blocked }) => {
+      db.run(
+        "DELETE FROM blocked_users WHERE blocker = ? AND blocked = ?",
+        [blocker, blocked],
+        (err) => {
+          if (err) console.error("Failed to unblock user:", err);
+          else console.log(`✅ ${blocker} unblocked ${blocked}`);
+        }
+      );
+    });
 
 
+
+    // setupTicTacToeSocket()
     socket.on("disconnect", () => {
+
       console.log("User disconnected:", socket.id);
     });
+
+
   });
 }
+
