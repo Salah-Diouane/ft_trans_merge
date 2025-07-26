@@ -8,14 +8,14 @@ import Logout from '../features/Logout/Logout';
 import Profile from '../features/Profile/Profile';
 import PingPong from '../features/Game/PingPong';
 import TicTacToe from '../features/Game/TicTacToe';
-import LocalGame from '../features/Game/LocalGame';
+import LocalGame from '../features/Game/Local/LocalGame';
 import GameHome from '../features/Game/GameHome';
 import Userauth from '../features/userauth/userauth';
 import TwoFA from '../features/userauth/twofa';
 import Signin from '../features/userauth/signin';
 import Signup from '../features/userauth/signup';
 import ProtectedRoute from '../features/userauth/protectauth'
-import RemoteGame from "../features/Game/RemoteGame"
+import RemoteGame from "../features/Game/Remote/RemoteGame"
 
 export const routes  = [
   {

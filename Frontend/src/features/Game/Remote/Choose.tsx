@@ -1,13 +1,13 @@
 
 
 import { useEffect, useRef, useState } from "react";
-import socket from "../Chat/Frontend/services/socket";
+import socket from "../..//Chat/Frontend/services/socket";
 
 type ChooseProps = {
     onChoose: (playerName: string) => void;
 };
 
-function Choose({ onChoose }: ChooseProps) {
+export default function Choose({ onChoose }: ChooseProps) {
     const [currentUser, setCurrentUser] = useState<string>("Loading...");
     const [isLoading, setIsLoading] = useState(true);
     // const currentUserRef = useRef<string>("");
@@ -67,5 +67,3 @@ function Choose({ onChoose }: ChooseProps) {
         </div>
     );
 }
-
-export default Choose;
