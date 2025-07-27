@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Square from "./Square"
 import  triggerFireworks  from "./confetti"
+import socket from "../../Chat/Frontend/services/socket";
 
 
 function calculateWinner(squares: (string | null)[]) {
@@ -27,6 +28,8 @@ type BoardProps = {
   xIsNext: boolean;
   squares: (string | null)[];
   onPlay: (index: number) => void;
+  raplayGame: () => void;
+  playagain: () => void;
   playerXName: string;
   playerOName: string;
   gameStarted: boolean;
@@ -38,6 +41,8 @@ export default function Board({
   xIsNext,
   squares,
   onPlay,
+  raplayGame,
+  playagain,
   playerXName,
   playerOName,
   gameStarted,
@@ -59,6 +64,25 @@ export default function Board({
 
   const [confettiTriggered, setConfettiTriggered] = useState(false);
 
+  function handleLeftGame(){
+    triggerFireworks();
+    <div className="flex gap-4">
+      <button
+        onClick={raplayGame}
+        className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
+      >
+        Play Again
+      </button>
+      <button
+        onClick={playagain}
+        className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
+      >
+        New Game
+      </button>
+    </div>
+    // raplayGame();
+  }
+  
   useEffect(() => {
     if (winner && !confettiTriggered) {
       triggerFireworks();
@@ -66,6 +90,7 @@ export default function Board({
     } else if (!winner) {
       setConfettiTriggered(false);
     }
+
   }, [winner, confettiTriggered]);
 
   let boardAnimation = "";
