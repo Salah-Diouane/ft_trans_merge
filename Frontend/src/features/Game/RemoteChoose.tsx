@@ -19,7 +19,7 @@ function Choose({ onChoose }: ChooseProps) {
         socket.on("profile-data", (socket_data: { user: string }) => {
             // currentUserRef.current = socket_data.user;
             setCurrentUser(socket_data.user);
-            setIsLoading(false);
+            // setIsLoading(false);
         });
 
         return () => {
@@ -61,7 +61,8 @@ function Choose({ onChoose }: ChooseProps) {
                             : "bg-[#0077FF] hover:bg-blue-700"
                     } transition duration-200`}
                 >
-                    {isLoading ? "Loading..." : "Join Game"}
+                    {/* {isLoading ? "Loading..." : "Join Game"} */}
+                    "Join Game"
                 </button>
             </div>
         </div>

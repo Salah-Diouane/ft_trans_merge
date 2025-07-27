@@ -92,12 +92,28 @@ const RemoteGame: React.FC = () => {
       console.log("Player disconnected:", message);
     });
 
+    // socket.on("game:win-by-disconnect", ({ winner }) => {
+    //   setDisconnectWinner(winner);
+    //   if (winner === currentUserRef.current) {
+    //     triggerFireworks(); 
+    //   }
+    // });
+
     socket.on("game:win-by-disconnect", ({ winner }) => {
+
       setDisconnectWinner(winner);
       if (winner === currentUserRef.current) {
-        triggerFireworks(); 
+        triggerFireworks();
       }
+
+
+      // setTimeout(() => {
+        socket.emit("leave:game");
+        setGameStarted(false);
+        setMySymbol(null);
+      // }, 5000); // ⏱ auto-leave after 5s
     });
+
 
     return () => {
       socket.off("game:start");

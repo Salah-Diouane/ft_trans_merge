@@ -232,7 +232,7 @@ export default function setupSocketIO(
     socket.on("join:game", () => {
 
       if (!userData?.username)
-          return;
+        return;
 
       socket.join(gameRoom);
       playersInRoom.set(socket.id, userData.username);
@@ -263,9 +263,9 @@ export default function setupSocketIO(
       }
     });
 
-    socket.on("player:join", ({username})=> {
+    socket.on("player:join", ({ username }) => {
       activePlayers.set(socket.id, username);
-    }) 
+    })
 
 
 
@@ -330,7 +330,7 @@ export default function setupSocketIO(
       io.to(gameRoom).emit("game:restart");
     });
 
-        socket.on("player:left", ({username}) => {
+    socket.on("player:left", ({ username }) => {
       playersInRoom.delete(username)
       console.log(`${username} is left the game !!!!!!`);
     });
@@ -342,35 +342,36 @@ export default function setupSocketIO(
         const username = playersInRoom.get(socket.id);
         playersInRoom.delete(socket.id);
         socket.leave(gameRoom);
-        
+
         console.log(`${username} left the game`);
-        
-        // if (playersInRoom.size === 1){
-        //     if (gameState.playerX === username){
-              
-        //     }
-        // }
 
-            if (playersInRoom.size === 1) {
-      const [remainingSocketId] = playersInRoom.keys();
-      const remainingUsername = playersInRoom.get(remainingSocketId);
 
-      let winner = null;
+        if (playersInRoom.size === 1) {
+          const [remainingSocketId] = playersInRoom.keys();
+          const remainingUsername = playersInRoom.get(remainingSocketId);
 
-      if (gameState.playerX === remainingUsername || gameState.playerO === remainingUsername) {
-        winner = remainingUsername;
-      }
+          let winner = null;
 
-      if (winner) {
-        io.to(remainingSocketId).emit("game:win-by-disconnect", {
-          winner,
-          message: `You win! ${username} left the game.`,
-        });
-      }
+          if (gameState.playerX === remainingUsername || gameState.playerO === remainingUsername) {
+            winner = remainingUsername;
+          }
 
-      // Optionally reset game state
-      resetGameState();
-    }
+          if (winner) {
+            io.to(remainingSocketId).emit("game:win-by-disconnect", {
+              winner,
+              message: `You win! ${username} left the game.`,
+            });
+          }
+
+          const remainingSocket = io.sockets.sockets.get(remainingSocketId);
+          if (remainingSocket) {
+            remainingSocket.leave(gameRoom);
+            playersInRoom.delete(remainingSocketId);
+            console.log(`${remainingUsername} (the winner) was forcefully removed from the room after win-by-disconnect.`);
+          }
+
+          resetGameState();
+        }
 
         // If there was another player, notify them
         if (playersInRoom.size > 0) {
@@ -378,7 +379,7 @@ export default function setupSocketIO(
             message: `${username} has left the game.`
           });
         }
-        
+
         // Reset game state if no players left
         if (playersInRoom.size === 0) {
           resetGameState();
@@ -393,9 +394,9 @@ export default function setupSocketIO(
       if (playersInRoom.has(socket.id)) {
         const username = playersInRoom.get(socket.id);
         playersInRoom.delete(socket.id);
-        
+
         console.log("Removed player from room:", socket.id);
-        
+
         // Notify the remaining player
         if (playersInRoom.size != 2) {
           socket.to(gameRoom).emit("player:disconnected", {
@@ -403,7 +404,7 @@ export default function setupSocketIO(
           });
           // resetGameState();
         }
-        
+
         // Reset game state if no players left
         if (playersInRoom.size === 0) {
           resetGameState();
