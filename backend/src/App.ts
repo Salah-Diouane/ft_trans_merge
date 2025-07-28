@@ -11,8 +11,8 @@ import auth02 from "./plugins/oauth2.plugin"
 import cors from '@fastify/cors';
 import { Server as IOServer, Socket } from "socket.io";
 import http, { request } from "http";
-import setupSocketIO from './plugins/chat-socket.plugin';
-// import setupSocketIO from './plugins/socket/index';
+import setupSocketIO from './plugins/socket.plugin';
+
 
 
 const app = fastify();
