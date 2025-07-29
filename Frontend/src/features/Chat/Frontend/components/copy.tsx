@@ -68,30 +68,15 @@ const Conversation: FC<ConversationProps> = ({
 
   // Close menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setShowMenu(null);
-      }
+    const handleClickOutside = () => {
+      setShowMenu(null);
     };
-
+    
     if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [showMenu]);
-
-  // Close emoji picker when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (showEmojiPicker && !target.closest('.emoji-picker-container')) {
-        setShowEmojiPicker(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showEmojiPicker]);
 
   if (!user) {
     return (
@@ -169,7 +154,6 @@ const Conversation: FC<ConversationProps> = ({
   const handleThreeDotsClick = (messageId: string | number, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent event bubbling
     setShowMenu(showMenu === messageId ? null : messageId);
-    console.log("->show : ", showMenu);
   };
 
   const handleDeleteClick = (messageId: string | number) => {
@@ -179,7 +163,9 @@ const Conversation: FC<ConversationProps> = ({
   };
 
   const confirmDelete = () => {
+
     if (messageToDelete) {
+
       socket.emit("chat:delete", {
         id: messageToDelete,
         username: loggedInUsername,
@@ -197,9 +183,7 @@ const Conversation: FC<ConversationProps> = ({
 
   return (
     <div className="flex flex-col w-full h-full max-lg:h-[92%] rounded-2xl p-[2px] max-lg:bg-none">
-      <div className="flex flex-col flex-grow bg-[#393E46] rounded-xl max-lg:rounded-none p-2 overflow-hidden bg-no-repeat bg-cover" style={{ backgroundImage: `url(${Subtract})` }}>
-        
-        {/* Header */}
+      <div className="flex flex-col flex-grow bg-[#393E46] rounded-xl max-lg:rounded-none p-2 overflow-hidden bg-no-repeat bg-cover" style={{ backgroundImage: `url(${Subtract})` }} >
         <div className="flex items-center justify-between p-3 m-1 bg-[#222831] rounded-xl max-lg:rounded-b-lg max-lg:h-20 max-lg:m-[-4px]">
           <div className="flex items-center gap-x-3">
             {isMobile && (
@@ -208,7 +192,7 @@ const Conversation: FC<ConversationProps> = ({
               </button>
             )}
             <img src={meProfile} className="size-14 rounded-full max-lg:w-12 max-lg:h-12" alt="User profile" />
-            <div className="flex flex-col">
+            <div className="flex flex-col ">
               <strong className="text-amber-50 text-lg max-lg:text-sm">
                 {user?.username || "User"}
               </strong>
@@ -218,7 +202,6 @@ const Conversation: FC<ConversationProps> = ({
               </strong>
             </div>
           </div>
-          
           <div className="flex gap-x-8">
             {inviteClicked[user.username] ? (
               <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center text-white max-lg:w-6 max-lg:h-6">
@@ -243,7 +226,6 @@ const Conversation: FC<ConversationProps> = ({
             )}
           </div>
 
-          {/* Toast notifications */}
           {toast?.type === "invite" && toast.user === user.username && (
             <div className="fixed top-1/8 right-44 bg-green-600 text-white px-4 py-2 rounded shadow-md z-50">
               ✅ Invite sent to <strong>{user.username || "player#1234"}</strong>
@@ -277,7 +259,6 @@ const Conversation: FC<ConversationProps> = ({
             const time = msgDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
             const isMe = msg.sender === loggedInUsername;
             const showDate = index === 0 || currentDateStr !== previousDateStr;
-            
             return (
               <div key={msg.id || index}>
                 {showDate && (
@@ -289,54 +270,39 @@ const Conversation: FC<ConversationProps> = ({
                 )}
 
                 <div className={`flex ${!isMe ? "justify-start" : "justify-end"}`}>
-                  <div className="relative group max-w-xs sm:max-w-sm md:max-w-md break-words">
-                    {/* Message bubble */}
-                    <div
-                      className={`rounded-xl px-4 py-2 whitespace-pre-wrap ${
-                        isMe
-                          ? "bg-[#EEEEEE] text-[#222831] self-end"
-                          : "bg-[#222831] text-white self-start"
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
+                  <div className="max-w-xs sm:max-w-sm md:max-w-md break-words">
+                    <div className="relative " >
+                      <div
+                        className={`flex items-center justify-between rounded-xl px-4 py-2 whitespace-pre-wrap  bg-[#EEEEEE] text-[#222831] self-end rounded-br-none`}
+                      >
+                        <span>{msg.text}</span>
 
-                    <button
-                      onClick={(e) => handleThreeDotsClick(msg.id, e)}
-                      className={`absolute top-2 ${
-                        isMe ? '-left-8' : '-right-8'
-                      } opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-200`}
-                    >
-                      <HiEllipsisVertical className="w-4 h-4" />
-                    </button>
+                          <button
+                            onClick={(e) => handleThreeDotsClick(msg.id, e)}
+                            className="ml-2 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            <HiEllipsisVertical className="w-4 h-4"/>
+                          </button>
 
-                    {showMenu === msg.id && (
-                      <div className={`absolute top-0 z-50 ${
-                        isMe 
-                          ? 'right-20 transform translate-x-2' 
-                          : 'left-20 transform -translate-x-2'
-                      }`}>
-                        <div className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[120px]">
-                            <button 
-                              onClick={() => handleDeleteClick(msg.id)} 
-                              // className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors "
-                              className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors duration-150"
-                            >
+                      </div>
+
+                      {/* Dropdown menu */}
+                      {showMenu === msg.id && (
+                        <div className="absolute top-0 left-0 transform -translate-x-full -translate-y-2 z-50 ">
+                          <div className="bg-white rounded-lg shadow-lg border border-gray-200  min-w-[120px]">
+                            <button onClick={() => handleDeleteClick(msg.id)} className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors duration-150" >
                               <MdDelete />
                               Delete
                             </button>
-                          <button 
-                            onClick={() => setShowMenu(null)} 
-                            className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-150"
-                          >
-                            <MdCancel />
-                            Cancel
-                          </button>
+                            <button onClick={() => setShowMenu(null)}  className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-150" >
+                              <MdCancel/>
+                              Cancel
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
 
-                    {/* Timestamp */}
                     <span className="text-xs text-gray-400 mt-1 block text-right">{time}</span>
                   </div>
                 </div>
@@ -346,17 +312,18 @@ const Conversation: FC<ConversationProps> = ({
           <div ref={messagesEndRef} />
         </div>
 
-                {showDeleteModal  && (
+        {/* delete confirmation  */}
+        {showDeleteModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl max-w-sm w-full mx-4 overflow-hidden">
               <div className="p-6 text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                  <MdDelete className="size-10 text-red-700" />
+                  <MdDelete className="size-10 text-red-700"/>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Message?</h3>
 
               </div>
-
+              
               <div className="border-t border-gray-200">
                 <div className="flex">
                   <button
@@ -377,7 +344,7 @@ const Conversation: FC<ConversationProps> = ({
           </div>
         )}
 
-        {/* Input section */}
+        {/* Input */}
         <div className="relative mt-4">
           <input
             type="text"
@@ -391,9 +358,8 @@ const Conversation: FC<ConversationProps> = ({
             disabled={blockClicked[user.username]}
           />
 
-          {/* Emoji picker */}
           {showEmojiPicker && (
-            <div className="absolute bottom-16 left-0 z-50 emoji-picker-container">
+            <div className="absolute bottom-16 left-0 z-50">
               <Picker data={data} onEmojiSelect={addToInput} />
             </div>
           )}

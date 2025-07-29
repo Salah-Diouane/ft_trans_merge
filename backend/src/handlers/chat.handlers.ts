@@ -24,6 +24,7 @@ interface User {
 }
 
 interface Message {
+    id: string | number
     username: string;
     recipient: string;
     text: string;
@@ -67,6 +68,7 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
                 }
   
                 const messageData = {
+                  id: this.lastID,
                   sender: username,
                   recipient,
                   text,
@@ -74,13 +76,35 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
                 };
   
                 console.log(" Broadcasting message:", messageData);
+                console.log(" messageData.id :", messageData.id);
                 io.emit("chat:message", messageData);
               }
             );
           }
         );
       });
-  
+      
+      socket.on("chat:delete", ({id, username}) => {
+        if (!id || !username)
+          return ;
+        db.get("SELECT sender FROM messages WHERE id = ?", [id], (err, row) => {
+          if (err){
+            return ;
+          }
+
+          if (!row)
+            return ;
+
+          db.run("DELETE FROM messages WHERE id = ?", [id], (err) => {
+            if (err){
+              console.error("failed to delete msg!!!");
+              return
+            }
+
+            io.emit("chat:deleted", { id });
+          }); 
+        });
+      });
 
       socket.on("block:user", ({ blocker, blocked }) => {
         db.run(
