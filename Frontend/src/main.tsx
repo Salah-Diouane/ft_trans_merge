@@ -3,18 +3,23 @@ import { createRoot } from 'react-dom/client';
 import './styles/index.css';
 import { BrowserRouter } from 'react-router-dom';
 import { useRoutes } from 'react-router-dom';
-import {routes} from './routes/routes'
-import Test from './test'
+import { routes } from './routes/routes';
+import { Toaster } from 'react-hot-toast';
 
-export default function App() {
+function App() {
   const element = useRoutes(routes);
-  return element;
+  return (
+    <>
+      <Toaster position="top-center" reverseOrder={false} />
+      {element}
+    </>
+  );
 }
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>
 );

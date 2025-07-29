@@ -46,6 +46,17 @@ export  async function addNewUser(fastify: FastifyInstance, newuser: User): Prom
 	});
 }
 
+export async function getuser_email(fastify: FastifyInstance, email: string) : Promise<User | null>  {
+	return (new Promise((resolve, rejects) => {
+		fastify.db.get('SELECT * FROM user_authentication WHERE email = ?', email, 
+			(err:Error | null , rows: User)=>{
+				if (err)
+					rejects(err);
+				resolve(rows);
+		})
+	}))
+}
+
 export async function  setTwofAcode(fastify: FastifyInstance, username: string, code: number) : Promise<void> {
 	return new Promise((resolve, rejects) => {
 		fastify.db.run(

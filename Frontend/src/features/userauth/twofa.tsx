@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate, Navigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate, Navigate, Link } from "react-router-dom";
 
 export default function TwoFA() {
+
 	const [numbers, setNumbers] = useState(['', '', '', '', '', '']);
+	const [currentFocus, setCurrentFocus] = useState(0);
 	const location = useLocation();
 	const navigate = useNavigate();
-
+	const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+	const [erros, seterros] = useState('');
 	const state = location.state as { username: string; password: string } | undefined;
+
 	if (!state) {
 		return <Navigate to="/login/Signin" replace />;
 	}
 
 	const Donebutton = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
-
+		seterros('');
 		const body: {
 			twofa: number;
 			username: string;
@@ -23,7 +27,6 @@ export default function TwoFA() {
 			username: state.username,
 			password: state.password
 		};
-
 		try {
 			const response = await fetch("http://localhost:3000/login/verify2fa", {
 				method: "POST",
@@ -33,42 +36,63 @@ export default function TwoFA() {
 			}).then(res => res.json()) as { message: string; login: boolean };
 
 			if (!response.login) {
-				throw new Error(response.message);
+				seterros(response.message);
 			}
-
-			navigate('/');
+			else
+				navigate('/');
 		} catch (err: any) {
 			alert(err.message || '2FA failed.');
 		}
 	};
+	const inputClass = () => {
+		const defaultSytle = "w-10 h-12 text-center text-xl border rounded focus:outline-none focus:ring-2 focus:ring-blue-400";
+		const errorBorder = "border-red-500";
+		const normalBorder = "border-gray-300";
+		return `${defaultSytle} ${erros !== '' ? errorBorder :normalBorder}`
+	}
+	const writeError = () => {
+		if (erros === '')
+			return null;
+		return <><p className="text-red-500 text-xs">{erros}</p><br /></>;
+	};
+	const clearError = () => seterros('');
 
 	return (
-		<div className="flex flex-col items-center justify-center min-h-screen ">
-			<h1 className="mb-4 text-lg font-semibold">Two-Factor Auth for {state.username}</h1>
-			
-			<div className="flex space-x-2 mb-4">
-				{numbers.map((value, index) => (
-					<input
-						key={index}
-						type="text"
-						maxLength={1}
-						value={value}
-						onChange={(e) => {
-							const newNumbers = [...numbers];
-							newNumbers[index] = e.target.value;
-							setNumbers(newNumbers);
-						}}
-						className="w-10 h-12 text-center text-xl border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-					/>
-				))}
+		<>
+			<br />
+			<h1 className="mb-4 text-xl font-russo  font-semibold">Two-Factor Auth</h1>
+			<h6 className="text-xs">We Send a code to your email ****@gmail.com </h6>
+			<br />
+			<div className="flex flex-col">
+				<div className="flex space-x-2 mb-4">
+					{numbers.map((value, index) => (
+						<input key={index} maxLength={1} value={value} ref={(el) => (inputRefs.current[index] = el)}
+							onChange={(e) => {
+								const val = e.target.value;
+								const newNumbers = [...numbers];
+								newNumbers[index] = val;
+								setNumbers(newNumbers);
+								if (val && index < numbers.length - 1) {
+									inputRefs.current[index + 1]?.focus();
+								}
+							}}
+							onKeyDown={(e) => {
+								if (e.key === "Backspace" && !numbers[index] && index > 0) {
+									const newNumbers = [...numbers];
+									newNumbers[index - 1] = '';
+									setNumbers(newNumbers);
+									inputRefs.current[index - 1]?.focus();
+								}
+							}}
+							onFocus={() => {clearError()}}
+							className={inputClass()}/>
+					))} 
+				</div>{writeError()}
+				<br />
+				<div className="flex justify-center space-x-2">
+					<button onClick={Donebutton} className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" > Verify </button>
+				</div>
 			</div>
-
-			<button
-				onClick={Donebutton}
-				className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-			>
-				Done
-			</button>
-		</div>
+		</>
 	);
 }

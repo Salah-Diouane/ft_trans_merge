@@ -27,11 +27,3 @@ export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
     });
 }
 
-
-// const setupSocketIO = (fastify: FastifyInstance) => {
-
-// 	fastify.register(SocketIO);
-// };
-
-// export default fp(setupSocketIO);
-

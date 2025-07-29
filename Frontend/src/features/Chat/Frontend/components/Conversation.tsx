@@ -305,7 +305,7 @@ const Conversation: FC<ConversationProps> = ({
                       onClick={(e) => handleThreeDotsClick(msg.id, e)}
                       className={`absolute top-2 ${
                         isMe ? '-left-8' : '-right-8'
-                      } opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-200`}
+                      } opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-gray-700 p-1 rounded-full bg-gray-200`}
                     >
                       <HiEllipsisVertical className="w-4 h-4" />
                     </button>

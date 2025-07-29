@@ -141,7 +141,7 @@ export default function Board({
 
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-5xl font-extrabold text-white mb-6">Tic Tac Toe</h1>
+      {/* <h1 className="text-5xl font-extrabold text-white mb-6">Tic Tac Toe</h1> */}
       <div className="mb-4">{status}</div>
       <div
         className={`bg-[#222831] p-6 rounded-2xl grid grid-cols-3 gap-4 w-72 sm:w-96 ${boardAnimation} ${

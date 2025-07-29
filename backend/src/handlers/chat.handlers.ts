@@ -44,8 +44,7 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
         }
   
         // Check if recipient has blocked the sender
-        db.get(
-          "SELECT 1 FROM blocked_users WHERE blocker = ? AND blocked = ?",
+        db.get("SELECT 1 FROM blocked_users WHERE blocker = ? AND blocked = ?",
           [recipient, username],
           (err, row) => {
             if (err) {

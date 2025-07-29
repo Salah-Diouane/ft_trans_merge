@@ -1,5 +1,3 @@
-
-
 /// <reference types="../types/fastify" />
 
 import fastify from "fastify";
@@ -9,52 +7,79 @@ import jwtplugin from "./plugins/jwt.plugin";
 import cookiePlugin from "./plugins/cookie.plugin";
 import auth02 from "./plugins/oauth2.plugin"
 import cors from '@fastify/cors';
+import { RefreshToken } from "./modules/userauth/userauth.routes";
+import { request } from "http";
+import Ajv from 'ajv';
+import ajvErrors from 'ajv-errors';
+
 import { Server as IOServer, Socket } from "socket.io";
-import http, { request } from "http";
+import http from "http";
 import setupSocketIO from './plugins/socket.plugin';
 
 
-
-const app = fastify();
+const app = fastify({
+    ajv: {
+        customOptions: {
+            allErrors: true,
+            $data: true
+        }, 
+        plugins : [ajvErrors]
+    }
+});
 
 app.register(cors, {
-  origin: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
+    origin: true, // React app origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true, // if you want cookies/auth headers
 });
 
 app.register(dbPlugin);
+
 app.register(cookiePlugin);
+
 app.register(jwtplugin);
+
+
 app.register(auth02);
+
+
 app.register(Modules);
 
-// Security hook for JWT access tokens
+app.ready();
+
 app.addHook("onRequest", async (request, reply) => {
-  try {
-    const publicPaths = ["/login", "/register", "/logout"];
-    const isPublic = publicPaths.some(path => (request.raw.url || "").startsWith(path));
-    if (!isPublic) {
-      const token = request.cookies.accessToken;
-    //   const decodedToken = app.jwt.decode(token)
-      if (!token) {
-        return reply.code(401).send({ message: "No access token in cookies", accesstoken: false, refreshtoken: true });
-      }
-      await app.jwt.verify(token);
+    try {
+        const publicPaths = ["/login", "/register"];
+        const isPublic = publicPaths.some(path => (request.raw.url || "").startsWith(path));
+
+        if (!isPublic) {
+            const token = request.cookies.accessToken;
+            if (!token) {
+                return reply.code(401).send({ message: "No access token in cookies" , accesstoken : false, refreshtoken : true});
+            }
+            await app.jwt.verify(token);
+        }
+    } catch (err) {
+        return reply.code(401).send({ message: "Unauthorized", error: err , accesstoken : false, refreshtoken : true});
     }
-  } catch (err) {
-    return reply.code(401).send({ message: "Unauthorized", error: err, accesstoken: false, refreshtoken: true });
-  }
 });
 
 app.get("/hello", (request, reply) => {
-  return reply.send({ refreshtoken: true, accesstoken: true });
+    return reply.send({ refreshtoken: true, accesstoken: true });
 });
 
-app.get('/logout', (request, reply) => {
-  reply.clearCookie('accessToken', { path: '/' });
-  reply.clearCookie('refreshtoken', { path: '/' });
-  return 'logout';
+app.get('/logout',  (request, reply) => {
+	reply.clearCookie('accessToken', {path:'/'});
+	reply.clearCookie('refreshtoken', {path: '/login/refreshtoken'});
+	return 'logout';
+})
+
+app.setErrorHandler((error, request, reply) => {
+    if (error.validation && error.validation.length > 0) {
+        const firstError = error.validation[0];
+        const field = firstError.instancePath.replace(/\//, '') || 'field';
+        return reply.status(400).send({type: field, message: firstError.message});
+    }
 });
 
 // Create a native HTTP server from Fastify instance
@@ -73,10 +98,6 @@ app.ready().then( () => {
     setupSocketIO(app, io);
 });
 
-// Start Fastify server normally — this will also serve Socket.IO on the same port
-const PORT = 3000;
-const HOST = "0.0.0.0";
-
-app.listen({ port: PORT, host: HOST }).then(() => {
-  console.log(`Server listening at http://${HOST}:${PORT}`);
+app.listen({port: 3000, host: '0.0.0.0'}, (addree) => {
+    console.log("127.0.0.1:3000");
 });

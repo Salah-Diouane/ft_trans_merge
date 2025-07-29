@@ -5,7 +5,7 @@ import meProfile from "../Assets/me.jpeg";
 
 const NavBar: React.FC = () => {
   return (
-    <nav className="flex items-center justify-between text-white w-full h-9 px-4 max-lg:hidden mt-8">
+    <nav className="flex items-center justify-between text-white w-full h-9 px-4 max-lg:hidden mt-5">
       <div className="w-1/3" />
       <div className="flex justify-center w-1/3 -ml-25 max-sm:w-full max-sm:ml-0 m-3 mt-6 mb-6">
         <div className="flex items-center bg-[#393E46] px-3 py-3 rounded-2xl w-[500px]">

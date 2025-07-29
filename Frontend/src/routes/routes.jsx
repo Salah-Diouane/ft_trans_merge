@@ -1,4 +1,4 @@
-
+// routesConfig.ts
 import Layout from '../features/layout/Layout';
 import ChatApp from '../features/Chat/Frontend/Chat';
 import Home from '../features/Home/Home';
@@ -8,7 +8,6 @@ import Logout from '../features/Logout/Logout';
 import Profile from '../features/Profile/Profile';
 import PingPong from '../features/Game/PingPong';
 import TicTacToe from '../features/Game/TicTacToe';
-import LocalGame from '../features/Game/Local/LocalGame';
 import GameHome from '../features/Game/GameHome';
 import Userauth from '../features/userauth/userauth';
 import TwoFA from '../features/userauth/twofa';
@@ -16,7 +15,7 @@ import Signin from '../features/userauth/signin';
 import Signup from '../features/userauth/signup';
 import ProtectedRoute from '../features/userauth/protectauth'
 import RemoteGame from "../features/Game/Remote/RemoteGame"
-
+import LocalGame from '../features/Game/Local/LocalGame';
 export const routes  = [
   {
     path: '/login',
@@ -24,11 +23,8 @@ export const routes  = [
     children: [
       { path: 'Signin', element: <Signin /> },
       { path: 'Signup', element: <Signup /> },
+	  {path: 'twofa', element: <TwoFA />}
     ],
-  },
-  {
-    path: '/login/Twofa',
-    element: <TwoFA />,
   },
   {
     path: '/',

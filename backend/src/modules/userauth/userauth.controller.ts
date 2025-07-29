@@ -1,6 +1,6 @@
 import fastify, { FastifyInstance , FastifyReply, FastifyRequest } from 'fastify';
 import {sendemail, generateAccessToken, generateRefreshToken, generateusername} from './userauth.services'
-import { addNewUser, getuser, setTwofAcode} from "../../utils/userauth.utils";
+import { addNewUser, getuser, setTwofAcode, getuser_email} from "../../utils/userauth.utils";
 import type {User} from '../../utils/userauth.utils';
 import { env } from '../../plugins/env.plugin';
 
@@ -11,9 +11,9 @@ export async function  handle_Signin(fastify: FastifyInstance , request : Fastif
 	reply.clearCookie('refreshtoken', {path: '/login/refreshtoken'});
 	reply.clearCookie('refreshtoken', {path: '/'});
 	if (!userinfo)
-		return reply.code(400).send({message : 'User not found !', login : false});
+		return reply.code(400).send({message : 'User not found !', type: 'username', login : false});
 	else if (userinfo.password !== user.password)
-		return reply.code(400).send({message: 'invalid password !', login: false});
+		return reply.code(400).send({message: 'invalid password !', type : 'password', login: false});
 	if (userinfo?.twoFA) {
 		await sendemail(fastify, userinfo);
 		return reply.code(201).send({message : `send 2FA to ${userinfo.email}`, login : true, twofa: true});
@@ -27,6 +27,9 @@ export async function handel_verifytwofa(fastify: FastifyInstance , request : Fa
 	const { username , twofa} = request.body as {username: string, twofa: number};
 	const userinfo : User | null = await getuser(fastify, username);
 
+	reply.clearCookie('accessToken', {path: '/'});
+	reply.clearCookie('refreshtoken', {path: '/login/refreshtoken'});
+	reply.clearCookie('refreshtoken', {path: '/'});
 	if (userinfo === null)
 		return reply.code(400).send({message  : "user not found", login : false});
 	else {
@@ -42,7 +45,6 @@ export async function handel_verifytwofa(fastify: FastifyInstance , request : Fa
 }
 
 export async  function handle_googlesign(fastify: FastifyInstance, request : FastifyRequest, reply : FastifyReply) {
-	console.log(`the Url :  ${env.REDERCURL}`);
 	const token = await fastify.googleOAuth2.getAccessTokenFromAuthorizationCodeFlow(request);
 	const data  = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
 		headers: {
@@ -53,17 +55,16 @@ export async  function handle_googlesign(fastify: FastifyInstance, request : Fas
 	reply.clearCookie('refreshtoken', {path: '/login/refreshtoken'});
 	reply.clearCookie('refreshtoken', {path: '/'});
 	const userInfo = await data.json() as {email: string, given_name: string , family_name: string, picture : string};
-	const username = generateusername(userInfo.email);
-	const user = await getuser(fastify, username);
-	if  (user && user.password)
-		return  reply.redirect(`${env.REDERCURL}/?error=${encodeURIComponent("invalid email, try with other one")}`);
-	else if (!user){
+	const user  = await getuser_email(fastify, userInfo.email);
+	if (!user) {
+		const username = generateusername(userInfo.email);
 		const newuser : User  = {username: username , email: userInfo.email, family_name: userInfo.family_name,first_name : userInfo.given_name , image_url: userInfo.picture}
 		await addNewUser(fastify, newuser);
 		await generateAccessToken(fastify, reply, newuser);
+		await generateRefreshToken(fastify, reply, username);
 	} else {
 		await generateAccessToken(fastify, reply, user);
+		await generateRefreshToken(fastify, reply, user.username);
 	}
-	await generateRefreshToken(fastify, reply, username);
 	return reply.redirect(`${env.REDERCURL}`);
 }

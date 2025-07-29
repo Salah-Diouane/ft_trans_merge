@@ -5,6 +5,7 @@ import {addNewUser, getuser} from '../../utils/userauth.utils'
 import type {User} from '../../utils/userauth.utils'
 import {handle_Signin, handel_verifytwofa, handle_googlesign} from './userauth.controller'
 import {generateAccessToken, generateRefreshToken} from './userauth.services'
+import { env } from "../../plugins/env.plugin";
 
 export const SignUp = async (fastify : FastifyInstance) => {
 	fastify.post('/signup', {
@@ -15,14 +16,24 @@ export const SignUp = async (fastify : FastifyInstance) => {
 			const user = request.body as User;
 			try {
 				if (user.password != user.confirmpassword)
-					throw ({message : 'the password  and confirm password are not the same !', singup: false});
+					throw ({message : 'the password  and confirm password are not the same !', type : "confirmpassword", singup: false});
 				else {
 					await addNewUser(fastify, user);
-					console.log("the user : ", user);
 					return reply.code(201).send({message  : "the user is created " , singup: true});
 				}
-			} catch(err) {
-				reply.code(400).send(err);
+			} catch (err: unknown) {
+				if (err instanceof Error && "message" in err) {
+					const msg = err.message.toLowerCase();
+					if (msg.includes("user_authentication.username")) {
+						reply.code(400).send({ message: "Username is already taken", type: "username", signup: false });
+					} else if (msg.includes("user_authentication.email")) {
+						reply.code(400).send({ message: "Email is already in use", type: "email", signup: false });
+					} else {
+						reply.code(400).send({ message: err.message, signup: false });
+					}
+				} else {
+					reply.code(400).send({ message: "something wrong !", signup: false });
+				}
 			}
 	  });
 }
@@ -54,7 +65,7 @@ export const Verify2fa = async (fastify: FastifyInstance) => {
 		try {
 			await handel_verifytwofa(fastify, request, reply);
 		} catch(err){
-			reply.code(400).send(err);
+			reply.code(400).send({message : 'something wrong !', error : err, login : false});
 		}
 	})
 }
@@ -88,7 +99,7 @@ export const GoogleSign = async (fastify: FastifyInstance) => {
 			await handle_googlesign(fastify, request, reply);
 		} catch (err) {
 			console.log( "The Error : ", err);
-			reply.code(400).send(err);
+			return reply.redirect(`${env.REDERCURL}login/Signin`);
 		}
 	});
 }

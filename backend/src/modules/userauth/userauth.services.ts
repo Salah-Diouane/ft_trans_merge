@@ -7,12 +7,11 @@ import {env} from '../../plugins/env.plugin';
 export const generateRefreshToken = async (fastify: FastifyInstance, reply: FastifyReply, username: string) : Promise<string> => {
 	const token =  await fastify.jwt.sign({username : `${username}`}, { expiresIn: '7d' });
 	reply.setCookie('refreshtoken', token, {
-		path: '/',
+		path: '/login/refreshtoken',
 		secure: false,
 		httpOnly: true,
 		sameSite: true
   });
-  console.log("create token 1: ", token)
   return token;
 }
 
@@ -25,7 +24,6 @@ export const generateAccessToken = async (fastify: FastifyInstance, reply: Fasti
 		httpOnly: true,
 		sameSite: true
   });
-  console.log("create token 2: ", token)
   return token;
 }
 
