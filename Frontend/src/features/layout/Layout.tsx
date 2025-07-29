@@ -31,7 +31,7 @@ const Layout: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      <NavBar />
+      {/* <NavBar /> */}
 
       <div className="flex flex-1 overflow-hidden max-lg:p-0 max-lg:m-0">
 
@@ -46,6 +46,7 @@ const Layout: React.FC = () => {
               </Link>
 
               <img src={logo} alt="Logo" className="rounded-full cursor-pointer mt-2 hidden lg:block" />
+
             </div>
 
             <div className="flex flex-col justify-center items-center gap-y-10 flex-1 max-lg:flex-row max-lg:gap-x-4 max-lg:justify-center max-lg:items-center">
@@ -67,7 +68,7 @@ const Layout: React.FC = () => {
               </Link>
 
               <Notification02Icon className="hidden max-lg:block size-8 max-lg:size-6 cursor-pointer" />
-              
+
             </div>
 
             <Link to="/logout" className={location.pathname === "/logout" ? "bg-[#0077FF] rounded-full size-10 flex items-center justify-center pt-4" : "size-10 flex items-center justify-center"}>
@@ -77,11 +78,18 @@ const Layout: React.FC = () => {
           </aside>
         </div>
 
-        <main className="mr-8 flex flex-1 m-4 rounded-2xl max-lg:p-0 max-lg:m-0">
+        {/* <main className="mr-8 flex flex-1 m-4 rounded-2xl max-lg:p-0 max-lg:m-0">
           <div className="h-full w-full flex flex-col">
             <Outlet />
           </div>
-        </main>
+        </main> */}
+
+        <div className="flex flex-col flex-1">
+          <NavBar />
+          <main className="flex-1 overflow-auto h-full w-full mb-5 pr-4">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );
