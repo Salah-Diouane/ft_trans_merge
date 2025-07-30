@@ -76,6 +76,10 @@ const RemoteGame: React.FC = () => {
       setMySymbol(currentUserRef.current === playerX ? "X" : "O");
     });
 
+    socket.on("game:error", ({message}) => {
+      alert(message)
+    });
+
     socket.on("game:waiting", () => setWaitingForPlayer(true));
 
     socket.on("game:move", ({ squares: newSquares, xIsNext: newXIsNext }) => {
@@ -117,6 +121,7 @@ const RemoteGame: React.FC = () => {
       socket.off("game:restart");
       socket.off("player:disconnected");
       socket.off("game:win-by-disconnect");
+      socket.off("game:error");
     };
   }, []);
 

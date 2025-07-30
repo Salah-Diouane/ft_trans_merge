@@ -87,12 +87,21 @@ function resetGameState() {
 
 export default function handleGameEvents({fastify, io, socket} : handleGameEventsProps){
 
-    // Game-related socket events
+
     const userData = (socket as AuthenticatedSocket).user;
     socket.on("join:game", () => {
 
       if (!userData?.username)
         return;
+      const isUsernameTaken = Array.from(playersInRoom.values()).includes(userData.username);
+      if (isUsernameTaken) {
+
+        socket.emit("game:error", {
+          message: "Username already taken in this game."
+        });
+        console.log("user is alraedy in the room !!!")
+        return;
+      }
 
       socket.join(gameRoom);
       playersInRoom.set(socket.id, userData.username);
@@ -102,23 +111,23 @@ export default function handleGameEvents({fastify, io, socket} : handleGameEvent
 
       if (numPlayers === 2) {
         const players = Array.from(playersInRoom.values());
-        console.log("✅ Game starting with players:", players);
+        console.log("starting with players:", players);
 
-        // Reset game state and assign players
+
         gameState.playerX = players[0];
         gameState.playerO = players[1];
         gameState.players = players;
         gameState.squares = Array(9).fill(null);
         gameState.xIsNext = true;
 
-        // Tell both players to start game and assign X / O
+    
         io.to(gameRoom).emit("game:start", {
           playerX: gameState.playerX,
           playerO: gameState.playerO,
         });
 
       } else {
-        // Inform the joining user they are waiting for someone
+
         socket.emit("game:waiting");
       }
     });
@@ -130,7 +139,7 @@ export default function handleGameEvents({fastify, io, socket} : handleGameEvent
 
 
     socket.on("game:move", ({ index, player }) => {
-      // Validate the move
+ 
       if (!gameState.players.includes(player)) {
         console.log(" Player not in game:", player);
         return;
@@ -141,7 +150,7 @@ export default function handleGameEvents({fastify, io, socket} : handleGameEvent
         return;
       }
 
-      // Check if it's the player's turn
+  
       const isPlayerX = player === gameState.playerX;
       const isPlayersTurn = (isPlayerX && gameState.xIsNext) || (!isPlayerX && !gameState.xIsNext);
 
@@ -150,25 +159,21 @@ export default function handleGameEvents({fastify, io, socket} : handleGameEvent
         return;
       }
 
-      // Check if game is already over
+
       if (calculateWinner(gameState.squares)) {
-        console.log(" Game already over");
+        console.log(" already over");
         return;
       }
 
-      // Make the move
       gameState.squares[index] = isPlayerX ? "X" : "O";
       gameState.xIsNext = !gameState.xIsNext;
 
-      console.log(` Move made by ${player} at position ${index}`);
 
-      // Broadcast the updated game state
       io.to(gameRoom).emit("game:move", {
         squares: gameState.squares,
         xIsNext: gameState.xIsNext,
       });
 
-      // Check for winner
       const winner = calculateWinner(gameState.squares);
       if (winner) {
         console.log(` Game won by: ${winner}`);
@@ -182,7 +187,6 @@ export default function handleGameEvents({fastify, io, socket} : handleGameEvent
         return;
       }
 
-      // Reset only the board, keep the same players
       gameState.squares = Array(9).fill(null);
       gameState.xIsNext = true;
 
@@ -233,14 +237,13 @@ export default function handleGameEvents({fastify, io, socket} : handleGameEvent
           resetGameState();
         }
 
-        // If there was another player, notify them
+
         if (playersInRoom.size > 0) {
           socket.to(gameRoom).emit("player:disconnected", {
             message: `${username} has left the game.`
           });
         }
 
-        // Reset game state if no players left
         if (playersInRoom.size === 0) {
           resetGameState();
         }

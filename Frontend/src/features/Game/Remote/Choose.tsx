@@ -1,7 +1,7 @@
 
 
 import { useEffect, useRef, useState } from "react";
-import socket from "../..//Chat/Frontend/services/socket";
+import socket from "../../Chat/Frontend/services/socket";
 
 type ChooseProps = {
     onChoose: (playerName: string) => void;

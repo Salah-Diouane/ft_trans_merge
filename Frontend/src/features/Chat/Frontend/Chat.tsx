@@ -7,7 +7,7 @@ import ContactList_Mobile from './components/ContactList_Mobile';
 
 import { FiUser } from 'react-icons/fi';
 import Subtract from './Assets/Subtract.svg';
-import { User } from '../Frontend/types/User';
+import { User } from './types/User';
 
 // Message type
 interface Message {
