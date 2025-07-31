@@ -197,13 +197,66 @@ export default function handleGameEvents({fastify, io, socket} : handleGameEvent
     socket.on("player:left", ({ username }) => {
       playersInRoom.delete(username)
       console.log(`${username} is left the game !!!!!!`);
+      console.log("33333333333333333333333333333333333333333333333")
     });
 
     socket.on("leave:game", () => {
-
+      console.log("2222222222222222222222222222222222222222222222")
       if (playersInRoom.has(socket.id)) {
 
         const username = playersInRoom.get(socket.id);
+        playersInRoom.delete(socket.id);
+        socket.leave(gameRoom);
+
+        console.log(`${username} left the game`);
+
+
+        if (playersInRoom.size === 1) {
+          const [remainingSocketId] = playersInRoom.keys();
+          const remainingUsername = playersInRoom.get(remainingSocketId);
+
+          let winner = null;
+
+          if (gameState.playerX === remainingUsername || gameState.playerO === remainingUsername) {
+            winner = remainingUsername;
+          }
+
+          if (winner) {
+            io.to(remainingSocketId).emit("game:win-by-disconnect", {
+              winner,
+              message: `You win! ${username} left the game.`,
+            });
+          }
+
+          const remainingSocket = io.sockets.sockets.get(remainingSocketId);
+          if (remainingSocket) {
+            remainingSocket.leave(gameRoom);
+            playersInRoom.delete(remainingSocketId);
+            console.log(`${remainingUsername} (the winner) was forcefully removed from the room after win-by-disconnect.`);
+          }
+
+          resetGameState();
+        }
+
+
+        if (playersInRoom.size > 0) {
+          socket.to(gameRoom).emit("player:disconnected", {
+            message: `${username} has left the game.`
+          });
+        }
+
+        if (playersInRoom.size === 0) {
+          resetGameState();
+        }
+      }
+    });
+
+
+    socket.on("disconnect", (username) => {
+      console.log("111111111111111111111111111111111111111")
+      if (playersInRoom.has(socket.id)) {
+
+        // const username = playersInRoom.get(socket.id);
         playersInRoom.delete(socket.id);
         socket.leave(gameRoom);
 

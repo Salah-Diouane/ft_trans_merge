@@ -301,16 +301,16 @@ const Conversation: FC<ConversationProps> = ({
                       {msg.text}
                     </div>
 
-                    <button
+                    {isMe && (<button
                       onClick={(e) => handleThreeDotsClick(msg.id, e)}
                       className={`absolute top-2 ${
                         isMe ? '-left-8' : '-right-8'
                       } opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-gray-700 p-1 rounded-full bg-gray-200`}
                     >
                       <HiEllipsisVertical className="w-4 h-4" />
-                    </button>
+                    </button>)}
 
-                    {showMenu === msg.id && (
+                    {isMe && (showMenu === msg.id) && (
                       <div className={`absolute top-0 z-50 ${
                         isMe 
                           ? 'right-20 transform translate-x-2' 
@@ -346,7 +346,7 @@ const Conversation: FC<ConversationProps> = ({
           <div ref={messagesEndRef} />
         </div>
 
-                {showDeleteModal  && (
+          {showDeleteModal  && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl max-w-sm w-full mx-4 overflow-hidden">
               <div className="p-6 text-center">

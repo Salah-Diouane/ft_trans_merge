@@ -107,7 +107,7 @@ const RemoteGame: React.FC = () => {
 
 
       // setTimeout(() => {
-        socket.emit("leave:game");
+        socket.emit("disconnect");
         setGameStarted(false);
         setMySymbol(null);
       // }, 5000); // ⏱ auto-leave after 5s
@@ -127,16 +127,17 @@ const RemoteGame: React.FC = () => {
 
   useEffect(() => {
     const handleBeforeUnload = () => {
-      socket.emit("player:left", { currentUser });
+      socket.emit("disconnect", { currentUser: currentUserRef.current });
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [currentUser]);
+  }, [currentUserRef.current]);
 
   useEffect(() => {
     if (location.pathname !== "/game/tic-tac-toe/remote-game") {
-      socket.emit("player:left", { currentUser });
+      console.log("hahahahahahahahahahahahaahahahahahahahaahahahahahaahahahahahahaahahahahahahahahhaah")
+      socket.emit("disconnect", { currentUser });
     }
   }, [location.pathname]);
 

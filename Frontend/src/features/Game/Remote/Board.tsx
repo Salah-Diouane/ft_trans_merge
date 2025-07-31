@@ -64,24 +64,24 @@ export default function Board({
 
   const [confettiTriggered, setConfettiTriggered] = useState(false);
 
-  function handleLeftGame(){
-    triggerFireworks();
-    <div className="flex gap-4">
-      <button
-        onClick={raplayGame}
-        className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
-      >
-        Play Again
-      </button>
-      <button
-        onClick={playagain}
-        className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
-      >
-        New Game
-      </button>
-    </div>
-    // raplayGame();
-  }
+  // function handleLeftGame(){
+  //   triggerFireworks();
+  //   <div className="flex gap-4">
+  //     <button
+  //       onClick={raplayGame}
+  //       className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
+  //     >
+  //       Play Again
+  //     </button>
+  //     <button
+  //       onClick={playagain}
+  //       className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
+  //     >
+  //       New Game
+  //     </button>
+  //   </div>
+  //   // raplayGame();
+  // }
   
   useEffect(() => {
     if (winner && !confettiTriggered) {
@@ -107,6 +107,12 @@ export default function Board({
   let status;
   if (winner) {
     const winnerName = winner === "X" ? playerXName : playerOName;
+    // console.log("--> playerXName")
+    // console.log(playerXName)
+    // console.log("--> playerOName")
+    // console.log(playerOName)
+    console.log("winner name : ");
+    console.log(winnerName);
     status = (
       <div className={`text-center ${statusAnimation}`}>
         <p className="text-[#00FF7F] font-bold text-2xl mb-2">🎉 Winner!</p>

@@ -7,11 +7,7 @@ import jwtplugin from "./plugins/jwt.plugin";
 import cookiePlugin from "./plugins/cookie.plugin";
 import auth02 from "./plugins/oauth2.plugin"
 import cors from '@fastify/cors';
-import { RefreshToken } from "./modules/userauth/userauth.routes";
-import { request } from "http";
-import Ajv from 'ajv';
 import ajvErrors from 'ajv-errors';
-
 import { Server as IOServer, Socket } from "socket.io";
 import http from "http";
 import setupSocketIO from './plugins/socket.plugin';
@@ -82,10 +78,10 @@ app.setErrorHandler((error, request, reply) => {
     }
 });
 
-// Create a native HTTP server from Fastify instance
+
 const server: http.Server = app.server;
 
-// Create Socket.IO server using the native HTTP server
+
 const io = new IOServer(server, {
   cors: {
     origin: true,
