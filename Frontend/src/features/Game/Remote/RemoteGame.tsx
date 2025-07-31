@@ -67,6 +67,21 @@ const RemoteGame: React.FC = () => {
   };
 
   useEffect(() => {
+  socket.on("game:timeout", ({ loser, winner, message }) => {
+    alert(message);
+    if (winner === currentUserRef.current) triggerFireworks();
+    setGameStarted(false);
+    setMySymbol(null);
+    setSquares(Array(9).fill(null));
+  });
+
+  return () => {
+    socket.off("game:timeout");
+  };
+}, []);
+
+
+  useEffect(() => {
     socket.on("game:start", ({ playerX, playerO }) => {
       setPlayerXName(playerX);
       setPlayerOName(playerO);
@@ -243,3 +258,6 @@ const RemoteGame: React.FC = () => {
 };
 
 export default RemoteGame;
+
+
+

@@ -167,7 +167,7 @@ const Conversation: FC<ConversationProps> = ({
 
   // Three dots menu functions
   const handleThreeDotsClick = (messageId: string | number, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent event bubbling
+    // e.stopPropagation(); // Prevent event bubbling
     setShowMenu(showMenu === messageId ? null : messageId);
     console.log("->show : ", showMenu);
   };
@@ -301,14 +301,16 @@ const Conversation: FC<ConversationProps> = ({
                       {msg.text}
                     </div>
 
-                    {isMe && (<button
-                      onClick={(e) => handleThreeDotsClick(msg.id, e)}
-                      className={`absolute top-2 ${
-                        isMe ? '-left-8' : '-right-8'
-                      } opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-gray-700 p-1 rounded-full bg-gray-200`}
-                    >
-                      <HiEllipsisVertical className="w-4 h-4" />
-                    </button>)}
+                    {isMe && (
+                      <button
+                        onClick={(e) => handleThreeDotsClick(msg.id, e)}
+                        className={`absolute top-2 ${
+                          isMe ? '-left-8' : '-right-8'
+                        } opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-gray-700 p-1 rounded-full bg-gray-200`}
+                      >
+                        <HiEllipsisVertical className="w-4 h-4" />
+                      </button>)
+                    }
 
                     {isMe && (showMenu === msg.id) && (
                       <div className={`absolute top-0 z-50 ${
