@@ -42,8 +42,7 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
           console.log("Missing required fields in message");
           return;
         }
-  
-        // Check if recipient has blocked the sender
+
         db.get("SELECT 1 FROM blocked_users WHERE blocker = ? AND blocked = ?",
           [recipient, username],
           (err, row) => {

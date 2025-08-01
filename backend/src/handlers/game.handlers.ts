@@ -366,9 +366,11 @@ function resetGameState() {
 }
 
 function startTurnTimer(io: IOServer, currentPlayer: string) {
+
   clearTimeout(moveTimers.get(currentPlayer));
 
   const timeout = setTimeout(() => {
+
     const loser = currentPlayer;
     const winner = loser === gameState.playerX ? gameState.playerO : gameState.playerX;
 
@@ -381,9 +383,11 @@ function startTurnTimer(io: IOServer, currentPlayer: string) {
     console.log(`${loser} took too long. ${winner} wins!`);
 
     resetGameState();
-  }, 10000); // 10 seconds
+
+  }, 10000);
 
   moveTimers.set(currentPlayer, timeout);
+
 }
 
 export default function handleGameEvents({ fastify, io, socket }: handleGameEventsProps) {
@@ -485,18 +489,22 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
         resetGameState();
       }
 
-      if (playersInRoom.size === 0) resetGameState();
+      if (playersInRoom.size === 0)
+        resetGameState();
     }
   });
 
   socket.on("disconnect", () => {
+
     if (playersInRoom.has(socket.id)) {
+
       const username = playersInRoom.get(socket.id);
       playersInRoom.delete(socket.id);
       socket.leave(gameRoom);
       moveTimers.delete(username!);
 
       if (playersInRoom.size === 1) {
+
         const [remainingSocketId] = playersInRoom.keys();
         const remainingUsername = playersInRoom.get(remainingSocketId);
         io.to(remainingSocketId).emit("game:win-by-disconnect", {
@@ -511,7 +519,8 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
         resetGameState();
       }
 
-      if (playersInRoom.size === 0) resetGameState();
+      if (playersInRoom.size === 0)
+        resetGameState();
     }
   });
 }

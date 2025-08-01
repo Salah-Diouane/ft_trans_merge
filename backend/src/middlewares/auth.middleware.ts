@@ -8,7 +8,7 @@ import { parse as parseCookie } from "cookie";
 interface AuthenticatedSocket extends Socket {
   user?: any;
 }
-
+ 
 export default function createAuthMiddleware(fastify: FastifyInstance) {
   return async (socket: AuthenticatedSocket, next: (err?: ExtendedError) => void) => {
     try {
@@ -27,6 +27,7 @@ export default function createAuthMiddleware(fastify: FastifyInstance) {
 
       const decodedToken = await fastify.jwt.verify(token);
       socket.user = decodedToken;
+
 
       console.log("------>User authenticated:", decodedToken);
       next();

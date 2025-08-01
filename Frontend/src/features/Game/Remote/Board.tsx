@@ -28,7 +28,7 @@ type BoardProps = {
   xIsNext: boolean;
   squares: (string | null)[];
   onPlay: (index: number) => void;
-  raplayGame: () => void;
+  replayGame: () => void;
   playagain: () => void;
   playerXName: string;
   playerOName: string;
@@ -41,7 +41,7 @@ export default function Board({
   xIsNext,
   squares,
   onPlay,
-  raplayGame,
+  replayGame,
   playagain,
   playerXName,
   playerOName,
