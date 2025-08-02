@@ -1,10 +1,9 @@
 import { Server as IOServer, Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
-import createAuthMiddleware from "../middlewares/auth.middleware";
-import  handleChatEvents  from "../handlers/chat.handlers";
-import  handleGameEvents  from "../handlers/game.handlers";
-import handleUserEvents from "../handlers/user.handlers"
-import SocketIO from "../modules/socket/SocketIO"
+import createAuthMiddleware from "../modules/socket/userdata/auth.middleware";
+import  handleChatEvents  from "../modules/socket/chat/chat.handlers"
+import  handleGameEvents  from "../modules/socket/tictactoe/game.handlers";
+import handleUserEvents from "../modules/socket/userdata/user.handlers"
 interface AuthenticatedSocket extends Socket {
     user?: any;
 }
@@ -21,9 +20,9 @@ export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
       handleChatEvents({fastify, io, socket});
       handleGameEvents({fastify, io, socket});
 
-      // socket.on("disconnect", () => {
-      //   // console.log("---------------> User disconnected:", socket.id);
-      // });
+      socket.on("disconnect", () => {
+        console.log("---------------> User disconnected:", socket.id);
+      });
     });
 }
 

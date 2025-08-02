@@ -117,7 +117,6 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
         );
       });
   
-
       socket.on("unblock:user", ({ blocker, blocked }) => {
         db.run(
           "DELETE FROM blocked_users WHERE blocker = ? AND blocked = ?",
