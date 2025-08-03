@@ -18,10 +18,10 @@ const NavBar: React.FC = () => {
         </div>
       </div>
       <div className="flex items-center gap-6 w-1/3 justify-end">
-        <Notification02Icon className="size-8 hover:text-[#00ADB5] cursor-pointer max-sm:hidden" />
+        <Notification02Icon className="size-8 hover:text-[#0077FF] cursor-pointer max-sm:hidden" />
         <img
           src={meProfile}
-          className="size-12 rounded-full hover:text-[#00ADB5] cursor-pointer max-sm:hidden"
+          className="size-12 rounded-full hover:text-[#0077FF] cursor-pointer max-sm:hidden"
           alt="Profile"
         />
       </div>

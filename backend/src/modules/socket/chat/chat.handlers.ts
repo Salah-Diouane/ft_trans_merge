@@ -28,7 +28,7 @@ interface Message {
     username: string;
     recipient: string;
     text: string;
-    timestamp: string;
+    // timestamp: string;
     blocked: boolean;
 }
 

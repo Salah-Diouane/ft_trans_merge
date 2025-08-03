@@ -30,17 +30,23 @@ const ChatApp: FC = () => {
   const currentUserRef = useRef<string>("");
 
   const [selectedEmojis, setSelectedEmojis] = useState<string[]>([]);
+  // const [unreadCounts, setUnreadCounts] = useState<string | number>();
+  const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({});
+  const selectedUserRef = useRef<User | null>(null);
 
-  // Add state to track if we've received both users and profile
+
   const [isInitialized, setIsInitialized] = useState(false);
   const pendingHistoryRef = useRef<any[]>([]);
 
   const isMobile = window.outerWidth < 1024;
 
-  // Keep usersRef updated with latest users state
+  useEffect(()=>{
+    selectedUserRef.current = selectedUser;
+  }, [selectedUser])
+
   useEffect(() => {
     usersRef.current = users;
-    // Process pending history when users list is updated
+
     if (currentUserRef.current && pendingHistoryRef.current.length > 0) {
       processHistory(pendingHistoryRef.current);
     }
@@ -56,12 +62,12 @@ const ChatApp: FC = () => {
   const lastmsg = new Map<string, string>();
 
   const processHistory = (history: any[]) => {
-    console.log("Processing history with current user:", currentUserRef.current);
-    console.log("History data:", history);
-    console.log("Users available:", usersRef.current);
+
+    // console.log("Processing history with current user:", currentUserRef.current);
+    // console.log("History data:", history);
+    // console.log("Users available:", usersRef.current);
 
     if (!currentUserRef.current || usersRef.current.length === 0) {
-      console.log("Not ready to process history - storing for later");
       pendingHistoryRef.current = history;
       return;
     }
@@ -70,7 +76,7 @@ const ChatApp: FC = () => {
     const current = currentUserRef.current;
 
     history.forEach(({ id, sender, recipient, text, timestamp }) => {
-      // Get the other user (not the current user)
+
       const otherUsername = sender === current ? recipient : sender;
 
       const otherUser = usersRef.current.find(user => user.username === otherUsername);
@@ -92,10 +98,6 @@ const ChatApp: FC = () => {
 
   };
 
-
-
-
-
   useEffect(() => {
     socket.emit('request:init');
     socket.emit('get-my-profile');
@@ -111,16 +113,14 @@ const ChatApp: FC = () => {
     });
 
 
-    socket.on('chat:message', (msg: { id: string|number ,sender: string; recipient: string; text: string; timestamp: string; blocked: boolean }) => {
-      console.log("------------------------> Received new message:", msg);
-    
-      const current = currentUserRef.current;
-      if (!current) {
+    socket.on('chat:message', (msg: { id: string | number, sender: string; recipient: string; text: string; timestamp: string; blocked: boolean }) => {
+
+      if (!currentUserRef.current) {
         console.warn("Current user not set, cannot process message");
         return;
       }
     
-      const isSender = msg.sender === current;
+      const isSender = msg.sender === currentUserRef.current;
       const otherUsername = isSender ? msg.recipient : msg.sender;
       const otherUser = usersRef.current.find(user => user.username === otherUsername);
     
@@ -130,16 +130,20 @@ const ChatApp: FC = () => {
       }
     
       const key = otherUser.id;
-      
-      // Update lastmsg for the specific user
-      lastmsg.set(otherUser.username, msg.text); // Update last message map
-      
-      // Update messages state to trigger re-render
+
+      lastmsg.set(otherUser.username, msg.text); 
+
       setMessages(prev => ({
         ...prev,
         [key]: [...(prev[key] || []), { id: msg.id, sender: msg.sender, text: msg.text, timestamp: msg.timestamp }],
       }));
-    
+
+      const isSelectedUser = selectedUserRef.current?.username === otherUsername;
+
+      if (!isSelectedUser) {
+        const key = otherUser.id;
+        setUnreadCounts(prev => ({ ...prev, [key]: (prev[key] || 0) + 1  }));
+      }
 
     });
     
@@ -159,7 +163,6 @@ const ChatApp: FC = () => {
       currentUserRef.current = socket_data.user;
       setcurrentUser(socket_data.user);
 
-      // Process pending history now that we have the profile
       if (pendingHistoryRef.current.length > 0) {
         processHistory(pendingHistoryRef.current);
       }
@@ -202,7 +205,9 @@ const ChatApp: FC = () => {
 
   const handleUserSelect = (user: User): void => {
     setSelectedUser(user);
-    if (isMobile) setShowContactList(false);
+    if (isMobile)
+      setShowContactList(false);
+    setUnreadCounts(prev => ({ ...prev, [user.id]: 0 }));
   };
 
   const userMessages = selectedUser?.id ? messages[selectedUser.id] || [] : [];
@@ -211,7 +216,8 @@ const ChatApp: FC = () => {
   const EmptyState = () => (
     <div className="flex flex-col w-full h-full rounded-2xl p-[2px] max-lg:h-full ">
       <div
-        className="flex flex-col h-full justify-center items-center rounded-[inherit] bg-[#393E46] p-4"
+        // className="flex flex-col h-full justify-center items-center rounded-[inherit] bg-[#393E46] p-4"
+        className="flex flex-col h-full justify-center items-center rounded-[inherit]  p-4"
         style={{ backgroundImage: `url(${Subtract})` }}
       >
         <FiUser className="h-20 w-20 mb-6 text-[#0077FF] animate-pulse" />
@@ -222,10 +228,9 @@ const ChatApp: FC = () => {
       </div>
     </div>
   );
-  console.log("-------------> map of msgs : ")
-  console.log(lastmsg)
   return (
-    <div className="flex flex-row h-full w-full gap-4 p-0 overflow-hidden max-lg:pb-3 max-lg:pt-0 max-lg:p-0">
+    // <div className="flex flex-row h-full w-full gap-4 p-0 overflow-hidden max-lg:pb-3 max-lg:pt-0 max-lg:p-0">
+    <div className="flex flex-row h-full w-full gap-4 p-0 overflow-hidden  max-lg:p-0 bg-[#121418] rounded-lg max-lg:bg-[#121418] max-lg:pb-0 ">
       {isMobile ? (
         showContactList ? (
           <ContactList_Mobile
@@ -235,9 +240,10 @@ const ChatApp: FC = () => {
             setSelectedUser={handleUserSelect}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            unreadCounts={unreadCounts}
             
-          />
-        ) : (
+            />
+          ) : (
           <Conversation
             user={selectedUser}
             messages={userMessages}
@@ -247,10 +253,10 @@ const ChatApp: FC = () => {
             onBack={() => setShowContactList(true)}
             loggedInUsername={currentUser}
             emoji={selectedEmojis}
-          />
-        )
-      ) : (
-        <>
+            />
+          )
+        ) : (
+          <>
           <ContactList
             users={filteredUsers}
             messages={messages}
@@ -258,6 +264,7 @@ const ChatApp: FC = () => {
             setSelectedUser={handleUserSelect}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            unreadCounts={unreadCounts}
           />
           {selectedUser ? (
             <Conversation
@@ -279,3 +286,4 @@ const ChatApp: FC = () => {
 };
 
 export default ChatApp;
+
