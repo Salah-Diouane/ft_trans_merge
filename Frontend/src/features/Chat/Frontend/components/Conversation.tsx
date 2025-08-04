@@ -9,6 +9,7 @@ import { AddTeamIcon, UserBlock02Icon, CircleArrowLeft01Icon } from "hugeicons-r
 import { LuImagePlus } from "react-icons/lu";
 import { MdDelete, MdCancel, MdEmojiEmotions } from "react-icons/md";
 import { HiEllipsisVertical } from "react-icons/hi2";
+import { IoIosArrowBack } from "react-icons/io";
 
 import meProfile from "../Assets/me.jpeg";
 import Subtract from "../Assets/Subtract.svg";
@@ -207,10 +208,10 @@ const Conversation: FC<ConversationProps> = ({
 
         {/* Header */}
         <div className="flex items-center justify-between p-3 m-1 bg-[#2f3542] rounded-xl max-lg:rounded-b-lg max-lg:h-20 max-lg:m-[-4px] border-b-2 border-[#2f3542]">
-          <div className="flex items-center gap-x-3">
+          <div className="flex items-center gap-x-6">
             {isMobile && (
-              <button onClick={onBack} className="text-white hover:text-[#0077FF] transition-colors">
-                <CircleArrowLeft01Icon className="w-6 h-6 bg-sky-800 rounded-full p-0.5" />
+              <button onClick={onBack} className="text-white  transition-colors">
+                <IoIosArrowBack className="size-7  rounded-full p-0.5" />
               </button>
             )}
             <img src={meProfile} className="size-14 rounded-full max-lg:w-12 max-lg:h-12 border-2 border-[#0077FF]" alt="User profile" />
