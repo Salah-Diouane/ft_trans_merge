@@ -75,7 +75,7 @@ function startTurnTimer(io: IOServer, currentPlayer: string) {
     console.log(`${loser} took too long. ${winner} wins!`);
 
     resetGameState();
-  }, 10000); // 10 seconds
+  }, 5000); // 10 seconds
 
   moveTimers.set(currentPlayer, timeout);
 }
