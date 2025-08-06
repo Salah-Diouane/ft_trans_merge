@@ -19,7 +19,7 @@ export default function Choose({ onChoose }: ChooseProps) {
         socket.on("profile-data", (socket_data: { user: string }) => {
             // currentUserRef.current = socket_data.user;
             setCurrentUser(socket_data.user);
-            setIsLoading(false);
+            // setIsLoading(false);
         });
 
         return () => {
@@ -40,7 +40,8 @@ export default function Choose({ onChoose }: ChooseProps) {
             <div className="mb-6 text-center">
                 <p className="text-gray-300 mb-2">Player:</p>
                 <p className="text-xl font-semibold text-blue-400">
-                    {isLoading ? "Loading..." : currentUser}
+                    {/* {isLoading ? "Loading..." : currentUser} */}
+                    {currentUser}
                 </p>
             </div>
 
@@ -54,14 +55,14 @@ export default function Choose({ onChoose }: ChooseProps) {
             <div className="flex justify-center">
                 <button
                     onClick={handleJoinGame}
-                    disabled={isLoading}
+                    // disabled={isLoading}
                     className={`px-8 py-3 rounded-md font-bold text-lg ${
-                        isLoading 
-                            ? "bg-gray-600 cursor-not-allowed" 
-                            : "bg-[#0077FF] hover:bg-blue-700"
+                        // isLoading  ? "bg-gray-600 cursor-not-allowed"   : "bg-[#0077FF] hover:bg-blue-700"
+                         "bg-[#0077FF] hover:bg-blue-700"
                     } transition duration-200`}
                 >
-                    {isLoading ? "Loading..." : "Join Game"}
+                    {/* {isLoading ? "Loading..." : "Join Game"} */}
+                    {"Join Game"}
                 </button>
             </div>
         </div>

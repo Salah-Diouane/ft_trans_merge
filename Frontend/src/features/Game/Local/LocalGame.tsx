@@ -77,15 +77,18 @@ const LocalGame: React.FC = () => {
       ) : (
         <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
           <div className="bg-[#393E46] p-4 rounded-xl shadow-md w-full text-white flex justify-around">
-            <div className="text-center">
+
+            <div className={`text-center ${xIsNext  ? "bg-blue-600 w-1/3" : ""} rounded-xl`}>
               <p className="font-bold">{playerXName}</p>
-              <p className="text-blue-400">X</p>
+              <p >X</p>
             </div>
-            <div className="text-center">
+            <div className={`text-center ${!xIsNext  ? "bg-green-600 w-1/3" : ""} rounded-xl`}>
               <p className="font-bold">{playerOName}</p>
-              <p className="text-green-400">O</p>
+              <p >O</p>
             </div>
           </div>
+
+           
 
           <Board
             xIsNext={xIsNext}

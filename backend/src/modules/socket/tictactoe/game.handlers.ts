@@ -298,7 +298,7 @@ function startTurnTimer(io: IOServer, currentPlayer: string) {
     });
 
     resetGameState(); 
-  }, 5000); 
+  }, 10000); 
 
   moveTimers.set(currentPlayer, timeout);
 }
