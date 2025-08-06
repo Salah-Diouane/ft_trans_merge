@@ -83,15 +83,15 @@ export default function Board({
   //   // raplayGame();
   // }
   
-  useEffect(() => {
-    if (winner && !confettiTriggered) {
-      triggerFireworks();
-      setConfettiTriggered(true);
-    } else if (!winner) {
-      setConfettiTriggered(false);
-    }
+  // useEffect(() => {
+  //   // if (winner && !confettiTriggered) {
+  //   //   triggerFireworks();
+  //   //   setConfettiTriggered(true);
+  //   // } else if (!winner) {
+  //   //   setConfettiTriggered(false);
+  //   // }
 
-  }, [winner, confettiTriggered]);
+  // }, [winner, confettiTriggered]);
 
   let boardAnimation = "";
   let statusAnimation = "";
