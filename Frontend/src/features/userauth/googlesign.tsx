@@ -1,6 +1,6 @@
 export default function GoogleSign() {
 	const sendData = async () => {
-		window.location.href = "http://localhost:3000/login/google";
+		window.location.href = "https://localhost/api/login/google";
 	};
 
 	return (

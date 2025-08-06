@@ -28,7 +28,7 @@ export default function TwoFA() {
 			password: state.password
 		};
 		try {
-			const response = await fetch("http://localhost:3000/login/verify2fa", {
+			const response = await fetch("https://localhost/api/login/verify2fa", {
 				method: "POST",
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),

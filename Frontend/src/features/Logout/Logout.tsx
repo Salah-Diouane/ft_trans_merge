@@ -6,7 +6,7 @@ const Logout: React.FC = () => {
 
   useEffect(() => {
 	const logout = async () => {
-		await fetch("http://localhost:3000/logout", {
+		await fetch("https://localhost/api/logout", {
 			method: 'GET',
 			credentials: 'include',
 		});
