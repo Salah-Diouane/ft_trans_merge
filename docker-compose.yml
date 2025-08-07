@@ -1,15 +1,15 @@
-
 version: '3.8'
 
 services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./Frontend
       dockerfile: Dockerfile
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./Frontend:/app
+      - /app/node_modules 
+    #  This tells Docker: "Create a special storage area (volume) just for /app/node_modules inside the container."
     ports:
       - "5173:5173"
     environment:
@@ -29,7 +29,7 @@ services:
 
   nginx:
     build:
-      context: ./nginx
+      context: ./Nginx
       dockerfile: Dockerfile
     ports:
       - "80:80"
