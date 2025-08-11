@@ -4,10 +4,13 @@ import createAuthMiddleware from "../modules/socket/userdata/auth.middleware";
 import  handleChatEvents  from "../modules/socket/chat/chat.handlers"
 import  handleGameEvents  from "../modules/socket/tictactoe/game.handlers";
 import handleUserEvents from "../modules/socket/userdata/user.handlers"
+import pongGameHandlers from "../modules/socket/pong/pong.game.handlers";
+
+import { startGameLoop } from "../modules/socket/pong/gameLoop";
 interface AuthenticatedSocket extends Socket {
     user?: any;
 }
-
+// const userSockets = new Map<string, string>();
 export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
     const db = fastify.db;
     const authMiddleware = createAuthMiddleware(fastify);
@@ -15,14 +18,15 @@ export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
 
     io.on("connection", (socket) => {
       console.log(" User connected:", socket.id);
-      //lllll.name
+     
       handleUserEvents({fastify, io, socket});
       handleChatEvents({fastify, io, socket});
       handleGameEvents({fastify, io, socket});
-
+      pongGameHandlers({fastify, io, socket});
+      
       socket.on("disconnect", () => {
         console.log("---------------> User disconnected:", socket.id);
       });
     });
+    startGameLoop({fastify, io});
 }
-

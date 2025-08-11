@@ -60,7 +60,7 @@ const LocalGame: React.FC = () => {
   const gameOver = winner || isDraw;
 
   return (
-    <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4">
+    <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4 max-lg:bg-black max-sm:bg-white ">
       {!gameStarted ? (
         <Choose
           onChoose={(playerName, choice, currentUser) => {
@@ -77,16 +77,18 @@ const LocalGame: React.FC = () => {
       ) : (
         <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
           <div className="bg-[#393E46] p-4 rounded-xl shadow-md w-full text-white flex justify-around">
-            <div className="text-center">
+
+            <div className={`text-center ${xIsNext  ? "bg-blue-600 w-1/3" : ""} rounded-xl`}>
               <p className="font-bold">{playerXName}</p>
-              <p className="text-blue-400">X</p>
+              <p >X</p>
             </div>
-            <div className="text-center">
+            <div className={`text-center ${!xIsNext  ? "bg-green-600 w-1/3" : ""} rounded-xl`}>
               <p className="font-bold">{playerOName}</p>
-              <p className="text-green-400">O</p>
+              <p >O</p>
             </div>
           </div>
 
+          
           <Board
             xIsNext={xIsNext}
             squares={squares}
@@ -97,7 +99,7 @@ const LocalGame: React.FC = () => {
           />
 
           {gameOver && (
-            <div className="flex gap-4">
+            <div className="flex gap-4 ">
               <button
                 onClick={playAgain}
                 className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"

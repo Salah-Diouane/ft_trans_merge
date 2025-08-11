@@ -12,15 +12,15 @@ export default function ProtectedRoute({ children }: Props) {
 	useEffect(() => {
 		const check = async () => {
 			try {
-					const response = await fetch("http://localhost:3000/hello", {
+					const response = await fetch(`${import.meta.env.VITE_API_URL}/hello`, {
 						credentials: 'include',
 					}).then(res => res.json()) as { refreshtoken: boolean; accesstoken: boolean };
 					if (!response.accesstoken) {
-						const res = await fetch("http://localhost:3000/login/refreshtoken", {
+						const res = await fetch(`${import.meta.env.VITE_API_URL}/login/refreshtoken`, {
 							credentials: 'include',
 						}).then(e => e.json()) as { refreshtoken: boolean };
 						if (!res.refreshtoken) {
-							await fetch("http://localhost:3000/logout", {credentials: 'include'});
+							await fetch(`${import.meta.env.VITE_API_URL}/logout`, {credentials: 'include'});
 							navigate('/login/Signin');
 							return;
 						}
@@ -28,7 +28,7 @@ export default function ProtectedRoute({ children }: Props) {
 					setIsAuthenticated(true);
 			} catch (err) {
 				console.error("Auth check error:", err);
-				await fetch("http://localhost:3000/logout");
+				await fetch(`${import.meta.env.VITE_API_URL}/logout`);
 				navigate('/login/Signin');
 			}
 		};

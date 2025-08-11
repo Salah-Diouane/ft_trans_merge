@@ -18,7 +18,10 @@ import NavBar from "./NavBar";
 const Layout: React.FC = () => {
   const location = useLocation();
 
-
+  // const isActive = (path: string) =>
+  //   location.pathname === path
+  //     ? "bg-[#0077FF] rounded-full size-10 flex items-center justify-center p-2"
+  //     : "";
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
@@ -27,14 +30,15 @@ const Layout: React.FC = () => {
 
 
   return (
-    <div className="flex flex-col h-screen ">
+    // <div className="flex flex-col h-full">
+     <div className="flex flex-col h-screen">
       {/* <NavBar /> */}
 
       <div className="flex flex-1 overflow-hidden max-lg:p-0 max-lg:m-0">
 
-        <div className="p-1 m-4 rounded-2xl  w-[80px] max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:w-full max-lg:h-[70px] max-lg:m-0 max-lg:p-0.5">
+        <div className="p-1 m-4 rounded-2xl w-[80px] max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:w-full max-lg:h-[70px] max-lg:m-0 max-lg:p-0.5">
 
-          <aside className="flex flex-col max-lg:rounded-none  justify-between items-center h-full w-full bg-[#393E46] text-amber-50 p-4 rounded-2xl max-lg:flex-row max-lg:justify-between max-lg:items-center max-lg:h-[65px]">
+          <aside className="flex flex-col justify-between items-center h-full w-full bg-[#393E46] text-amber-50 p-4 rounded-2xl max-lg:flex-row max-lg:justify-between max-lg:items-center max-lg:h-[65px]">
 
             <div className="relative">
 
@@ -81,12 +85,21 @@ const Layout: React.FC = () => {
           </div>
         </main> */}
 
-        <div className="flex flex-col flex-1">
+          {/* <main className="flex-1 overflow-auto h-full w-full mb-5 pr-0 sm:h-[80%]"> */}
+         {/* <div className="flex flex-col flex-1 min-h-0 max-lg:pb-[65px]">
           <NavBar />
-          <main className="flex-1 overflow-auto h-full w-full mb-5 pr-4 max-lg:pr-0">
+          <main className="flex-1 overflow-auto  ">
+            <Outlet />
+          </main>
+        </div>  */}
+
+        <div className="flex flex-col flex-1 min-h-0 max-lg:pb-[65px] pr-4">  
+          <NavBar />
+          <main className="flex-1 overflow-auto min-h-0 max-lg:mb-4 sm:mb-4">
             <Outlet />
           </main>
         </div>
+
       </div>
     </div>
   );

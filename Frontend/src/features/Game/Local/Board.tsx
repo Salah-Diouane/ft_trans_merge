@@ -86,7 +86,7 @@ export default function Board({
     const winnerName = winner === "X" ? playerXName : playerOName;
     status = (
       <div className={`text-center ${statusAnimation}`}>
-        <p className="text-[#00FF7F] font-bold text-2xl mb-2">🎉 Winner!</p>
+        <p className="text-[#00FF7F] font-bold text-2xl mb-2"> Winner!</p>
         
         <p className="text-white text-xl">
           {winnerName} ({winner}) wins!
@@ -96,7 +96,7 @@ export default function Board({
   } else if (isBoardFull) {
     status = (
       <div className={`text-center ${statusAnimation}`}>
-        <p className="text-yellow-400 text-xl font-bold">🤝 It's a draw!</p>
+        <p className="text-yellow-400 text-xl font-bold"> It's a draw!</p>
       </div>
     );
   } else if (gameStarted) {

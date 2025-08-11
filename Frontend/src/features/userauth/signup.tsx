@@ -25,7 +25,7 @@ export default function Signup() {
 				first_name: first_name.current?.value || '',
 				family_name: family_name.current?.value || '',
 			};
-			const response = await fetch("http://localhost:3000/login/signup", {
+			const response = await fetch(`${import.meta.env.VITE_API_URL}/login/signup`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),

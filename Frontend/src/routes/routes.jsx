@@ -16,6 +16,8 @@ import Signup from '../features/userauth/signup';
 import ProtectedRoute from '../features/userauth/protectauth'
 import RemoteGame from "../features/Game/Remote/RemoteGame"
 import LocalGame from '../features/Game/Local/LocalGame';
+import LocalPong from '../features/Game/PingPong/Local/LocalPong'
+import RemotePong from '../features/Game/PingPong/Remote/RemotePong'
 export const routes  = [
   {
     path: '/login',
@@ -32,6 +34,7 @@ export const routes  = [
 		<ProtectedRoute>
 			<Layout />
 		</ProtectedRoute>
+			// <Layout />
 		),
 		children: [
 			{ index: true, element:  <Home /> },
@@ -42,6 +45,8 @@ export const routes  = [
 				children: [
 					{ index: true, element: <GameHome /> },
 					{ path: 'ping-pong', element: <PingPong /> },
+					{path: "ping-pong/local-game", element: <LocalPong />},
+					{path: "ping-pong/remote-game", element: <RemotePong />},
 					{ path: 'tic-tac-toe', element: <TicTacToe /> },
 					{path: "tic-tac-toe/local-game", element: <LocalGame />},
 					{path: "tic-tac-toe/remote-game", element: <RemoteGame />},

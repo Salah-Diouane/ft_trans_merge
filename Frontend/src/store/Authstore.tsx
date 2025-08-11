@@ -3,6 +3,7 @@ import { create } from 'zustand';
 type AuthState = {
   username: string;
   password: string;
+  cover : string;
   setCredentials: (username: string, password: string) => void;
   clearCredentials: () => void;
 };

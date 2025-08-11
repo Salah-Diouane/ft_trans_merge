@@ -87,7 +87,8 @@ const ContactList_Mobile: FC<ContactListMobileProps> = ({
                         {user.username}
                       </strong>
                       <span className="text-sm text-gray-400 truncate mt-1">
-                        {lastMessage?.text || "No messages yet."}
+                        {/* {lastMessage?.text || "No messages yet."} */}
+                        {lastMessage?.text}
                       </span>
                     </div>
                   </div>

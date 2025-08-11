@@ -1,298 +1,3 @@
-// import React, { useState, useEffect, useRef } from "react";
-// import socket from "../../Chat/Frontend/services/socket";
-// import Choose from "./Choose";
-// import { useLocation } from "react-router-dom";
-// import Board from "./Board";
-// import triggerFireworks from "./confetti";
-
-// function calculateWinner(squares: (string | null)[]){
-//   const lines = [
-//     [0, 1, 2], [3, 4, 5], [6, 7, 8],
-//     [0, 3, 6], [1, 4, 7], [2, 5, 8],
-//     [0, 4, 8], [2, 4, 6]
-//   ];
-  
-//   for (const[a, b, c] of lines){
-//     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c])
-//       return squares[a]
-//   }
-//   return null;
-// }
-
-
-// const RemoteGame: React.FC = () => {
-//   const [gameStarted, setGameStarted] = useState<boolean>(false);
-//   const [playerXName, setPlayerXName] = useState<string>("");
-//   const [playerOName, setPlayerOName] = useState<string>("");
-//   const [squares, setSquares] = useState<((string | null)[])>(Array(9).fill(null))
-//   const [xIsNext, setXIsNext] = useState<boolean>(true)
-//   const [usersJoin, setUsersJoin] = useState<boolean>(false)
-//   const [currentUser, setCurrentUser]= useState<string>("")
-//   const [mySymbol, setMySymbol] = useState<"X" | "O" | null>(null)
-//   const [waitingForPlayer, setWaitingForPlayer] = useState<boolean>(false)
-//   const [disconnectWinner, setDisconnectWinner] = useState<string | null>(null)
-//   const [timerdone, setTimerdone] = useState<boolean>(false)
-//   const [loser, setLoser] = useState<string>("")
-//   const [gameEnded, setGameEnded] = useState<boolean>(false)
-
-//   const currentUserRef = useRef<string>("")
-  
-//   const winner = calculateWinner(squares);
-//   const isDraw = squares.every(square => square !== null) && !winner;
-//   const gameOver = (winner || isDraw);
-
-//   function hadlePlay (index : number){
-//     if (!gameEnded){
-//       socket.emit("game:move", {
-//         index,
-//         player: currentUser
-//       });
-//     }
-//   }
-  
-//   function resetGameStat(){
-//     setSquares(Array(9).fill(null))
-//     setXIsNext(true);
-//     setGameStarted(false);
-//     setPlayerXName("");
-//     setPlayerOName("");
-//     setUsersJoin(false);
-//     setMySymbol(null);
-//     setWaitingForPlayer(false);
-//     setDisconnectWinner(null);
-//     setTimerdone(false);
-//     setLoser("");
-//     setGameEnded(false);
-//   }
-
-//   function startNewGame(){
-//     resetGameStat();
-//     socket.emit("leave:game");
-//   }
-
-//   function playAgain(){
-//     socket.emit("game:restart")
-//     startNewGame()
-//   }
-
-//   function handleLeaveGame(){
-//     socket.emit("leave:game");
-//     startNewGame();
-//   }
-
-//   useEffect( () => {
-//   socket.on("game:start", ({ playerX, playerO }) =>{
-//     setPlayerOName(playerO)
-//     setPlayerXName(playerX)
-//     setGameStarted(true)
-//     setUsersJoin(true)
-//     setWaitingForPlayer(false)
-//     setMySymbol(currentUserRef.current === playerX ? "X" : "O")
-//   });
-
-//   socket.on("game:error", ({message})=> alert(message));
-
-//   socket.on("game:waiting", () => setWaitingForPlayer(true));
-
-//   socket.on("game:move", ({squares: newSquare, xIsNext: newXIsNext}) => {
-//     setSquares(newSquare)
-//     setXIsNext(newXIsNext)
-//   });
-
-//   socket.on("game:restart", () => {
-//     setSquares(Array(9).fill(null))
-//     setXIsNext(true)
-//     setGameEnded(false)
-//   })
-
-//   socket.on("player:disconnected", ({ message }) => {
-//     console.log("Player disconnected:", message);
-//   });
-
-//   socket.on("game:win-by-disconnect", ({ winner }) => {
-//     if (gameEnded)
-//         return
-//     setGameEnded(true)
-//     setDisconnectWinner(winner)
-//     if (winner === currentUserRef.current)
-//       triggerFireworks()
-//     setGameStarted(false)
-//     setMySymbol(null)
-//   })
-
-//     return () =>{
-//       socket.off("game:start");
-//       socket.off("game:waiting");
-//       socket.off("game:move");
-//       socket.off("game:restart");
-//       socket.off("player:disconnected");
-//       socket.off("game:win-by-disconnect");
-//       socket.off("game:error");
-//     }
-
-//   }, [gameEnded])
-
-//   useEffect(() => {
-//     socket.on("game:timeout", ({loser, winner, message}) => {
-//       console.log("111111111111")
-//       if (gameEnded)
-//           return ;
-//       setGameEnded(true);
-//       setTimerdone(true);
-//       setLoser(loser)
-//       if (winner === currentUserRef.current)
-//         triggerFireworks()
-//       setGameStarted(false)
-//       setMySymbol(null)
-//       setSquares(Array(9).fill(null))
-//     })
-
-//     return () => {
-//       socket.off("game:timeout");
-//     };
-    
-//   }, [gameEnded])
-
-//   // useEffect(() => {
-//   //   return () => {
-//   //     // This runs when the component is about to unmount (route change)
-//   //     if (socket && socket.connected && (gameStarted || waitingForPlayer)) {
-//   //       console.log("Route changed, leaving game...");
-//   //       socket.emit("leave:game");
-//   //     }
-//   //   };
-//   // }, [location, gameStarted, waitingForPlayer]);
-
-
-
-//   return (
-//     <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4">
-//       {!gameStarted && !usersJoin && !timerdone ? (
-//         <div className="flex flex-cols items-center space-x-4">
-//           {waitingForPlayer ? (
-//             <div className="bg-[#393E46] rounded-xl shadow-lg p-8 max-w-md w-full text-white text-center">
-//               <h2 className="text-2xl font-bold mb-4">⏳ Waiting for Player</h2>
-//               <p className="text-gray-300">Looking for another player to join...</p>
-//               <div className="mt-4">
-//                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto" />
-//               </div>
-//             </div>
-//           ) : (
-//             <Choose 
-//               onChoose={(playerName) => {
-//                 setCurrentUser(playerName);
-//                 currentUserRef.current = playerName;
-//                 socket.emit("join:game");
-//               }}
-//             />
-//           )}
-
-//         </div>
-//       ) : (
-//         <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
-//           <h1 className="text-5xl font-extrabold text-white mb-6">Tic Tac Toe</h1>
-
-//           <div className="bg-[#393E46] p-4 rounded-xl shadow-md w-full text-white flex justify-around">
-
-//             <div className={`text-center p-2 rounded-xl shadow-md ${mySymbol === 'X' ? "bg-blue-600 w-1/3" : ""} `}>
-//               <p className="font-bold">{playerXName}</p>
-//               <p className="text-blue-400">X</p>
-//               {mySymbol === "X" && <p className="text-xs text-green-400">You</p>}              
-//             </div>
-
-//             <div className={`text-center p-2 rounded ${mySymbol === "O" ? "bg-green-600 w-1/3" : ""}`}>
-//               <p className="font-bold">{playerOName}</p>
-//               <p className="text-green-400">O</p>
-//               {mySymbol === "O" && <p className="text-xs text-green-400">You</p>}
-//             </div>
-
-//           </div>
-//           <Board
-//             xIsNext = {xIsNext}
-//             squares = {squares}
-//             onPlay = {hadlePlay}
-//             replayGame = {startNewGame}
-//             playagain={playAgain}
-//             playerOName={playerOName}
-//             playerXName={playerXName}
-//             gameStarted = {gameStarted}
-//             currentUser = {currentUser}
-//             mySymbol={mySymbol}
-//           />
-
-//           {disconnectWinner && !gameOver && !timerdone && (
-//             <div className="text-center m-6">
-//               <p className="text-2xl font-bold text-green-400">
-//                 You Win !!! Opponent Disconnected
-//               </p>
-//               <button className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
-//                       onClick={startNewGame}
-//               >
-//                 Go Back
-//               </button>
-//             </div>
-//           )}
-
-//           {timerdone && loser === currentUserRef.current && (
-//             <div className="text-center mt-6">
-//             <p className="text-2xl font-bold text-red-400">⏱ You lost! Time’s up.</p>
-//             <button
-//               onClick={startNewGame}
-//               className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
-//             >
-//               Go back
-//             </button>
-//           </div>            
-//           )}
-
-//           {timerdone && loser !== currentUserRef.current && (
-//             <div className="text-center mt-6">
-//             <p className="text-2xl font-bold text-green-400">🎉 You win! Opponent timed out.</p>
-//             <button
-//               onClick={startNewGame}
-//               className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
-//             >
-//               Go back
-//             </button>
-//           </div>           
-//           )}
-
-//           {gameOver && !timerdone && !gameEnded && (
-//              <div className="flex gap-4 mt-6">
-//              <button
-//                onClick={playAgain}
-//                className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
-//              >
-//                Play Again
-//              </button>
-//              <button
-//                onClick={startNewGame}
-//                className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
-//              >
-//                New Game
-//              </button>
-//            </div>           
-//           )}
-
-//           {!gameEnded && !timerdone && !disconnectWinner && (
-//             <button
-//             onClick={handleLeaveGame}
-//             className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg shadow-md mt-4"
-//           >
-//             Leave Game
-//           </button>            
-//           )}
-
-//         </div> 
-//       )}
-//     </div>
-//   )
-// }
-
-// export default RemoteGame
-
-
-
 
 
 import React, { useState, useEffect, useRef } from "react";
@@ -301,17 +6,22 @@ import Choose from "./Choose";
 import { useLocation, useNavigate } from "react-router-dom";
 import Board from "./Board";
 import triggerFireworks from "./confetti";
+import { Star } from "lucide-react";
+import { CgSpinner } from "react-icons/cg";
+import { FiUsers } from 'react-icons/fi';
+import { RiPingPongFill } from 'react-icons/ri';
 
-function calculateWinner(squares: (string | null)[]){
+function calculateWinner(squares: (string | null)[]) {
   const lines = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
     [0, 3, 6], [1, 4, 7], [2, 5, 8],
     [0, 4, 8], [2, 4, 6]
   ];
-  
-  for (const[a, b, c] of lines){
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c])
-      return squares[a]
+
+  for (const [a, b, c] of lines) {
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
   }
   return null;
 }
@@ -320,51 +30,84 @@ const RemoteGame: React.FC = () => {
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [playerXName, setPlayerXName] = useState<string>("");
   const [playerOName, setPlayerOName] = useState<string>("");
-  const [squares, setSquares] = useState<((string | null)[])>(Array(9).fill(null))
-  const [xIsNext, setXIsNext] = useState<boolean>(true)
-  const [usersJoin, setUsersJoin] = useState<boolean>(false)
-  const [currentUser, setCurrentUser]= useState<string>("")
-  const [mySymbol, setMySymbol] = useState<"X" | "O" | null>(null)
-  const [waitingForPlayer, setWaitingForPlayer] = useState<boolean>(false)
-  const [disconnectWinner, setDisconnectWinner] = useState<string | null>(null)
-  const [timerdone, setTimerdone] = useState<boolean>(false)
-  const [loser, setLoser] = useState<string>("")
-  const [gameEnded, setGameEnded] = useState<boolean>(false)
+  const [squares, setSquares] = useState<(string | null)[]>(Array(9).fill(null));
+  const [xIsNext, setXIsNext] = useState<boolean>(true);
+  const [usersJoin, setUsersJoin] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<string>("");
+  const [mySymbol, setMySymbol] = useState<"X" | "O" | null>(null);
+  const [waitingForPlayer, setWaitingForPlayer] = useState<boolean>(false);
+  const [disconnectWinner, setDisconnectWinner] = useState<string | null>(null);
+  const [timerdone, setTimerdone] = useState<boolean>(false);
+  const [loser, setLoser] = useState<string>("");
+  const [gameEnded, setGameEnded] = useState<boolean>(false);
 
-  const currentUserRef = useRef<string>("")
+  const currentUserRef = useRef<string>("");
   const hasJoinedGameRef = useRef<boolean>(false);
-  const location = useLocation();
-  const navigate = useNavigate();
-  
-  const winner = calculateWinner(squares);
-  const isDraw = squares.every(square => square !== null) && !winner;
-  const gameOver = (winner || isDraw);
+  const gameEndedRef = useRef<boolean>(gameEnded);
 
-  // Method 1: Component unmount cleanup (MOST RELIABLE)
+  const [startTimer, setStartTimer] = useState<boolean>(false);
+  const [time, setTime] = useState<number>(0);
+  const timerRef = useRef<number | null>(null);
+
+
   useEffect(() => {
+    
+    if (startTimer && !gameEnded) {
+      timerRef.current = setInterval(() => {
+        setTime(prev => {
+          const newTime = prev + 1;
+          if (newTime >= 10) {
+            setStartTimer(false);
+            return 10;
+          }
+          return newTime;
+        });
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+
     return () => {
-      console.log("🔴 Component unmounting - route changed!");
-      if (hasJoinedGameRef.current && socket && socket.connected) {
-        console.log("🔴 Disconnecting due to route change");
-        socket.emit("leave:game");
-        // socket.disconnect();
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     };
-  }, []); // Empty dependency array - runs only on unmount
+  }, [startTimer, gameEnded]);
 
+  useEffect(() => {
+    gameEndedRef.current = gameEnded;
+  }, [gameEnded]);
 
+  const winner = calculateWinner(squares);
+  const isDraw = squares.every(square => square !== null) && !winner;
+  const gameOver = winner || isDraw;
 
-  function hadlePlay (index : number){
-    if (!gameEnded){
+  useEffect(() => {
+    return () => {
+      if (hasJoinedGameRef.current && socket && socket.connected) {
+        socket.emit("leave:game");
+        setStartTimer(false);
+        setTime(0);
+      }
+    };
+  }, []);
+
+  function handlePlay(index: number) {
+    if (!gameEnded && !timerdone && gameStarted) {
       socket.emit("game:move", {
         index,
-        player: currentUser
+        player: currentUser,
       });
+      setTime(0);
     }
   }
-  
-  function resetGameStat(){
-    setSquares(Array(9).fill(null))
+
+  function resetGameStat() {
+    setSquares(Array(9).fill(null));
     setXIsNext(true);
     setGameStarted(false);
     setPlayerXName("");
@@ -376,127 +119,262 @@ const RemoteGame: React.FC = () => {
     setTimerdone(false);
     setLoser("");
     setGameEnded(false);
-    hasJoinedGameRef.current = false; // Reset the ref
+    hasJoinedGameRef.current = false;
+    setTime(0);
+    setStartTimer(false);
+    
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
   }
 
-  function startNewGame(){
+  function startNewGame() {
     resetGameStat();
     socket.emit("leave:game");
   }
-
-  function playAgain(){
-    socket.emit("game:restart")
-    startNewGame()
+  
+  function drawCase() {
+    resetGameStat();
+    socket.emit("game:draw");
   }
 
-  function handleLeaveGame(){
+  function playAgain() {
+    socket.emit("game:restart");
+    setTime(0);
+    setStartTimer(false);
+    startNewGame();
+  }
+
+  function handleLeaveGame() {
     socket.emit("leave:game");
     hasJoinedGameRef.current = false;
     startNewGame();
-    // navigate('/game');
   }
 
-  useEffect( () => {
-    socket.on("game:start", ({ playerX, playerO }) =>{
-      console.log("🟢 Game started!");
-      hasJoinedGameRef.current = true; // Mark as joined
-      setPlayerOName(playerO)
-      setPlayerXName(playerX)
-      setGameStarted(true)
-      setUsersJoin(true)
-      setWaitingForPlayer(false)
-      setMySymbol(currentUserRef.current === playerX ? "X" : "O")
-    });
-
-    socket.on("game:error", ({message})=> alert(message));
-
-    socket.on("game:waiting", () => {
-      console.log("🟡 Waiting for player...");
-      hasJoinedGameRef.current = true; // Mark as joined even while waiting
-      setWaitingForPlayer(true);
-    });
-
-    socket.on("game:move", ({squares: newSquare, xIsNext: newXIsNext}) => {
-      setSquares(newSquare)
-      setXIsNext(newXIsNext)
-    });
-
-    socket.on("game:restart", () => {
-      setSquares(Array(9).fill(null))
-      setXIsNext(true)
-      setGameEnded(false)
-    })
-
-    socket.on("player:disconnected", ({ message }) => {
-      console.log("Player disconnected:", message);
-    });
-
-    socket.on("game:win-by-disconnect", ({ winner }) => {
-      if (gameEnded)
-          return
-      setGameEnded(true)
-      setDisconnectWinner(winner)
-      if (winner === currentUserRef.current)
-        triggerFireworks()
-      setGameStarted(false)
-      setMySymbol(null)
-      hasJoinedGameRef.current = false; // Game ended
-    })
-
-    return () =>{
-      socket.off("game:start");
-      socket.off("game:waiting");
-      socket.off("game:move");
-      socket.off("game:restart");
-      socket.off("player:disconnected");
-      socket.off("game:win-by-disconnect");
-      socket.off("game:error");
-    }
-
-  }, [gameEnded])
-
   useEffect(() => {
-    socket.on("game:timeout", ({loser, winner, message}) => {
+    const onGameStart = ({ playerX, playerO }: { playerX: string; playerO: string }) => {
+      console.log("Game started!--------------");
+      hasJoinedGameRef.current = true;
+      setPlayerOName(playerO);
+      setPlayerXName(playerX);
+      setGameStarted(true);
+      setUsersJoin(true);
+      setWaitingForPlayer(true);
+      setMySymbol(currentUserRef.current === playerX ? "X" : "O");
+      setGameEnded(false);
+      setTimerdone(false); 
+      setStartTimer(true);
+      setTime(0);
+      // !gameStarted && !usersJoin && !timerdone
+    };
+
+    const onGameError = ({ message }: { message: string }) => alert(message);
+
+    const onGameWaiting = () => {
+      console.log("Waiting for player...");
+      hasJoinedGameRef.current = true;
+      setWaitingForPlayer(true);
+      setStartTimer(false);
+    };
+
+    const onGameMove = ({ squares: newSquares, xIsNext: newXIsNext }: { squares: (string | null)[]; xIsNext: boolean }) => {
+
+      if (!gameEndedRef.current) {
+        setSquares(newSquares);
+        setXIsNext(newXIsNext);
+        setTime(0);
+
+        const winner = calculateWinner(newSquares);
+        const isDraw = newSquares.every(sq => sq !== null) && !winner;
+        
+        if (winner || isDraw) {
+          setStartTimer(false);
+        }
+      }
+    };
+
+    const onGameRestart = () => {
+      setSquares(Array(9).fill(null));
+      setXIsNext(true);
+      setGameEnded(false);
+      setTimerdone(false);
+      setStartTimer(true);
+      setTime(0);
+    };
+
+    const onPlayerDisconnected = ({ message }: { message: string }) => {
+      console.log("Player disconnected:", message);
+      setStartTimer(false);
+      setTime(0);
+    };
+
+    const onGameWinByDisconnect = ({ winner, loser }: { winner: string; loser: string }) => {
+      if (gameEndedRef.current) return;
+
+      setGameEnded(true);
+      setDisconnectWinner(winner);
+      setLoser(loser);
+      setStartTimer(false);
+      setTime(0);
+
+      if (winner === currentUserRef.current) {
+        triggerFireworks();
+      }
+
+      setGameStarted(false);
+      setMySymbol(null);
+      hasJoinedGameRef.current = false;
+    };
+
+    const onGameTimeout = ({ loser, winner }: { loser: string, winner: string }) => {
+      if (gameEndedRef.current) return;
+    
       console.log("Game timeout occurred");
-      if (gameEnded)
-          return ;
       setGameEnded(true);
       setTimerdone(true);
-      setLoser(loser)
-      if (winner === currentUserRef.current)
-        triggerFireworks()
-      setGameStarted(false)
-      setMySymbol(null)
-      setSquares(Array(9).fill(null))
-      hasJoinedGameRef.current = false; // Game ended
-    })
+      setLoser(loser);
+      setStartTimer(false); 
+      setTime(0);
+    
+      if (winner === currentUserRef.current) {
+        triggerFireworks();
+      }
+    
+      setGameStarted(false);
+      setMySymbol(null);
+      setSquares(Array(9).fill(null));
+      hasJoinedGameRef.current = false;
+    };
+
+    const onGameDrawEnd = () => {
+      console.log("Game ended in draw - resetting all players");
+      resetGameStat();
+    };
+
+    socket.on("game:start", onGameStart);
+    socket.on("game:error", onGameError);
+    socket.on("game:waiting", onGameWaiting);
+    socket.on("game:move", onGameMove);
+    socket.on("game:restart", onGameRestart);
+    socket.on("player:disconnected", onPlayerDisconnected);
+    socket.on("game:win-by-disconnect", onGameWinByDisconnect);
+    socket.on("game:timeout", onGameTimeout);
+    socket.on("game:draw-end", onGameDrawEnd);
 
     return () => {
-      socket.off("game:timeout");
+      socket.off("game:start", onGameStart);
+      socket.off("game:error", onGameError);
+      socket.off("game:waiting", onGameWaiting);
+      socket.off("game:move", onGameMove);
+      socket.off("game:restart", onGameRestart);
+      socket.off("player:disconnected", onPlayerDisconnected);
+      socket.off("game:win-by-disconnect", onGameWinByDisconnect);
+      socket.off("game:timeout", onGameTimeout);
+      socket.off("game:draw-end", onGameDrawEnd);
     };
-    
-  }, [gameEnded])
+  }, []);
 
+  useEffect(() => {
+    if (!winner || gameEnded)
+      return;
+
+    setGameEnded(true);
+    setStartTimer(false);
+    setTime(0);
+
+    const winnerName = winner === "X" ? playerXName : playerOName;
+    const loserName = winner === "X" ? playerOName : playerXName;
+
+    if (winnerName === currentUserRef.current) {
+      triggerFireworks();
+    }
+
+    setLoser(loserName);
+    setGameStarted(false);
+    setMySymbol(null);
+    hasJoinedGameRef.current = false;
+  }, [winner, gameEnded, playerXName, playerOName]);
+
+
+  useEffect(() => {
+    if (!isDraw || gameEnded) 
+      return;
+
+    console.log("Draw detected");
+    setGameEnded(true);
+    setStartTimer(false);
+    setTime(0);
+    setGameStarted(false);
+    setMySymbol(null);
+    hasJoinedGameRef.current = false;
+  }, [isDraw, gameEnded]);
+  
   return (
     <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4">
-      {!gameStarted && !usersJoin && !timerdone ? (
+      {/* {!usersJoin ? ( */}
+    {!gameStarted && !usersJoin && !timerdone ? (
         <div className="flex flex-cols items-center space-x-4">
           {waitingForPlayer ? (
-            <div className="bg-[#393E46] rounded-xl shadow-lg p-8 max-w-md w-full text-white text-center">
-              <h2 className="text-2xl font-bold mb-4">⏳ Waiting for Player</h2>
-              <p className="text-gray-300">Looking for another player to join...</p>
-              <div className="mt-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto" />
+            <div className="bg-[#393e46] rounded-2xl p-8 shadow-2xl w-[900px] max-w-2xl mx-auto border border-gray-600">
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-[#222831] rounded-full flex items-center justify-center mb-4 mx-auto border border-gray-600">
+                  <RiPingPongFill className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold text-white mb-2">Finding Match</h1>
+                <p className="text-gray-300">Connecting you with an opponent...</p>
               </div>
-              <button
-                onClick={handleLeaveGame}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg shadow-md mt-4"
-              >
-                Cancel
-              </button>
+    
+              <div className="relative mb-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-2 border-2 border-blue-500">
+                      <FiUsers className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-sm text-white font-medium">You</span>
+                  </div>
+    
+                  <div className="flex-1 mx-2 sm:mx-4 relative">
+                    <div className="h-0.5 bg-gray-600 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-blue-500 rounded-full animate-pulse"
+                        style={{
+                          animation: 'loading 2s ease-in-out infinite',
+                          width: '60%',
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+    
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 border-2 border-dashed border-gray-500 rounded-full flex items-center justify-center mb-2 animate-pulse">
+                      <div className="flex space-x-1">
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      </div>
+                    </div>
+                    <span className="text-sm text-gray-400 font-medium">Opponent</span>
+                  </div>
+                </div>
+              </div>
+    
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center space-x-3 bg-[#222831] px-6 py-3 rounded-full border border-gray-600">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
+                  <span className="text-gray-300 font-medium">Searching for players</span>
+                </div>
+              </div>
+    
+              <div className="pt-6 border-t border-gray-600">
+                <p className="text-sm text-gray-400 text-center">
+                  Get some water while waiting for the other player
+                </p>
+              </div>
             </div>
           ) : (
-            <Choose 
+            <Choose
               onChoose={(playerName) => {
                 setCurrentUser(playerName);
                 currentUserRef.current = playerName;
@@ -504,18 +382,16 @@ const RemoteGame: React.FC = () => {
               }}
             />
           )}
-
         </div>
       ) : (
         <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
           <h1 className="text-5xl font-extrabold text-white mb-6">Tic Tac Toe</h1>
 
           <div className="bg-[#393E46] p-4 rounded-xl shadow-md w-full text-white flex justify-around">
-
-            <div className={`text-center p-2 rounded-xl shadow-md ${mySymbol === 'X' ? "bg-blue-600 w-1/3" : ""} `}>
+            <div className={`text-center p-2 rounded-xl ${mySymbol === "X" ? "bg-blue-600 w-1/3" : ""} `}>
               <p className="font-bold">{playerXName}</p>
               <p className="text-blue-400">X</p>
-              {mySymbol === "X" && <p className="text-xs text-green-400">You</p>}              
+              {mySymbol === "X" && <p className="text-xs text-green-400">You</p>}
             </div>
 
             <div className={`text-center p-2 rounded ${mySymbol === "O" ? "bg-green-600 w-1/3" : ""}`}>
@@ -523,18 +399,27 @@ const RemoteGame: React.FC = () => {
               <p className="text-green-400">O</p>
               {mySymbol === "O" && <p className="text-xs text-green-400">You</p>}
             </div>
-
           </div>
+
+          {!gameOver && !gameEnded && !timerdone && startTimer && gameStarted && (
+            <div
+              className={`flex items-center justify-center w-24 h-24 rounded-full font-mono text-4xl font-extrabold text-white transition-colors duration-500 shadow-xl
+                ${xIsNext ? 'bg-blue-600' : 'bg-green-600'}`}
+            >
+              {Math.max(0, 10 - time)}
+            </div>
+          )}
+
           <Board
-            xIsNext = {xIsNext}
-            squares = {squares}
-            onPlay = {hadlePlay}
-            replayGame = {startNewGame}
+            xIsNext={xIsNext}
+            squares={squares}
+            onPlay={handlePlay}
+            replayGame={startNewGame}
             playagain={playAgain}
             playerOName={playerOName}
             playerXName={playerXName}
-            gameStarted = {gameStarted}
-            currentUser = {currentUser}
+            gameStarted={gameStarted}
+            currentUser={currentUser}
             mySymbol={mySymbol}
           />
 
@@ -543,8 +428,9 @@ const RemoteGame: React.FC = () => {
               <p className="text-2xl font-bold text-green-400">
                 You Win !!! Opponent Disconnected
               </p>
-              <button className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
-                      onClick={startNewGame}
+              <button
+                className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
+                onClick={startNewGame}
               >
                 Go Back
               </button>
@@ -553,58 +439,72 @@ const RemoteGame: React.FC = () => {
 
           {timerdone && loser === currentUserRef.current && (
             <div className="text-center mt-6">
-            <p className="text-2xl font-bold text-red-400">⏱ You lost! Time's up.</p>
-            <button
-              onClick={startNewGame}
-              className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
-            >
-              Go back
-            </button>
-          </div>            
+              <p className="text-2xl font-bold text-red-400"> You lost! Time's up.</p>
+              <button
+                onClick={startNewGame}
+                className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
+              >
+                Go back
+              </button>
+            </div>
           )}
 
           {timerdone && loser !== currentUserRef.current && (
             <div className="text-center mt-6">
-            <p className="text-2xl font-bold text-green-400">🎉 You win! Opponent timed out.</p>
-            <button
-              onClick={startNewGame}
-              className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
-            >
-              Go back
-            </button>
-          </div>           
+              <p className="text-2xl font-bold text-green-400"> You win! Opponent timed out.</p>
+              <button onClick={startNewGame} className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md" >
+                Go back
+              </button>
+            </div>
+          )}
+
+          {gameOver && gameEnded && winner !== currentUserRef.current && !timerdone && (
+            <div className="text-center mt-6">
+              <p className="text-2xl font-bold text-green-400"> You win! </p>
+              <button
+                onClick={startNewGame}
+                className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
+              >
+                Go back
+              </button>
+            </div>
+          )}
+
+          {gameOver && gameEnded && loser === currentUserRef.current && !timerdone && (
+            <div className="text-center mt-6">
+              <p className="text-2xl font-bold text-red-400"> You lost! </p>
+              <button
+                onClick={startNewGame}
+                className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
+              >
+                Go back
+              </button>
+            </div>
           )}
 
           {gameOver && !timerdone && !gameEnded && (
-             <div className="flex gap-4 mt-6">
-             <button
-               onClick={playAgain}
-               className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
-             >
-               Play Again
-             </button>
-             <button
-               onClick={startNewGame}
-               className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
-             >
-               New Game
-             </button>
-           </div>           
+            <div className="text-center mt-6">
+              <button
+                onClick={drawCase}
+                className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 mt-4 rounded-lg text-white font-semibold shadow-md"
+              >
+                Go back
+              </button>
+            </div>
           )}
 
-          {!gameEnded && !timerdone && !disconnectWinner && (
+          {!gameOver && !gameEnded && !timerdone && !disconnectWinner && gameStarted && (
             <button
-            onClick={handleLeaveGame}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg shadow-md mt-4"
-          >
-            Leave Game
-          </button>            
+              onClick={handleLeaveGame}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg shadow-md mt-4"
+            >
+              Leave Game
+            </button>
           )}
-
-        </div> 
+        </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default RemoteGame
+export default RemoteGame;

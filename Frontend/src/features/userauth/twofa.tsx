@@ -28,7 +28,7 @@ export default function TwoFA() {
 			password: state.password
 		};
 		try {
-			const response = await fetch("http://localhost:3000/login/verify2fa", {
+			const response = await fetch(`${import.meta.env.VITE_API_URL}/login/verify2fa`, {
 				method: "POST",
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),
@@ -63,10 +63,10 @@ export default function TwoFA() {
 			<h1 className="mb-4 text-xl font-russo  font-semibold">Two-Factor Auth</h1>
 			<h6 className="text-xs">We Send a code to your email ****@gmail.com </h6>
 			<br />
-			<div className="flex flex-col">
+			<form onSubmit={Donebutton} className="flex flex-col">
 				<div className="flex space-x-2 mb-4">
 					{numbers.map((value, index) => (
-						<input key={index} maxLength={1} value={value} ref={(el) => (inputRefs.current[index] = el)}
+						<input autoFocus={index == 0} key={index} maxLength={1} value={value} ref={(el) => (inputRefs.current[index] = el)}
 							onChange={(e) => {
 								const val = e.target.value;
 								const newNumbers = [...numbers];
@@ -92,7 +92,7 @@ export default function TwoFA() {
 				<div className="flex justify-center space-x-2">
 					<button onClick={Donebutton} className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" > Verify </button>
 				</div>
-			</div>
+			</form>
 		</>
 	);
 }

@@ -62,8 +62,6 @@ const ContactList: FC<ContactListProps> = ({
               users.map((user) => {
                 const userMessages = messages[user.id] || [];
                 const lastMessage = userMessages[userMessages.length - 1];
-                console.log("---> unreadCounts")
-                console.log(unreadCounts)
                 const hasUnread = unreadCounts[user.id];
                 const lastTime = lastMessage
                   ? new Date(lastMessage.timestamp).toLocaleTimeString([], {
@@ -94,7 +92,8 @@ const ContactList: FC<ContactListProps> = ({
                           {user.username}
                         </strong>
                         <span className="text-sm text-gray-400 truncate mt-1">
-                          {lastMessage?.text || "No messages yet."}
+                          {/* {lastMessage?.text || "No messages yet."} */}
+                          {lastMessage?.text}
                         </span>
                       </div>
                     </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Square from "./Square"
 import  triggerFireworks  from "./confetti"
 import socket from "../../Chat/Frontend/services/socket";
+import { p } from "react-router/dist/development/index-react-server-client-Bi_fx8qz";
 
 
 function calculateWinner(squares: (string | null)[]) {
@@ -83,15 +84,15 @@ export default function Board({
   //   // raplayGame();
   // }
   
-  useEffect(() => {
-    if (winner && !confettiTriggered) {
-      triggerFireworks();
-      setConfettiTriggered(true);
-    } else if (!winner) {
-      setConfettiTriggered(false);
-    }
+  // useEffect(() => {
+  //   // if (winner && !confettiTriggered) {
+  //   //   triggerFireworks();
+  //   //   setConfettiTriggered(true);
+  //   // } else if (!winner) {
+  //   //   setConfettiTriggered(false);
+  //   // }
 
-  }, [winner, confettiTriggered]);
+  // }, [winner, confettiTriggered]);
 
   let boardAnimation = "";
   let statusAnimation = "";
@@ -105,26 +106,30 @@ export default function Board({
   }
 
   let status;
-  if (winner) {
-    const winnerName = winner === "X" ? playerXName : playerOName;
-    // console.log("--> playerXName")
-    // console.log(playerXName)
-    // console.log("--> playerOName")
-    // console.log(playerOName)
-    console.log("winner name : ");
-    console.log(winnerName);
-    status = (
-      <div className={`text-center ${statusAnimation}`}>
-        <p className="text-[#00FF7F] font-bold text-2xl mb-2">🎉 Winner!</p>
-        <p className="text-white text-xl">
-          {winnerName} ({winner}) wins!
-        </p>
-      </div>
+  const winnerName = winner === "X" ? playerXName : playerOName;
+  // if (winner && currentUser !== winnerName) {
+  if (winner ) {
+
+    const currentPlayerName = xIsNext ? playerXName : playerOName;
+    const isCurrentPlayerMe = currentPlayerName === currentUser;
+
+    console.log("-->currentPlayerName")
+    console.log(currentPlayerName)
+    console.log("-->currentUser")
+    console.log(currentUser)
+    
+    status = currentUser !== winnerName && ( 
+        <div className={`text-center `}>
+          {/* <p className="text-[#00FF7F] font-bold text-2xl mb-2">Winner !!</p> */}
+          <p className="text-[#00FF7F] font-bold text-2xl mb-2">
+            {winnerName} ({winner}) wins!
+          </p>
+        </div>
     );
-  } else if (isBoardFull) {
+  } else if (isBoardFull ) {
     status = (
       <div className={`text-center ${statusAnimation}`}>
-        <p className="text-yellow-400 text-xl font-bold">🤝 It's a draw!</p>
+        <p className="text-yellow-400 text-xl font-bold"> It's a draw!</p>
       </div>
     );
   } else if (gameStarted) {

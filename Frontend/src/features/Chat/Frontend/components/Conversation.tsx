@@ -22,6 +22,7 @@ import socket from "../services/socket";
 interface ConversationProps {
   user: { username: string } | null;
   messages: Message[];
+  history: Message[]
   input: string;
   setInput: (value: string) => void;
   onSend: () => void;
@@ -32,6 +33,7 @@ interface ConversationProps {
 const Conversation: FC<ConversationProps> = ({
   user,
   messages,
+  history,
   input,
   setInput,
   onSend,
@@ -95,8 +97,6 @@ const Conversation: FC<ConversationProps> = ({
     );
   }
 
-
-
   const addToInput = (emoji: { native: string }) => {
     setInput(input + emoji.native);
   };
@@ -130,11 +130,6 @@ const Conversation: FC<ConversationProps> = ({
 
   }
 
-  const  handleInviteClick = () => {
-    setShowInvBlockmenu(true);
-    setShowInvBlock(false)
-  }
-
   const handleUnblockUser = () => {
     if (!user) return;
     socket.emit("unblock:user", {
@@ -151,8 +146,6 @@ const Conversation: FC<ConversationProps> = ({
   const handleThreeDotsClick = (messageId: string | number, e: React.MouseEvent) => {
     setShowMenu(showMenu === messageId ? null : messageId);
   };
-
-
 
   const handleThreeDotsInvBlock = ( e: React.MouseEvent) => {
     setShowInvBlock(true);
@@ -293,12 +286,15 @@ const Conversation: FC<ConversationProps> = ({
                 <div className={`flex ${!isMe ? "justify-start" : "justify-end"}`}>
                   <div className="relative group max-w-xs sm:max-w-sm md:max-w-md break-words">
                     {/* Message bubble */}
+
                     <div
                       className={`rounded-xl p-2 whitespace-pre-wrap shadow-lg ${isMe
                           ? "bg-[#0077FF] text-white self-end"
                           : "bg-[#393E46] text-white self-start"
                         }`}
                     >
+                      {/* {msg.sender}
+                      {msg.username} */}
                       {msg.text}
                     </div>
                     {isMe && (
@@ -446,7 +442,8 @@ const Conversation: FC<ConversationProps> = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !blockClicked[user.username]) onSend();
+                if (e.key === "Enter" && !blockClicked[user.username])
+                  onSend();
               }}
               className="w-full bg-[#393E46] h-14 text-center placeholder-white rounded-full py-3 px-5 pr-12 outline-none focus:ring-2 focus:ring-[#0077FF] transition"
               disabled={blockClicked[user.username]}

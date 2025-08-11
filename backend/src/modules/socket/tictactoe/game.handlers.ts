@@ -22,6 +22,7 @@ interface GameState {
   playerX: string;
   playerO: string;
   players: string[];
+  gameEnded: boolean; 
 }
 
 const gameState: GameState = {
@@ -30,6 +31,7 @@ const gameState: GameState = {
   playerX: "",
   playerO: "",
   players: [],
+  gameEnded: false, 
 };
 
 const gameRoom = "tic-tac-toe";
@@ -56,26 +58,35 @@ function resetGameState() {
   gameState.playerX = "";
   gameState.playerO = "";
   gameState.players = [];
+  gameState.gameEnded = false; 
+  
+
+  moveTimers.forEach(timer => clearTimeout(timer));
   moveTimers.clear();
 }
 
 function startTurnTimer(io: IOServer, currentPlayer: string) {
-  clearTimeout(moveTimers.get(currentPlayer));
+
+  if (gameState.gameEnded)
+    return;
+
+  moveTimers.forEach(clearTimeout);
+  moveTimers.clear();
 
   const timeout = setTimeout(() => {
+
+    if (gameState.gameEnded)
+      return;
+    
     const loser = currentPlayer;
     const winner = loser === gameState.playerX ? gameState.playerO : gameState.playerX;
 
-    io.to(gameRoom).emit("game:timeout", {
-      loser,
-      winner,
-      message: `${loser} took too long. ${winner} wins!`,
-    });
-
-    console.log(`${loser} took too long. ${winner} wins!`);
-
+    gameState.gameEnded = true;
+    
+    io.to(gameRoom).emit("game:timeout", { loser, winner });
     resetGameState();
-  }, 10000); // 10 seconds
+    playersInRoom.clear();
+  }, 10000);
 
   moveTimers.set(currentPlayer, timeout);
 }
@@ -104,6 +115,7 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
       gameState.players = players;
       gameState.squares = Array(9).fill(null);
       gameState.xIsNext = true;
+      gameState.gameEnded = false; 
 
       io.to(gameRoom).emit("game:start", {
         playerX: gameState.playerX,
@@ -117,7 +129,15 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
   });
 
   socket.on("game:move", ({ index, player }) => {
-    clearTimeout(moveTimers.get(player));
+
+    if (gameState.gameEnded)
+      return;
+
+    const currentTimer = moveTimers.get(player);
+    if (currentTimer) {
+      clearTimeout(currentTimer);
+      moveTimers.delete(player);
+    }
 
     if (!gameState.players.includes(player)) return;
     if (gameState.squares[index] !== null) return;
@@ -137,8 +157,15 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     });
 
     const winner = calculateWinner(gameState.squares);
-    if (winner || gameState.squares.every(sq => sq !== null)) {
+    const isDraw = gameState.squares.every(sq => sq !== null);
+    
+    if (winner || isDraw) {
+
+      gameState.gameEnded = true;
       moveTimers.forEach(timer => clearTimeout(timer));
+      moveTimers.clear();
+
+
       return;
     }
 
@@ -147,14 +174,27 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
   });
 
   socket.on("game:restart", () => {
-    if (!userData?.username || !gameState.players.includes(userData.username)) return;
+
+
+    if (!userData?.username || !gameState.players.includes(userData.username))
+      return;
+
+    moveTimers.forEach(timer => clearTimeout(timer));
+    moveTimers.clear();
 
     gameState.squares = Array(9).fill(null);
     gameState.xIsNext = true;
+    gameState.gameEnded = false; 
 
     io.to(gameRoom).emit("game:restart");
 
     startTurnTimer(io, gameState.playerX);
+  });
+
+  socket.on("game:draw", () => {
+    resetGameState();
+    playersInRoom.clear();
+    socket.leave(gameRoom);
   });
 
   socket.on("leave:game", () => {
@@ -162,7 +202,13 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
       const username = playersInRoom.get(socket.id);
       playersInRoom.delete(socket.id);
       socket.leave(gameRoom);
-      moveTimers.delete(username!);
+
+      moveTimers.forEach((timer, player) => {
+        if (player === username) {
+          clearTimeout(timer);
+          moveTimers.delete(player);
+        }
+      });
 
       if (playersInRoom.size === 1) {
         const [remainingSocketId] = playersInRoom.keys();
@@ -184,13 +230,18 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
   });
 
   socket.on("disconnect", () => {
-
+    console.group("---->      lllllll")
     if (playersInRoom.has(socket.id)) {
-      
       const username = playersInRoom.get(socket.id);
       playersInRoom.delete(socket.id);
       socket.leave(gameRoom);
-      moveTimers.delete(username!);
+
+      moveTimers.forEach((timer, player) => {
+        if (player === username) {
+          clearTimeout(timer);
+          moveTimers.delete(player);
+        }
+      });
 
       if (playersInRoom.size === 1) {
         const [remainingSocketId] = playersInRoom.keys();
@@ -207,7 +258,8 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
         resetGameState();
       }
 
-      if (playersInRoom.size === 0) resetGameState();
+      if (playersInRoom.size === 0)
+        resetGameState();
     }
   });
 }

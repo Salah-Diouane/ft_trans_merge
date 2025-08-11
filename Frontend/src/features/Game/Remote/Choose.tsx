@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import socket from "../../Chat/Frontend/services/socket";
-
+import { FiUsers } from 'react-icons/fi';
+import { RiPingPongFill } from 'react-icons/ri';
 type ChooseProps = {
     onChoose: (playerName: string) => void;
 };
@@ -19,7 +20,7 @@ export default function Choose({ onChoose }: ChooseProps) {
         socket.on("profile-data", (socket_data: { user: string }) => {
             // currentUserRef.current = socket_data.user;
             setCurrentUser(socket_data.user);
-            setIsLoading(false);
+            // setIsLoading(false);
         });
 
         return () => {
@@ -40,7 +41,8 @@ export default function Choose({ onChoose }: ChooseProps) {
             <div className="mb-6 text-center">
                 <p className="text-gray-300 mb-2">Player:</p>
                 <p className="text-xl font-semibold text-blue-400">
-                    {isLoading ? "Loading..." : currentUser}
+                    {/* {isLoading ? "Loading..." : currentUser} */}
+                    {currentUser}
                 </p>
             </div>
 
@@ -54,16 +56,14 @@ export default function Choose({ onChoose }: ChooseProps) {
             <div className="flex justify-center">
                 <button
                     onClick={handleJoinGame}
-                    disabled={isLoading}
                     className={`px-8 py-3 rounded-md font-bold text-lg ${
-                        isLoading 
-                            ? "bg-gray-600 cursor-not-allowed" 
-                            : "bg-[#0077FF] hover:bg-blue-700"
+                         "bg-[#0077FF] hover:bg-blue-700"
                     } transition duration-200`}
                 >
-                    {isLoading ? "Loading..." : "Join Game"}
-                </button>
-            </div>
+                    {"Join Game"}
+                </button> 
+            </div> 
+       
         </div>
     );
 }

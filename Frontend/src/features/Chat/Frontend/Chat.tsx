@@ -1,3 +1,5 @@
+
+
 import React, { FC, useEffect, useRef, useState } from 'react';
 import socket from './services/socket';
 
@@ -11,8 +13,9 @@ import { User } from './types/User';
 
 // Message type
 interface Message {
-  id?: string|number;
+  id?: string | number;
   sender: string;
+  recipient: string;
   text: string;
   timestamp: string;
 }
@@ -30,12 +33,12 @@ const ChatApp: FC = () => {
   const currentUserRef = useRef<string>("");
 
   const [selectedEmojis, setSelectedEmojis] = useState<string[]>([]);
-  // const [unreadCounts, setUnreadCounts] = useState<string | number>();
   const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({});
   const selectedUserRef = useRef<User | null>(null);
 
 
   const [isInitialized, setIsInitialized] = useState(false);
+  const [history, setHistory] = useState<Record<number, Message[]>>({})
   const pendingHistoryRef = useRef<any[]>([]);
 
   const isMobile = window.outerWidth < 1024;
@@ -45,10 +48,16 @@ const ChatApp: FC = () => {
   }, [selectedUser])
 
   useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+  }, []);
+
+  useEffect(() => {
     usersRef.current = users;
 
     if (currentUserRef.current && pendingHistoryRef.current.length > 0) {
-      processHistory(pendingHistoryRef.current);
+      // processHistory(pendingHistoryRef.current);
     }
   }, [users]);
 
@@ -61,42 +70,6 @@ const ChatApp: FC = () => {
 
   const lastmsg = new Map<string, string>();
 
-  const processHistory = (history: any[]) => {
-
-    // console.log("Processing history with current user:", currentUserRef.current);
-    // console.log("History data:", history);
-    // console.log("Users available:", usersRef.current);
-
-    if (!currentUserRef.current || usersRef.current.length === 0) {
-      pendingHistoryRef.current = history;
-      return;
-    }
-
-    const grouped: Record<number, Message[]> = {};
-    const current = currentUserRef.current;
-
-    history.forEach(({ id, sender, recipient, text, timestamp }) => {
-
-      const otherUsername = sender === current ? recipient : sender;
-
-      const otherUser = usersRef.current.find(user => user.username === otherUsername);
-      if (!otherUser) {
-        // console.warn("User not found for username:", otherUsername);
-        return;
-      }
-
-      const key = otherUser.id;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push({ id, sender, text, timestamp });
-
-    });
-
-    console.log("Grouped messages:", grouped);
-    setMessages(grouped);
-    pendingHistoryRef.current = [];
-    setIsInitialized(true);
-
-  };
 
   useEffect(() => {
     socket.emit('request:init');
@@ -107,14 +80,28 @@ const ChatApp: FC = () => {
       setUsers(backendUsers);
     });
 
-    socket.on('chat:history', (history: any[]) => {
-      console.log("Received chat history:", history);
-      processHistory(history);
-    });
-
+    // Update the history handler to only receive and set data for the currently selected user
+    // socket.on('chat:history', (history: Message[]) => {
+    //   if (selectedUserRef.current) {
+    //     setMessages(prev => ({
+    //       ...prev,
+    //       [selectedUserRef.current.id]: history,
+    //     }));
+    //   }
+    // });
+    socket.on('chat:history', (history: Message[]) => {
+      // Correctly handling the possibility of `selectedUserRef.current` being null
+      if (selectedUserRef.current) {
+          setMessages(prev => ({
+              ...prev,
+              [selectedUserRef.current.id]: history,
+          }));
+      } else {
+          console.warn("Received chat history, but no user is currently selected.");
+      }
+  });
 
     socket.on('chat:message', (msg: { id: string | number, sender: string; recipient: string; text: string; timestamp: string; blocked: boolean }) => {
-
       if (!currentUserRef.current) {
         console.warn("Current user not set, cannot process message");
         return;
@@ -130,27 +117,24 @@ const ChatApp: FC = () => {
       }
     
       const key = otherUser.id;
-
       lastmsg.set(otherUser.username, msg.text); 
 
       setMessages(prev => ({
         ...prev,
-        [key]: [...(prev[key] || []), { id: msg.id, sender: msg.sender, text: msg.text, timestamp: msg.timestamp }],
+        [key]: [...(prev[key] || []), { id: msg.id, sender: msg.sender, recipient: msg.recipient, text: msg.text, timestamp: msg.timestamp }],
       }));
 
       const isSelectedUser = selectedUserRef.current?.username === otherUsername;
 
       if (!isSelectedUser) {
         const key = otherUser.id;
-        setUnreadCounts(prev => ({ ...prev, [key]: (prev[key] || 0) + 1  }));
+        setUnreadCounts(prev => ({ ...prev, [key]: (prev[key] || 0) + 1 }));
       }
-
     });
     
     socket.on("chat:deleted", ({ id }) => {
       setMessages((prev) =>{
         const updated = { ...prev};
-
         for (const key in updated){
           updated[key] = updated[key].filter( ( msg ) => msg.id !== id)
         }
@@ -162,10 +146,7 @@ const ChatApp: FC = () => {
       console.log("Received current user profile:", socket_data.user);
       currentUserRef.current = socket_data.user;
       setcurrentUser(socket_data.user);
-
-      if (pendingHistoryRef.current.length > 0) {
-        processHistory(pendingHistoryRef.current);
-      }
+      socket.emit("profile-data", socket_data); // Crucial for backend mapping
     });
 
     return () => {
@@ -178,21 +159,19 @@ const ChatApp: FC = () => {
   }, []);
 
   const handleSend = () => {
-    const username = currentUser;
-    console.log("Sending message as username:", username);
-
+    const username = currentUserRef.current;
+    
     if (!input.trim() || !selectedUser || !username) {
-      console.warn("Cannot send message - missing input / selected user / current user");
+      console.log("error one of this is empty !!")
       return;
     }
 
     socket.emit('chat:message', {
       username: username,
-      recipient: selectedUser.username,
+      recipient: selectedUser?.username,
       text: input,
     });
 
-    console.log("Message sent by:", username);
     setInput('');
   };
 
@@ -208,6 +187,14 @@ const ChatApp: FC = () => {
     if (isMobile)
       setShowContactList(false);
     setUnreadCounts(prev => ({ ...prev, [user.id]: 0 }));
+    
+    // **NEW:** Request chat history when a user is selected
+    if (currentUserRef.current && user.username) {
+      socket.emit('request:history', {
+        username: currentUserRef.current,
+        recipient: user.username,
+      });
+    }
   };
 
   const userMessages = selectedUser?.id ? messages[selectedUser.id] || [] : [];
@@ -216,7 +203,6 @@ const ChatApp: FC = () => {
   const EmptyState = () => (
     <div className="flex flex-col w-full h-full rounded-2xl p-[2px] max-lg:h-full ">
       <div
-        // className="flex flex-col h-full justify-center items-center rounded-[inherit] bg-[#393E46] p-4"
         className="flex flex-col h-full justify-center items-center rounded-[inherit]  p-4"
         style={{ backgroundImage: `url(${Subtract})` }}
       >
@@ -229,7 +215,6 @@ const ChatApp: FC = () => {
     </div>
   );
   return (
-    // <div className="flex flex-row h-full w-full gap-4 p-0 overflow-hidden max-lg:pb-3 max-lg:pt-0 max-lg:p-0">
     <div className="flex flex-row h-full w-full gap-4 p-0 overflow-hidden  max-lg:p-0 bg-[#121418] rounded-lg max-lg:bg-[#121418] max-lg:pb-0 ">
       {isMobile ? (
         showContactList ? (
@@ -247,12 +232,12 @@ const ChatApp: FC = () => {
           <Conversation
             user={selectedUser}
             messages={userMessages}
+            history={history}
             input={input}
             setInput={setInput}
             onSend={handleSend}
             onBack={() => setShowContactList(true)}
-            loggedInUsername={currentUser}
-            emoji={selectedEmojis}
+            loggedInUsername={currentUserRef.current}
             />
           )
         ) : (
@@ -270,11 +255,11 @@ const ChatApp: FC = () => {
             <Conversation
               user={selectedUser}
               messages={userMessages}
+              history={history}
               input={input}
               setInput={setInput}
               onSend={handleSend}
-              loggedInUsername={currentUser}
-              emoji={selectedEmojis}
+              loggedInUsername={currentUserRef.current}
             />
           ) : (
             <EmptyState />
@@ -286,4 +271,3 @@ const ChatApp: FC = () => {
 };
 
 export default ChatApp;
-
