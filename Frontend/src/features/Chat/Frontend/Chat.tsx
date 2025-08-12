@@ -11,7 +11,6 @@ import { FiUser } from 'react-icons/fi';
 import Subtract from './Assets/Subtract.svg';
 import { User } from './types/User';
 
-// Message type
 interface Message {
   id?: string | number;
   sender: string;
@@ -21,7 +20,7 @@ interface Message {
 }
 
 const ChatApp: FC = () => {
-  // State
+
   const [users, setUsers] = useState<User[]>([]);
   const usersRef = useRef<User[]>([]);
   const [messages, setMessages] = useState<Record<number, Message[]>>({});
@@ -80,24 +79,14 @@ const ChatApp: FC = () => {
       setUsers(backendUsers);
     });
 
-    // Update the history handler to only receive and set data for the currently selected user
-    // socket.on('chat:history', (history: Message[]) => {
-    //   if (selectedUserRef.current) {
-    //     setMessages(prev => ({
-    //       ...prev,
-    //       [selectedUserRef.current.id]: history,
-    //     }));
-    //   }
-    // });
     socket.on('chat:history', (history: Message[]) => {
-      // Correctly handling the possibility of `selectedUserRef.current` being null
       if (selectedUserRef.current) {
           setMessages(prev => ({
               ...prev,
               [selectedUserRef.current.id]: history,
           }));
       } else {
-          console.warn("Received chat history, but no user is currently selected.");
+          console.warn("rceived chat history,but no user is currently selected.");
       }
   });
 
@@ -146,7 +135,7 @@ const ChatApp: FC = () => {
       console.log("Received current user profile:", socket_data.user);
       currentUserRef.current = socket_data.user;
       setcurrentUser(socket_data.user);
-      socket.emit("profile-data", socket_data); // Crucial for backend mapping
+      socket.emit("profile-data", socket_data); 
     });
 
     return () => {
@@ -187,8 +176,6 @@ const ChatApp: FC = () => {
     if (isMobile)
       setShowContactList(false);
     setUnreadCounts(prev => ({ ...prev, [user.id]: 0 }));
-    
-    // **NEW:** Request chat history when a user is selected
     if (currentUserRef.current && user.username) {
       socket.emit('request:history', {
         username: currentUserRef.current,

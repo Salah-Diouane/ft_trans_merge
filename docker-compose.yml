@@ -9,9 +9,11 @@ services:
     volumes:
       - ./Frontend:/app
       - /app/node_modules 
-    #  This tells Docker: "Create a special storage area (volume) just for /app/node_modules inside the container."
+    #  create a special storage area (volume) just for /app/node_modules inside the container
     ports:
       - "5173:5173"
+    env_file:
+      - ./Frontend/.env
     environment:
       CHOKIDAR_USEPOLLING: "true"
 
@@ -24,6 +26,8 @@ services:
       - /app/node_modules
     ports:
       - "3000:3000"
+    env_file:
+      - ./backend/.env
     environment:
       NODE_ENV: development
 

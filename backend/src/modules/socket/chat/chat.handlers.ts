@@ -40,13 +40,13 @@ interface Message {
     recipient: string;
   }
 
-// A map to store the username to socket.id relationship
+
 const userSockets = new Map<string, string>();
 
 export default function handleChatEvents({fastify, io, socket} : handleChatEventsProps){
     const db = fastify.db;
 
-    // When a user's profile data is sent, store their username and socket ID
+
     socket.on("profile-data", (socket_data: { user: string }) => {
         userSockets.set(socket_data.user, socket.id);
     });
@@ -63,12 +63,10 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
           [recipient, username],
           (err, row) => {
             if (err) {
-              console.error("Error checking block status:", err);
               return;
             }
     
             if (row) {
-              console.log(` Message from ${username} to ${recipient} is blocked.`);
               return;
             }
 
@@ -77,7 +75,6 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
               [username, recipient, text],
               function (err) {
                 if (err) {
-                  console.error("Error saving message:", err);
                   return;
                 }
     
@@ -142,7 +139,6 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
     });
 
     socket.on("request:history", ({ username, recipient }: { username: string, recipient: string }) => {
-        // Query the database for messages between the two users
         db.all(
             "SELECT id, sender, recipient, text, timestamp FROM messages WHERE (sender = ? AND recipient = ?) OR (sender = ? AND recipient = ?) ORDER BY timestamp ASC",
             [username, recipient, recipient, username],
@@ -151,7 +147,7 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
                     console.error("Error fetching chat history:", err);
                     return;
                 }
-                // Send the history back to the requesting socket only
+
                 socket.emit("chat:history", rows);
             }
         );

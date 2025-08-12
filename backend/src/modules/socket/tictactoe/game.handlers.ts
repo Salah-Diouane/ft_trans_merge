@@ -30,7 +30,6 @@ interface GameSession {
   moveTimers: Map<string, NodeJS.Timeout>;
 }
 
-// Store multiple game sessions
 const gameSessions = new Map<string, GameSession>();
 const waitingPlayers = new Set<string>();
 const playerToGameMap = new Map<string, string>();
@@ -101,31 +100,26 @@ function startTurnTimer(io: IOServer, session: GameSession, currentPlayer: strin
 function cleanupGameSession(gameId: string) {
   const session = gameSessions.get(gameId);
   if (session) {
-    // Clear all timers
     session.moveTimers.forEach(timer => clearTimeout(timer));
-    
-    // Remove players from maps
+
     session.playersInRoom.forEach((username, socketId) => {
       playerToGameMap.delete(socketId);
       waitingPlayers.delete(socketId);
     });
-    
-    // Remove the game session
+
     gameSessions.delete(gameId);
   }
 }
 
 function findOrCreateGame(socketId: string, username: string): string {
-  // Check if player is already in a game
+
   const existingGameId = playerToGameMap.get(socketId);
   if (existingGameId && gameSessions.has(existingGameId)) {
     return existingGameId;
   }
 
-  // Look for a waiting game with one player
   for (const [gameId, session] of gameSessions) {
     if (session.playersInRoom.size === 1 && !session.playersInRoom.has(socketId)) {
-      // Check if username is already taken in this game
       const usernames = Array.from(session.playersInRoom.values());
       if (!usernames.includes(username)) {
         return gameId;
@@ -133,7 +127,7 @@ function findOrCreateGame(socketId: string, username: string): string {
     }
   }
 
-  // Create new game
+
   const gameId = `game_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   gameSessions.set(gameId, createGameSession(gameId));
   return gameId;
@@ -145,22 +139,20 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
   socket.on("join:game", () => {
     if (!userData?.username) return;
 
-    // Remove from waiting if they were waiting
     waitingPlayers.delete(socket.id);
 
     const gameId = findOrCreateGame(socket.id, userData.username);
     const session = gameSessions.get(gameId);
     
-    if (!session) return;
+    if (!session)
+      return;
 
-    // Check if username is already taken in this specific game
     const existingUsernames = Array.from(session.playersInRoom.values());
     if (existingUsernames.includes(userData.username)) {
       socket.emit("game:error", { message: "Username already taken in this game." });
       return;
     }
 
-    // Join the specific game room
     socket.join(gameId);
     session.playersInRoom.set(socket.id, userData.username);
     playerToGameMap.set(socket.id, gameId);
@@ -168,7 +160,7 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     const numPlayers = session.playersInRoom.size;
 
     if (numPlayers === 2) {
-      // Start the game
+
       const players = Array.from(session.playersInRoom.values());
       session.gameState.playerX = players[0];
       session.gameState.playerO = players[1];
@@ -184,7 +176,7 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
 
       startTurnTimer(io, session, session.gameState.playerX);
     } else {
-      // Wait for another player
+
       waitingPlayers.add(socket.id);
       socket.emit("game:waiting");
     }
@@ -273,7 +265,6 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     waitingPlayers.delete(socket.id);
     socket.leave(gameId);
 
-    // Clear timers for this player
     session.moveTimers.forEach((timer, player) => {
       if (player === username) {
         clearTimeout(timer);
@@ -282,7 +273,6 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     });
 
     if (session.playersInRoom.size === 1) {
-      // One player remaining - they win by disconnect
       const [remainingSocketId] = session.playersInRoom.keys();
       const remainingUsername = session.playersInRoom.get(remainingSocketId);
       
@@ -299,8 +289,8 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
       }
       
       cleanupGameSession(gameId);
+
     } else if (session.playersInRoom.size === 0) {
-      // No players left
       cleanupGameSession(gameId);
     }
   });
@@ -320,7 +310,6 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     waitingPlayers.delete(socket.id);
     socket.leave(gameId);
 
-    // Clear timers for this player
     session.moveTimers.forEach((timer, player) => {
       if (player === username) {
         clearTimeout(timer);
@@ -329,7 +318,7 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     });
 
     if (session.playersInRoom.size === 1) {
-      // One player remaining - they win by disconnect
+
       const [remainingSocketId] = session.playersInRoom.keys();
       const remainingUsername = session.playersInRoom.get(remainingSocketId);
       
@@ -347,8 +336,9 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
       
       cleanupGameSession(gameId);
     } else if (session.playersInRoom.size === 0) {
-      // No players left
+
       cleanupGameSession(gameId);
+
     }
   });
 }
