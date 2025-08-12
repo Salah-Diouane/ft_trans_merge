@@ -88,10 +88,10 @@ const ContactList: FC<ContactListProps> = ({
                         alt="profile"
                       />
                       <div className="flex flex-col overflow-hidden">
-                        <strong className="text-white text-base font-semibold truncate">
+                        <strong className="text-white text-base font-semibold truncate max-w-60">
                           {user.username}
                         </strong>
-                        <span className="text-sm text-gray-400 truncate mt-1">
+                        <span className="text-sm text-gray-400 truncate max-w-60  mt-1">
                           {/* {lastMessage?.text || "No messages yet."} */}
                           {lastMessage?.text}
                         </span>

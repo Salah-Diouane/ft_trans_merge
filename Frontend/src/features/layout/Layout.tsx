@@ -93,7 +93,7 @@ const Layout: React.FC = () => {
           </main>
         </div>  */}
 
-        <div className="flex flex-col flex-1 min-h-0 max-lg:pb-[65px] pr-4">  
+        <div className="flex flex-col flex-1 min-h-0 max-lg:pb-[65px] pr-0">  
           <NavBar />
           <main className="flex-1 overflow-auto min-h-0 max-lg:mb-4 sm:mb-4">
             <Outlet />

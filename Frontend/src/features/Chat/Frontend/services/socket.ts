@@ -5,6 +5,8 @@ const socket = io(import.meta.env.VITE_API_URL, {
     withCredentials: true,
     autoConnect: false,
     reconnection: true,
+    path: "/socket.io/",
+    transports: ["websocket", "polling"],
 });
 
 export function joinGame(name: string) {
