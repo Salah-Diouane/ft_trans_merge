@@ -196,7 +196,7 @@ const Conversation: FC<ConversationProps> = ({
 
 
   return (
-    <div className="flex flex-col w-full h-full  max-sm:h-[93%] rounded-2xl p-[2px] max-lg:bg-none  ">
+    <div className="flex flex-col w-full h-full  max-sm:h-[93%] rounded-2xl p-[2px] max-lg:bg-none ">
       <div className="flex flex-col flex-grow  rounded-xl max-lg:rounded-none p-2 overflow-hidden bg-no-repeat bg-cover" style={{ backgroundImage: `url(${Subtract})` }}>
 
         {/* Header */}
@@ -262,7 +262,7 @@ const Conversation: FC<ConversationProps> = ({
         </div>
 
         {/* Message list */}
-        <div ref={containerRef} className="flex-grow overflow-y-auto pr-4 space-y-4 mt-4 custom-scroll">
+        <div ref={containerRef} className="flex-grow overflow-y-auto pr-4 space-y-4 mt-4 custom-scroll overflow-x-hidden">
           {messages.map((msg, index) => {
             const msgDate = new Date(msg.timestamp);
             const currentDateStr = msgDate.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -288,7 +288,7 @@ const Conversation: FC<ConversationProps> = ({
                     {/* Message bubble */}
 
                     <div
-                      className={`rounded-xl p-2 whitespace-pre-wrap shadow-lg ${isMe
+                      className={`rounded-xl p-2 whitespace-pre-wrap shadow-lg bg-red-400 ${isMe
                           ? "bg-[#0077FF] text-white self-end"
                           : "bg-[#393E46] text-white self-start"
                         }`}

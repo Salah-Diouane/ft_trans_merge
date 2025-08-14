@@ -16,6 +16,9 @@ services:
       - ./Frontend/.env
     environment:
       CHOKIDAR_USEPOLLING: "true"
+    networks:
+      - nginx-server
+
 
   backend:
     build:
@@ -30,6 +33,8 @@ services:
       - ./backend/.env
     environment:
       NODE_ENV: development
+    networks:
+      - nginx-server
 
   nginx:
     build:
@@ -41,3 +46,60 @@ services:
     depends_on:
       - frontend
       - backend
+    networks:
+      - nginx-server
+
+# ===== Monitoring Services =====
+  prometheus:
+    image: prom/prometheus
+    container_name: Prometheus
+    volumes:
+      - ./Monitoring/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - nginx-server
+
+  node_exporter:
+    image: prom/node-exporter
+    container_name: node_exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - nginx-server
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx_exporter
+    depends_on:
+      - nginx
+    ports:
+      - 9113:9113
+    networks:
+      - nginx-server
+    command:
+      - --nginx.scrape-uri=http://nginx:80/stub_status
+      - --web.listen-address=:9113
+
+
+  grafana:
+    image: grafana/grafana
+    container_name: Grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./monitoring/Grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/Grafana/provisioning:/etc/grafana/provisioning
+
+      # - grafana_data:/var/lib/grafana
+
+volumes:
+  grafana_data:
+
+
+networks:
+  nginx-server:
+
