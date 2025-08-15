@@ -1,24 +1,19 @@
 version: '3.8'
 
 services:
-
   frontend:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
     volumes:
       - ./Frontend:/app
-      - /app/node_modules 
-    #  create a special storage area (volume) just for /app/node_modules inside the container
+      - /app/node_modules
     ports:
       - "5173:5173"
-    env_file:
-      - ./Frontend/.env
     environment:
       CHOKIDAR_USEPOLLING: "true"
     networks:
-      - nginx-server
-
+      - frontend_backend
 
   backend:
     build:
@@ -29,12 +24,10 @@ services:
       - /app/node_modules
     ports:
       - "3000:3000"
-    env_file:
-      - ./backend/.env
     environment:
       NODE_ENV: development
     networks:
-      - nginx-server
+      - frontend_backend
 
   nginx:
     build:
@@ -47,59 +40,56 @@ services:
       - frontend
       - backend
     networks:
-      - nginx-server
+      - frontend_backend
 
 # ===== Monitoring Services =====
+
   prometheus:
-    image: prom/prometheus
-    container_name: Prometheus
+    image: prom/prometheus:latest
+    container_name: prometheus
     volumes:
-      - ./Monitoring/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
     networks:
-      - nginx-server
-
-  node_exporter:
-    image: prom/node-exporter
-    container_name: node_exporter
-    ports:
-      - "9100:9100"
-    networks:
-      - nginx-server
-
-  nginx-exporter:
-    image: nginx/nginx-prometheus-exporter:latest
-    container_name: nginx_exporter
-    depends_on:
-      - nginx
-    ports:
-      - 9113:9113
-    networks:
-      - nginx-server
-    command:
-      - --nginx.scrape-uri=http://nginx:80/stub_status
-      - --web.listen-address=:9113
-
+      - monitoring
+      - frontend_backend
 
   grafana:
-    image: grafana/grafana
-    container_name: Grafana
+    image: grafana/grafana:latest
+    container_name: grafana
     ports:
       - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
-      - ./monitoring/Grafana/dashboards:/var/lib/grafana/dashboards
-      - ./monitoring/Grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - monitoring
+  
+  nginx_exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx_exporter
+    command:
+      - --nginx.scrape-uri=http://nginx/stub_status
+      - --web.listen-address=:9113
+    ports:
+      - "9113:9113"
+    depends_on:
+      - nginx
+    networks:
+      - frontend_backend
 
-      # - grafana_data:/var/lib/grafana
-
-volumes:
-  grafana_data:
-
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring
 
 networks:
-  nginx-server:
-
+  monitoring:
+  frontend_backend:

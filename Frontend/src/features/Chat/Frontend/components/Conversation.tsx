@@ -288,7 +288,7 @@ const Conversation: FC<ConversationProps> = ({
                     {/* Message bubble */}
 
                     <div
-                      className={`rounded-xl p-2 whitespace-pre-wrap shadow-lg bg-red-400 ${isMe
+                      className={`rounded-xl p-2 whitespace-pre-wrap shadow-lg  ${isMe
                           ? "bg-[#0077FF] text-white self-end"
                           : "bg-[#393E46] text-white self-start"
                         }`}
