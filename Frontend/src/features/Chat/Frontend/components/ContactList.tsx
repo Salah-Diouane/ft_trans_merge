@@ -41,7 +41,7 @@ const ContactList: FC<ContactListProps> = ({
       <div className="h-full w-full bg-[#222831] rounded-xl custom-scroll overflow-y-auto">
         <div className="w-full">
           {/* Search Bar */}
-          <div className="sticky  bg-[#222831] px-14  pt-4 pb-4 border-b border-gray-700">
+          <div className="sticky top-0 z-10 bg-[#222831] px-14  pt-4 pb-4 border-b border-gray-700">
             <div className="flex items-center bg-[#393E46] rounded-full px-4 h-12 shadow-md">
               <Search className="text-gray-400 mr-2" size={20} />
               <input
