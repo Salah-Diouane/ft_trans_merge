@@ -55,7 +55,6 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
         const { username, recipient, text } = data;
     
         if (!username || !recipient || !text) {
-          console.log("Missing required fields in message");
           return;
         }
 
@@ -85,15 +84,11 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
                   text,
                   timestamp: new Date().toISOString(),
                 };
-    
-                console.log(" Broadcasting message:", messageData);
-                console.log(" messageData.id :", messageData.id);
 
-                // Get the socket IDs for the sender and recipient
+
                 const senderSocketId = userSockets.get(username);
                 const recipientSocketId = userSockets.get(recipient);
 
-                // Emit the message to both the sender and the recipient
                 if (senderSocketId) {
                   io.to(senderSocketId).emit("chat:message", messageData);
                 }
@@ -120,14 +115,12 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
           const { sender, recipient } = row;
           db.run("DELETE FROM messages WHERE id = ?", [id], (err) => {
             if (err){
-              console.error("failed to delete msg!!!");
               return
             }
-            // Get the socket IDs for both users in the conversation
+
             const senderSocketId = userSockets.get(sender);
             const recipientSocketId = userSockets.get(recipient);
 
-            // Emit the deletion event to both sockets
             if (senderSocketId) {
               io.to(senderSocketId).emit("chat:deleted", { id });
             }

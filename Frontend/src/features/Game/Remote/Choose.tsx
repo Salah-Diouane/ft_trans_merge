@@ -1,7 +1,7 @@
 
 
 import { useEffect, useRef, useState } from "react";
-import socket from "../../Chat/Frontend/services/socket";
+import socket from "../../Chat/services/socket";
 import { FiUsers } from 'react-icons/fi';
 import { RiPingPongFill } from 'react-icons/ri';
 type ChooseProps = {

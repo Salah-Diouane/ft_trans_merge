@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import socket from "../Chat/Frontend/services/socket"
+import socket from "../Chat/services/socket"
 
 
 const Game: React.FC = () => {

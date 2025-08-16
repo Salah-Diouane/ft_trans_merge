@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useRef } from "react";
-import socket from "../../Chat/Frontend/services/socket";
+import socket from "../../Chat/services/socket";
 import Choose from "./Choose";
 import { useLocation, useNavigate } from "react-router-dom";
 import Board from "./Board";
@@ -510,7 +510,7 @@ const RemoteGame: React.FC = () => {
             </div>
           )}
 
-          {/* Regular game end (winner or draw) */}
+          {/*  (winner or draw) */}
           {gameOver && gameEnded && !timerdone && !disconnectWinner && (
             <div className="text-center mt-6">
               {winner ? (
@@ -538,7 +538,7 @@ const RemoteGame: React.FC = () => {
             </div>
           )}
 
-          {/* Leave game button - only show during active game */}
+
           {!gameOver && !gameEnded && !timerdone && !disconnectWinner && gameStarted && (
             <button
               onClick={handleLeaveGame}

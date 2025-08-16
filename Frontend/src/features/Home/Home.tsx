@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import socket from '../Chat/Frontend/services/socket';
+import socket from '../Chat/services/socket';
 import { MdConstruction } from "react-icons/md";
 
 const Home: React.FC = () => {

@@ -12,6 +12,8 @@ export default function ProtectedRoute({ children }: Props) {
 	useEffect(() => {
 		const check = async () => {
 			try {
+				console.log("---> : import.meta.env.VITE_API_URL")
+				console.log(import.meta.env.VITE_API_URL)
 					const response = await fetch(`${import.meta.env.VITE_API_URL}/hello`, {
 						credentials: 'include',
 					}).then(res => res.json()) as { refreshtoken: boolean; accesstoken: boolean };

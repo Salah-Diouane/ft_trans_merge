@@ -1,7 +1,7 @@
 // src/components/RemotePong.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import GameWrapper from './GameWrapper';
-import socket, { joinGame, onReady } from '../../../Chat/Frontend/services/socket';
+import socket, { joinGame, onReady } from '../../../Chat/services/socket';
 import { FiUsers } from 'react-icons/fi';
 import { RiPingPongFill } from 'react-icons/ri';
 import { useLocation } from 'react-router-dom';

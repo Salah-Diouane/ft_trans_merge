@@ -30,4 +30,3 @@ const TicTacToe: React.FC = () => {
 };
 
 export default TicTacToe;
-// w-[280px] rounded-2xl max-lg:m-2 max-lg:p-4 p-20

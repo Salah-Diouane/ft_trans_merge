@@ -1,6 +1,6 @@
 // routesConfig.ts
 import Layout from '../features/layout/Layout';
-import ChatApp from '../features/Chat/Frontend/Chat';
+import ChatApp from '../features/Chat/Chat';
 import Home from '../features/Home/Home';
 import Game from '../features/Game/Game';
 import Settings from '../features/Settings/Settings';

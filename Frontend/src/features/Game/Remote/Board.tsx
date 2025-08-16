@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Square from "./Square"
 import  triggerFireworks  from "./confetti"
-import socket from "../../Chat/Frontend/services/socket";
+import socket from "../../Chat/services/socket";
 import { p } from "react-router/dist/development/index-react-server-client-Bi_fx8qz";
 
 
