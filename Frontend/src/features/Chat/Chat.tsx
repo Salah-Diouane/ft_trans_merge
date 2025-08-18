@@ -18,7 +18,6 @@ interface Message {
   timestamp: string;
 }
 
-
 const ChatApp: FC = () => {
   // --- State ---
   const [users, setUsers] = useState<User[]>([]);
@@ -77,14 +76,13 @@ const ChatApp: FC = () => {
     });
 
     socket.on("chat:history", (history: Message[]) => {
-      if (history.length === 0) return;
+  
+      if (history.length === 0)
+        return;
 
-      const contactUsername =
-        history[0].sender === currentUserRef.current
-          ? history[0].recipient
-          : history[0].sender;
+      const contactUsername = history[0].sender === currentUserRef.current ? history[0].recipient : history[0].sender;
 
-      const contact = usersRef.current.find((u) => u.username === contactUsername);
+      const contact = usersRef.current.find((user) => user.username === contactUsername);
       if (!contact) {
         console.warn("Contact not found for received history", contactUsername);
         return;
@@ -174,7 +172,7 @@ const ChatApp: FC = () => {
     const username = currentUserRef.current;
 
     if (!input.trim() || !selectedUser || !username) {
-      console.log("Error: one of input/selectedUser/username is empty!");
+      console.log("Error: one of input | selectedUser | username is empty!");
       return;
     }
 
@@ -202,15 +200,16 @@ const ChatApp: FC = () => {
 
   const handleUserSelect = (user: User): void => {
     setSelectedUser(user);
-    if (isMobile) setShowContactList(false);
+    if (isMobile)
+        setShowContactList(false);
     setUnreadCounts((prev) => ({ ...prev, [user.id]: 0 }));
   };
 
   // ---------------- Derived ----------------
   const filteredUsers = users.filter(
-    (u) =>
-      u.username.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      u.username !== currentUser
+    (user) =>
+      user.username.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      user.username !== currentUser
   );
 
   const userMessages = selectedUser?.id ? messages[selectedUser.id] || [] : [];

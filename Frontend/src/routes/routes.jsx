@@ -34,7 +34,6 @@ export const routes  = [
 		<ProtectedRoute>
 			<Layout />
 		</ProtectedRoute>
-			// <Layout />
 		),
 		children: [
 			{ index: true, element:  <Home /> },
@@ -58,4 +57,3 @@ export const routes  = [
 		],
 	}
 ];
-       

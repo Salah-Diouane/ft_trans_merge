@@ -55,46 +55,18 @@ const Conversation: FC<ConversationProps> = ({
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [isInviteSent, setIsInviteSent] = useState<boolean>(false);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  useEffect(() => {
-    if (user) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-    }
-  }, [user]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setShowMenu(null);
-      }
-    };
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [showMenu]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (showEmojiPicker && !target.closest('.emoji-picker-container')) {
-        setShowEmojiPicker(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showEmojiPicker]);
-
   if (!user) {
+
     return (
       <div className="flex items-center justify-center h-full bg-[#121418] text-white rounded-2xl">
         <p className="text-white text-lg">Select a Contact</p>
       </div>
     );
   }
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const addToInput = (emoji: { native: string }) => {
     setInput(input + emoji.native);
@@ -112,11 +84,15 @@ const Conversation: FC<ConversationProps> = ({
   };
 
   const handleBlockUser = () => {
-    if (!user) return;
+
+    if (!user)
+        return;
+
     socket.emit("block:user", {
       blocker: loggedInUsername,
       blocked: user.username,
     });
+
     setBlockClicked((prev) => ({ ...prev, [user.username]: true }));
     setIsBlocked(true)
   };
@@ -128,14 +104,19 @@ const Conversation: FC<ConversationProps> = ({
   }
 
   const handleUnblockUser = () => {
-    if (!user) return;
+
+    if (!user)
+        return;
+
     socket.emit("unblock:user", {
       blocker: loggedInUsername,
       blocked: user.username,
     });
+
     setBlockClicked((prev) => ({ ...prev, [user.username]: false }));
     setShowInvBlock(false)
     setIsBlocked(false)
+
   };
 
   const handleThreeDotsClick = (messageId: string | number, e: React.MouseEvent) => {
@@ -153,40 +134,53 @@ const Conversation: FC<ConversationProps> = ({
   };
 
   const confirmDelete = () => {
+
     if (messageToDelete) {
+
       socket.emit("chat:delete", {
         id: messageToDelete,
         username: loggedInUsername,
       });
+
       setShowDeleteModal(false);
       setMessageToDelete(null);
+
     }
   };
 
   const cancelDelete = () => {
+
     setShowDeleteModal(false);
     setMessageToDelete(null);
+
   };
   
   const confirmBlock = () => {
+
     handleBlockUser();
     setShowInvBlockmenu(false);
+
   }
 
   const cancelBlock = () => {
+
     setShowInvBlockmenu(false);
 
   }
 
   const handleSendInvite = () => {
+
     if (!user)
       return;
+
     socket.emit("send:invite", {
       sender: loggedInUsername,
       recipient: user.username,
     });
+
     setIsInviteSent(true);
     setShowInvBlock(false);
+
   };
 
 
@@ -222,34 +216,33 @@ const Conversation: FC<ConversationProps> = ({
               </button>
               {(showInvBlock) && (
                   <div className={`absolute   right-20 `}>
-                  <div className="bg-[#393E46] rounded-lg shadow-lg border-1 border-gray-900 min-w-[120px]">
-                    
-                    {!isBlocked ? (
+                    <div className="bg-[#393E46] rounded-lg shadow-lg border-1 border-gray-900 min-w-[120px]">
+                      {!isBlocked ? (
+                        <button
+                            onClick={handleBlockClick}
+                            className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
+                          >
+                            <UserBlock02Icon />
+                            Block
+                          </button>
+                        ) : (
+                          <button    
+                          onClick={handleUnblockUser}
+                          className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-gray-100 flex items-center gap-2"
+                          role="menuitem"
+                          >
+                          <IoBanOutline className="w-5 h-5" />
+                          Unblock User
+                          </button> 
+                        )
+                      }
                       <button
-                          onClick={handleBlockClick}
-                          className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
-                        >
-                          <UserBlock02Icon />
-                          Block
-                        </button>
-                      ) : (
-                        <button    
-                        onClick={handleUnblockUser}
-                        className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-gray-100 flex items-center gap-2"
-                        role="menuitem"
-                        >
-                        <IoBanOutline className="w-5 h-5" />
-                        Unblock User
-                        </button> 
-                      )
-                    }
-                    <button
-                      onClick={handleSendInvite}
-                      className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
-                    >
-                      <AddTeamIcon />
-                      Invite
-                    </button>
+                        onClick={handleSendInvite}
+                        className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
+                      >
+                        <AddTeamIcon />
+                        Invite
+                      </button>
                   </div>
                 </div>
               )}
@@ -257,7 +250,7 @@ const Conversation: FC<ConversationProps> = ({
         </div>
 
         {/* Message list */}
-        <div ref={containerRef} className="flex-grow overflow-y-auto pr-4 space-y-4 mt-4 custom-scroll overflow-x-hidden">
+        <div  className="flex-grow overflow-y-auto pr-4 space-y-4 mt-4 custom-scroll overflow-x-hidden">
           {messages.map((msg, index) => {
             const msgDate = new Date(msg.timestamp);
             const currentDateStr = msgDate.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -270,7 +263,7 @@ const Conversation: FC<ConversationProps> = ({
             const showDate = index === 0 || currentDateStr !== previousDateStr;
 
             return (
-              <div key={msg.id || index}>
+                <div key={msg.id || index}>
                 {showDate && (
                   <div className="flex items-center justify-center my-4">
                     <span className="bg-[#2f3542] text-gray-400 text-xs px-3 py-1 rounded-md">
@@ -292,16 +285,14 @@ const Conversation: FC<ConversationProps> = ({
                     {isMe && (
                       <button
                         onClick={(e) => handleThreeDotsClick(msg.id, e)}
-                        className={`absolute top-2 ${isMe ? '-left-8' : '-right-8'
-                          } opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-gray-700 p-1 rounded-full bg-gray-200`}
+                        className={`absolute top-2 -left-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-500 hover:text-gray-700 p-1 rounded-full bg-gray-200`}
                       >
                         <HiEllipsisVertical className="w-4 h-4" />
                       </button>
                     )}
+
                     {isMe && (showMenu === msg.id) && (
-                      <div className={`absolute top-0 z-50 ${isMe
-                          ? 'right-20 transform translate-x-2'
-                          : 'left-20 transform -translate-x-2'
+                      <div className={`absolute top-0 z-50 ${isMe  ? 'right-20 transform translate-x-2' : 'left-20 transform -translate-x-2'
                         }`}>
                         <div className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[120px]">
                           <button
@@ -333,8 +324,9 @@ const Conversation: FC<ConversationProps> = ({
 
 
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4">
+          <div  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4">
             <div className="bg-white rounded-2xl max-w-sm w-full mx-4 overflow-hidden">
+              
               <div className="p-6 text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
                   <MdDelete className="size-10 text-red-700" />
@@ -409,7 +401,7 @@ const Conversation: FC<ConversationProps> = ({
               disabled={blockClicked[user.username]}
             />
             {showEmojiPicker && (
-              <div className="absolute bottom-16 left-0 z-50 emoji-picker-container">
+              <div className="absolute bottom-16 left-0 z-50">
                 <Picker data={data} onEmojiSelect={addToInput} />
               </div>
             )}
