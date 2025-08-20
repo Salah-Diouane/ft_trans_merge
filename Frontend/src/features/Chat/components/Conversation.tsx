@@ -211,7 +211,7 @@ const Conversation: FC<ConversationProps> = ({
           <div className="flex gap-x-6">
              <button
               onClick={(e) => handleThreeDotsInvBlock(e)}
-              className={` group-hover:opacity-100 transition-opacity duration-200 text-gray-500 rounded-full `}>
+              className={`group-hover:opacity-100 transition-opacity duration-200 text-gray-500 rounded-full `}>
               <HiEllipsisVertical className="size-6" />
               </button>
               {(showInvBlock) && (
@@ -232,7 +232,7 @@ const Conversation: FC<ConversationProps> = ({
                           role="menuitem"
                           >
                           <IoBanOutline className="w-5 h-5" />
-                          Unblock User
+                            Unblock User
                           </button> 
                         )
                       }
@@ -292,8 +292,7 @@ const Conversation: FC<ConversationProps> = ({
                     )}
 
                     {isMe && (showMenu === msg.id) && (
-                      <div className={`absolute top-0 z-50 ${isMe  ? 'right-20 transform translate-x-2' : 'left-20 transform -translate-x-2'
-                        }`}>
+                      <div className={`absolute top-0 z-50 ${isMe  ? 'right-20 transform translate-x-2' : 'left-20 transform -translate-x-2' }`}>
                         <div className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[120px]">
                           <button
                             onClick={() => handleDeleteClick(msg.id)}

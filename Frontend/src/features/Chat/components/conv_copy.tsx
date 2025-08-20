@@ -17,7 +17,6 @@ import Subtract from "../Assets/Subtract.svg";
 import { Message } from "../types/Message";
 import socket from "../services/socket";
 
-
 interface ConversationProps {
   user: { username: string } | null;
   messages: Message[];

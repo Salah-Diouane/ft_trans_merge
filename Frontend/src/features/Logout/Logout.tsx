@@ -10,7 +10,7 @@ const Logout: React.FC = () => {
 
   useEffect(() => {
 	const logout = async () => {
-		await fetch(`${import.meta.env.VITE_API_URL}/logout`, {
+		await fetch(`http://localhost:3000/logout`, {
 			method: 'GET',
 			credentials: 'include',
 		});

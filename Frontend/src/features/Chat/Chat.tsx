@@ -19,16 +19,16 @@ interface Message {
 }
 
 const ChatApp: FC = () => {
+
   // --- State ---
   const [users, setUsers] = useState<User[]>([]);
   const [messages, setMessages] = useState<Record<number, Message[]>>({});
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [input, setInput] = useState("");
+  const [inputs, setInputs] = useState<Record<number, string>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [showContactList, setShowContactList] = useState(window.outerWidth < 1024);
   const [currentUser, setCurrentUser] = useState("");
   const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({});
-  // const [history, setHistory] = useState<Record<number, Message[]>>({});
 
   // --- Refs ---
   const usersRef = useRef<User[]>([]);
@@ -38,6 +38,13 @@ const ChatApp: FC = () => {
   const isMobile = window.outerWidth < 1024;
 
   // ---------------- Effects ----------------
+
+  // Handle screen resize
+  useEffect(() => {
+    const handleResize = () => setShowContactList(window.outerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Keep ref in sync
   useEffect(() => {
@@ -170,8 +177,9 @@ const ChatApp: FC = () => {
 
   const handleSend = () => {
     const username = currentUserRef.current;
+    const currentInput = selectedUser?.id ? inputs[selectedUser.id] || "" : "";
 
-    if (!input.trim() || !selectedUser || !username) {
+    if (!currentInput.trim() || !selectedUser || !username) {
       console.log("Error: one of input | selectedUser | username is empty!");
       return;
     }
@@ -180,7 +188,7 @@ const ChatApp: FC = () => {
       id: Date.now(),
       sender: username,
       recipient: selectedUser.username,
-      text: input,
+      text: currentInput,
       timestamp: new Date().toISOString(),
     };
 
@@ -192,12 +200,29 @@ const ChatApp: FC = () => {
     socket.emit("chat:message", {
       username,
       recipient: selectedUser.username,
-      text: input,
+      text: currentInput,
     });
 
-    setInput("");
+    setInputs((prev) => ({
+      ...prev,
+      [selectedUser.id]: "",
+    }));
   };
 
+  
+  const getCurrentInput = (): string => {
+    return selectedUser?.id ? inputs[selectedUser.id] || "" : "";
+  };
+  
+  const setCurrentInput = (value: string): void => {
+    if (selectedUser?.id) {
+      setInputs((prev) => ({
+        ...prev,
+        [selectedUser.id]: value,
+      }));
+    }
+  };
+  
   const handleUserSelect = (user: User): void => {
     setSelectedUser(user);
     if (isMobile)
@@ -251,8 +276,8 @@ const ChatApp: FC = () => {
             user={selectedUser}
             messages={userMessages}
             history={history}
-            input={input}
-            setInput={setInput}
+            input={getCurrentInput()}
+            setInput={setCurrentInput}
             onSend={handleSend}
             onBack={() => setShowContactList(true)}
             loggedInUsername={currentUserRef.current}
@@ -274,8 +299,8 @@ const ChatApp: FC = () => {
               user={selectedUser}
               messages={userMessages}
               history={history}
-              input={input}
-              setInput={setInput}
+              input={getCurrentInput()}
+              setInput={setCurrentInput}
               onSend={handleSend}
               loggedInUsername={currentUserRef.current}
             />

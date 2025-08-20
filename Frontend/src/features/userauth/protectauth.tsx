@@ -12,17 +12,17 @@ export default function ProtectedRoute({ children }: Props) {
 	useEffect(() => {
 		const check = async () => {
 			try {
-				console.log("---> : import.meta.env.VITE_API_URL")
-				console.log(import.meta.env.VITE_API_URL)
-					const response = await fetch(`${import.meta.env.VITE_API_URL}/hello`, {
+				// console.log("---> : import.meta.env.VITE_API_URL")
+				// console.log(import.meta.env.VITE_API_URL)
+					const response = await fetch(`http://localhost:3000/hello`, {
 						credentials: 'include',
 					}).then(res => res.json()) as { refreshtoken: boolean; accesstoken: boolean };
 					if (!response.accesstoken) {
-						const res = await fetch(`${import.meta.env.VITE_API_URL}/login/refreshtoken`, {
+						const res = await fetch(`http://localhost:3000/login/refreshtoken`, {
 							credentials: 'include',
 						}).then(e => e.json()) as { refreshtoken: boolean };
 						if (!res.refreshtoken) {
-							await fetch(`${import.meta.env.VITE_API_URL}/logout`, {credentials: 'include'});
+							await fetch(`http://localhost:3000/logout`, {credentials: 'include'});
 							navigate('/login/Signin');
 							return;
 						}
@@ -30,7 +30,7 @@ export default function ProtectedRoute({ children }: Props) {
 					setIsAuthenticated(true);
 			} catch (err) {
 				console.error("Auth check error:", err);
-				await fetch(`${import.meta.env.VITE_API_URL}/logout`);
+				await fetch(`http://localhost:3000/logout`);
 				navigate('/login/Signin');
 			}
 		};
@@ -38,3 +38,4 @@ export default function ProtectedRoute({ children }: Props) {
 	}, [navigate]);
 	return isAuthenticated ? <>{children}</> : null;
 }
+ 

@@ -46,7 +46,7 @@ const userSockets = new Map<string, string>();
 export default function handleChatEvents({fastify, io, socket} : handleChatEventsProps){
     const db = fastify.db;
 
-
+  const id_nbr = 0;
     socket.on("profile-data", (socket_data: { user: string }) => {
         userSockets.set(socket_data.user, socket.id);
     });
@@ -85,7 +85,6 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
                   timestamp: new Date().toISOString(),
                 };
 
-
                 const senderSocketId = userSockets.get(username);
                 const recipientSocketId = userSockets.get(recipient);
 
@@ -102,8 +101,15 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
     });
           
     socket.on("chat:delete", ({id, username}) => {
-        if (!id || !username)
+      console.log("in the backend!!")
+      if (!id || !username){
+          console.log("in the if!!")
           return ;
+        }
+        console.log("id : ")
+        console.log(id)
+        console.log("username : ")
+        console.log(username)
         db.get("SELECT sender, recipient FROM messages WHERE id = ?", [id], (err, row: MessageRow) => {
           if (err){
             return ;
