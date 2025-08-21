@@ -116,10 +116,15 @@ const ChatApp: FC = () => {
           return;
         }
 
-        const isSender = msg.sender === currentUserRef.current;
-        if (isSender) return;
+        // const isSender = msg.sender === currentUserRef.current;
+        // if (isSender) return;
 
-        const otherUser = usersRef.current.find((u) => u.username === msg.sender);
+        const isSender = msg.sender === currentUserRef.current;
+
+        const otherUser = usersRef.current.find((u) =>
+          isSender ? u.username === msg.recipient : u.username === msg.sender
+        );
+        
         if (!otherUser) {
           console.warn("User not found in current list", msg);
           return;
@@ -138,12 +143,39 @@ const ChatApp: FC = () => {
           [otherUser.id]: [...(prev[otherUser.id] || []), newMsg],
         }));
 
-        if (selectedUserRef.current?.username !== msg.sender) {
+        if (!isSender && selectedUserRef.current?.username !== msg.sender) {
           setUnreadCounts((prev) => ({
             ...prev,
             [otherUser.id]: (prev[otherUser.id] || 0) + 1,
           }));
         }
+
+
+      //   const otherUser = usersRef.current.find((u) => u.username === msg.sender);
+      //   if (!otherUser) {
+      //     console.warn("User not found in current list", msg);
+      //     return;
+      //   }
+
+      //   const newMsg = {
+      //     id: msg.id,
+      //     sender: msg.sender,
+      //     recipient: msg.recipient,
+      //     text: msg.text,
+      //     timestamp: msg.timestamp,
+      //   };
+
+      //   setMessages((prev) => ({
+      //     ...prev,
+      //     [otherUser.id]: [...(prev[otherUser.id] || []), newMsg],
+      //   }));
+
+      //   if (selectedUserRef.current?.username !== msg.sender) {
+      //     setUnreadCounts((prev) => ({
+      //       ...prev,
+      //       [otherUser.id]: (prev[otherUser.id] || 0) + 1,
+      //     }));
+      //   }
       }
     );
 
@@ -184,21 +216,21 @@ const ChatApp: FC = () => {
       return;
     }
 
-    const newMessage = {
-      id: Date.now(),
-      sender: username,
-      recipient: selectedUser.username,
-      text: currentInput,
-      timestamp: new Date().toISOString(),
-    };
+    // const newMessage = {
+    //   // id: Date.now(),
+    //   sender: username,
+    //   recipient: selectedUser.username,
+    //   text: currentInput,
+    //   timestamp: new Date().toISOString(),
+    // };
 
-    setMessages((prev) => ({
-      ...prev,
-      [selectedUser.id]: [...(prev[selectedUser.id] || []), newMessage],
-    }));
+    // setMessages((prev) => ({
+    //   ...prev,
+    //   [selectedUser.id]: [...(prev[selectedUser.id] || []), newMessage],
+    // }));
 
     socket.emit("chat:message", {
-      username,
+      username: username,
       recipient: selectedUser.username,
       text: currentInput,
     });
