@@ -394,7 +394,8 @@ const Conversation: FC<ConversationProps> = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !blockClicked[user.username]) onSend();
+                if (e.key === "Enter" && !blockClicked[user.username])
+                  onSend();
               }}
               className="w-full bg-[#393E46] h-14 max-lg:h-12 text-white placeholder-gray-500 rounded-full py-3 px-5 pr-12 outline-none focus:ring-2 focus:ring-[#0077FF] transition"
               disabled={blockClicked[user.username]}

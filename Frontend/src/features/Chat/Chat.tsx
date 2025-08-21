@@ -6,7 +6,9 @@ import ContactList_Mobile from "./components/ContactList_Mobile";
 import Conversation from "./components/Conversation";
 
 import { FiUser } from "react-icons/fi";
-import Subtract from "./Assets/Subtract.svg";
+import Subtract from "../Assets/Subtract.svg";
+import gf from "../Assets/gf2.gif"
+
 import { User } from "./types/User";
 
 // ---------------- Types ----------------
@@ -124,7 +126,7 @@ const ChatApp: FC = () => {
         const otherUser = usersRef.current.find((u) =>
           isSender ? u.username === msg.recipient : u.username === msg.sender
         );
-        
+
         if (!otherUser) {
           console.warn("User not found in current list", msg);
           return;
@@ -271,20 +273,27 @@ const ChatApp: FC = () => {
 
   const userMessages = selectedUser?.id ? messages[selectedUser.id] || [] : [];
 
-  // ---------------- UI Components ----------------
+
+  
   const EmptyState = () => (
-    <div className="flex flex-col w-full h-full rounded-2xl p-[2px] max-lg:h-full">
-      <div
-        className="flex flex-col h-full justify-center items-center rounded-[inherit] p-4"
-        style={{ backgroundImage: `url(${Subtract})` }}
-      >
-        <FiUser className="h-20 w-20 mb-6 text-[#0077FF] animate-pulse" />
-        <p className="text-2xl font-bold text-[#0077FF] tracking-wide mb-2">
-          Select a Contact
+    <div className="flex flex-col w-full h-full justify-center items-center bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 p-8">
+      <div className="flex items-center justify-center mb-12">
+        <img 
+          src={gf} 
+          alt="Select a contact" 
+          className="h-48 w-auto object-contain rounded-2xl shadow-2xl border border-slate-700/50 backdrop-blur-sm" 
+        />
+      </div>
+  
+      <div className="text-center space-y-4 max-w-md">
+        <h2 className="text-4xl  font-semibold text-slate-100 mb-3 tracking-tight">
+          Choose a Contact !
+        </h2>
+        
+        <p className="text-slate-400 text-lg leading-relaxed font-light">
+          Select a conversation from your contact list to begin messaging.
         </p>
-        <p className="mt-1 text-center max-w-xs leading-relaxed text-[#0077FF]">
-          Please choose a contact from the list to start chatting.
-        </p>
+        
       </div>
     </div>
   );
