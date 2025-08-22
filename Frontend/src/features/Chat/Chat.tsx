@@ -7,7 +7,7 @@ import Conversation from "./components/Conversation";
 
 import { FiUser } from "react-icons/fi";
 import Subtract from "../Assets/Subtract.svg";
-import gf from "../Assets/gf2.gif"
+import gf from "../Assets/gf3.gif"
 
 import { User } from "./types/User";
 
@@ -85,7 +85,7 @@ const ChatApp: FC = () => {
     });
 
     socket.on("chat:history", (history: Message[]) => {
-  
+
       if (history.length === 0)
         return;
 
@@ -153,31 +153,31 @@ const ChatApp: FC = () => {
         }
 
 
-      //   const otherUser = usersRef.current.find((u) => u.username === msg.sender);
-      //   if (!otherUser) {
-      //     console.warn("User not found in current list", msg);
-      //     return;
-      //   }
+        //   const otherUser = usersRef.current.find((u) => u.username === msg.sender);
+        //   if (!otherUser) {
+        //     console.warn("User not found in current list", msg);
+        //     return;
+        //   }
 
-      //   const newMsg = {
-      //     id: msg.id,
-      //     sender: msg.sender,
-      //     recipient: msg.recipient,
-      //     text: msg.text,
-      //     timestamp: msg.timestamp,
-      //   };
+        //   const newMsg = {
+        //     id: msg.id,
+        //     sender: msg.sender,
+        //     recipient: msg.recipient,
+        //     text: msg.text,
+        //     timestamp: msg.timestamp,
+        //   };
 
-      //   setMessages((prev) => ({
-      //     ...prev,
-      //     [otherUser.id]: [...(prev[otherUser.id] || []), newMsg],
-      //   }));
+        //   setMessages((prev) => ({
+        //     ...prev,
+        //     [otherUser.id]: [...(prev[otherUser.id] || []), newMsg],
+        //   }));
 
-      //   if (selectedUserRef.current?.username !== msg.sender) {
-      //     setUnreadCounts((prev) => ({
-      //       ...prev,
-      //       [otherUser.id]: (prev[otherUser.id] || 0) + 1,
-      //     }));
-      //   }
+        //   if (selectedUserRef.current?.username !== msg.sender) {
+        //     setUnreadCounts((prev) => ({
+        //       ...prev,
+        //       [otherUser.id]: (prev[otherUser.id] || 0) + 1,
+        //     }));
+        //   }
       }
     );
 
@@ -243,11 +243,11 @@ const ChatApp: FC = () => {
     }));
   };
 
-  
+
   const getCurrentInput = (): string => {
     return selectedUser?.id ? inputs[selectedUser.id] || "" : "";
   };
-  
+
   const setCurrentInput = (value: string): void => {
     if (selectedUser?.id) {
       setInputs((prev) => ({
@@ -256,11 +256,11 @@ const ChatApp: FC = () => {
       }));
     }
   };
-  
+
   const handleUserSelect = (user: User): void => {
     setSelectedUser(user);
     if (isMobile)
-        setShowContactList(false);
+      setShowContactList(false);
     setUnreadCounts((prev) => ({ ...prev, [user.id]: 0 }));
   };
 
@@ -274,27 +274,27 @@ const ChatApp: FC = () => {
   const userMessages = selectedUser?.id ? messages[selectedUser.id] || [] : [];
 
 
-  
+
   const EmptyState = () => (
-    <div className="flex flex-col w-full h-full justify-center items-center bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 p-8">
+    <div className="flex flex-col w-full h-full justify-center items-center  text-slate-100 p-8">
       <div className="flex items-center justify-center mb-12">
-        <img 
-          src={gf} 
-          alt="Select a contact" 
-          className="h-48 w-auto object-contain rounded-2xl shadow-2xl border border-slate-700/50 backdrop-blur-sm" 
+        <img
+          src={gf}
+          alt="Select a contact"
+          className=" object-contain rounded-2xl shadow-2xl border border-slate-700/50 backdrop-blur-sm"
         />
       </div>
-  
-      <div className="text-center space-y-4 max-w-md">
+
+      {/* <div className="text-center space-y-4 max-w-md">
         <h2 className="text-4xl  font-semibold text-slate-100 mb-3 tracking-tight">
           Choose a Contact !
         </h2>
-        
+
         <p className="text-slate-400 text-lg leading-relaxed font-light">
           Select a conversation from your contact list to begin messaging.
         </p>
-        
-      </div>
+
+      </div> */}
     </div>
   );
 

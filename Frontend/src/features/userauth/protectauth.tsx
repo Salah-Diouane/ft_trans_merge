@@ -14,15 +14,15 @@ export default function ProtectedRoute({ children }: Props) {
 			try {
 				// console.log("---> : import.meta.env.VITE_API_URL")
 				// console.log(import.meta.env.VITE_API_URL)
-					const response = await fetch(`http://localhost:3000/hello`, {
+					const response = await fetch(`http://e3r4p16.1337.ma:3000/hello`, {
 						credentials: 'include',
 					}).then(res => res.json()) as { refreshtoken: boolean; accesstoken: boolean };
 					if (!response.accesstoken) {
-						const res = await fetch(`http://localhost:3000/login/refreshtoken`, {
+						const res = await fetch(`http://e3r4p16.1337.ma:3000/login/refreshtoken`, {
 							credentials: 'include',
 						}).then(e => e.json()) as { refreshtoken: boolean };
 						if (!res.refreshtoken) {
-							await fetch(`http://localhost:3000/logout`, {credentials: 'include'});
+							await fetch(`http://e3r4p16.1337.ma:3000/logout`, {credentials: 'include'});
 							navigate('/login/Signin');
 							return;
 						}
@@ -30,7 +30,7 @@ export default function ProtectedRoute({ children }: Props) {
 					setIsAuthenticated(true);
 			} catch (err) {
 				console.error("Auth check error:", err);
-				await fetch(`http://localhost:3000/logout`);
+				await fetch(`http://e3r4p16.1337.ma:3000/logout`);
 				navigate('/login/Signin');
 			}
 		};

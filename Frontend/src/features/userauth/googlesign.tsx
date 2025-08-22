@@ -1,6 +1,6 @@
 export default function GoogleSign() {
 	const sendData = async () => {
-		window.location.href = `${import.meta.env.VITE_API_URL}/login/google`;
+		window.location.href = `http://e3r4p16.1337.ma:3000/login/google`;
 	};
 
 	return (

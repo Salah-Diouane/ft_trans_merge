@@ -19,15 +19,14 @@
 //   plugins: [react()],
 // });
 
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+	allowedHosts: ["e3r4p16.1337.ma"],
+  }
 })
-
-
-
 
 // sdiouane60@gmail.com
