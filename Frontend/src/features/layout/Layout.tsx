@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-
+// import {useStore} from "../../store/store"
+import { useStore } from '../../store/store';
 import meProfile from "../Assets/me.jpeg";
 import logo from "../Assets/logo.png";
 
@@ -15,6 +16,7 @@ import {
 
 import NavBar from "./NavBar";
 
+
 const Layout: React.FC = () => {
   const location = useLocation();
 
@@ -28,7 +30,7 @@ const Layout: React.FC = () => {
       ? "bg-[#0077FF] rounded-full size-10 flex items-center justify-center p-2"
       : "";
 
-
+      const store = useStore()
   return (
     // <div className="flex flex-col h-full">
      <div className="flex flex-col h-screen">
@@ -43,7 +45,7 @@ const Layout: React.FC = () => {
             <div className="relative">
 
               <Link to="/profile" className={location.pathname === "/profile" ? "bg-[#0077FF] rounded-full size-10 flex items-center justify-center" : ""}  >
-                <img src={meProfile} alt="Me" className="rounded-full cursor-pointer block max-lg:size-8 max-lg:mt-0 max-lg:ml-0 lg:hidden mt-2" />
+                <img src={store.image_url} alt="Me" className="rounded-full cursor-pointer block max-lg:size-8 max-lg:mt-0 max-lg:ml-0 lg:hidden mt-2" />
               </Link>
 
               <img src={logo} alt="Logo" className="rounded-full cursor-pointer mt-2 hidden lg:block" />
@@ -64,7 +66,7 @@ const Layout: React.FC = () => {
                 <BubbleChatNotificationIcon className="size-8 max-lg:size-6 cursor-pointer" />
               </Link>
 
-              <Link to="/settings" className={isActive("/settings")}>
+              <Link to="/settings/profile" className={isActive("/settings")}>
                 <Settings02Icon className="size-8 max-lg:size-6 cursor-pointer" />
               </Link>
 
@@ -78,20 +80,6 @@ const Layout: React.FC = () => {
 
           </aside>
         </div>
-
-        {/* <main className="mr-8 flex flex-1 m-4 rounded-2xl max-lg:p-0 max-lg:m-0">
-          <div className="h-full w-full flex flex-col">
-            <Outlet />
-          </div>
-        </main> */}
-
-          {/* <main className="flex-1 overflow-auto h-full w-full mb-5 pr-0 sm:h-[80%]"> */}
-         {/* <div className="flex flex-col flex-1 min-h-0 max-lg:pb-[65px]">
-          <NavBar />
-          <main className="flex-1 overflow-auto  ">
-            <Outlet />
-          </main>
-        </div>  */}
 
         <div className="flex flex-col flex-1 min-h-0 max-lg:pb-[65px] pr-4">  
           <NavBar />

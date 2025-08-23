@@ -7,7 +7,7 @@ import Conversation from "./components/Conversation";
 
 import { FiUser } from "react-icons/fi";
 import Subtract from "../Assets/Subtract.svg";
-import gf from "../Assets/gf3.gif"
+import gf from "../Assets/gf4.gif"
 
 import { User } from "./types/User";
 
@@ -151,33 +151,6 @@ const ChatApp: FC = () => {
             [otherUser.id]: (prev[otherUser.id] || 0) + 1,
           }));
         }
-
-
-        //   const otherUser = usersRef.current.find((u) => u.username === msg.sender);
-        //   if (!otherUser) {
-        //     console.warn("User not found in current list", msg);
-        //     return;
-        //   }
-
-        //   const newMsg = {
-        //     id: msg.id,
-        //     sender: msg.sender,
-        //     recipient: msg.recipient,
-        //     text: msg.text,
-        //     timestamp: msg.timestamp,
-        //   };
-
-        //   setMessages((prev) => ({
-        //     ...prev,
-        //     [otherUser.id]: [...(prev[otherUser.id] || []), newMsg],
-        //   }));
-
-        //   if (selectedUserRef.current?.username !== msg.sender) {
-        //     setUnreadCounts((prev) => ({
-        //       ...prev,
-        //       [otherUser.id]: (prev[otherUser.id] || 0) + 1,
-        //     }));
-        //   }
       }
     );
 
@@ -218,18 +191,6 @@ const ChatApp: FC = () => {
       return;
     }
 
-    // const newMessage = {
-    //   // id: Date.now(),
-    //   sender: username,
-    //   recipient: selectedUser.username,
-    //   text: currentInput,
-    //   timestamp: new Date().toISOString(),
-    // };
-
-    // setMessages((prev) => ({
-    //   ...prev,
-    //   [selectedUser.id]: [...(prev[selectedUser.id] || []), newMessage],
-    // }));
 
     socket.emit("chat:message", {
       username: username,
@@ -276,16 +237,11 @@ const ChatApp: FC = () => {
 
 
   const EmptyState = () => (
-    <div className="flex flex-col w-full h-full justify-center items-center  text-slate-100 p-8">
+    <div className="flex flex-col w-full h-full justify-center items-center bg-[#222831]  text-slate-100 p-8">
       <div className="flex items-center justify-center mb-12">
-        <img
-          src={gf}
-          alt="Select a contact"
-          className=" object-contain rounded-2xl shadow-2xl border border-slate-700/50 backdrop-blur-sm"
-        />
+        <img src={gf} className="h-36  rounded-2xl shadow-2xl " />
       </div>
-
-      {/* <div className="text-center space-y-4 max-w-md">
+      <div className="text-center space-y-4 max-w-md">
         <h2 className="text-4xl  font-semibold text-slate-100 mb-3 tracking-tight">
           Choose a Contact !
         </h2>
@@ -294,7 +250,7 @@ const ChatApp: FC = () => {
           Select a conversation from your contact list to begin messaging.
         </p>
 
-      </div> */}
+      </div>
     </div>
   );
 

@@ -11,7 +11,8 @@ import ajvErrors from 'ajv-errors';
 import { Server as IOServer, Socket } from "socket.io";
 import http from "http";
 import setupSocketIO from './plugins/socket.plugin';
-
+import { getuser } from "./utils/userauth.utils";
+import cloudinaryPlugin from "./plugins/cloudinary.plugin";
 
 const app = fastify({
     ajv: {
@@ -35,9 +36,9 @@ app.register(cookiePlugin);
 
 app.register(jwtplugin);
 
-
 app.register(auth02);
 
+app.register(cloudinaryPlugin);
 
 
 app.ready();
@@ -65,11 +66,50 @@ app.get("/hello", (request, reply) => {
     return reply.send({ refreshtoken: true, accesstoken: true });
 });
 
-app.get('/logout',  (request, reply) => {
-	reply.clearCookie('accessToken', {path:'/'});
-	reply.clearCookie('refreshtoken', {path: '/login/refreshtoken'});
-	return 'logout';
-})
+app.get('/userinfo', async (request, reply) => {
+	try {
+		const token = request.cookies.accessToken;
+		if (!token) {
+			return reply.code(401).send({ userinfo: false, message: "No access token in cookies", accesstoken: false, refreshtoken: true });
+		}
+		const decodetoken = app.jwt.decode(token) as { username: string };
+		const user = await getuser(app, decodetoken.username);
+		return reply.send({
+			userinfo: true,
+			data: {
+				username: user?.username,
+				first_name: user?.first_name,
+				family_name: user?.family_name,
+				Language: user?.Language,
+				image_url: user?.image_url,
+				cover_url: user?.cover_url,
+				email: user?.email
+			}
+		});
+	} catch (err) {
+		reply.code(400).send({ userinfo: false, error: err });
+	}
+});
+
+
+app.get('/logout', (request, reply) => {
+	reply.clearCookie('accessToken', {
+		path: '/',
+		secure: false,
+		httpOnly: true,
+		sameSite: 'strict'
+	});
+
+	reply.clearCookie('refreshtoken', {
+		path: '/login/refreshtoken',
+		secure: false,
+		httpOnly: true,
+		sameSite: 'strict'
+	});
+
+
+	return reply.send({ message: 'Logged out' });
+});
 
 app.setErrorHandler((error, request, reply) => {
     if (error.validation && error.validation.length > 0) {

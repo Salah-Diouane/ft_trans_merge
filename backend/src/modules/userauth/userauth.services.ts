@@ -10,19 +10,18 @@ export const generateRefreshToken = async (fastify: FastifyInstance, reply: Fast
 		path: '/login/refreshtoken',
 		secure: false,
 		httpOnly: true,
-		sameSite: true
+		sameSite: 'strict'
   });
   return token;
 }
 
 export const generateAccessToken = async (fastify: FastifyInstance, reply: FastifyReply, user: User) :  Promise<string>  => {
-	reply.clearCookie('accessToken', {path: '/'});
 	const token = await fastify.jwt.sign({userid: user.id, username: user.username, email: user.email}, {expiresIn: '1h'});
 	reply.setCookie('accessToken', token, {
 		path: '/',
 		secure: false,
 		httpOnly: true,
-		sameSite: true
+		sameSite: 'strict'
   });
   return token;
 }

@@ -2,8 +2,10 @@ import React from "react";
 import { Search } from "lucide-react";
 import { Notification02Icon } from "hugeicons-react";
 import meProfile from "../Assets/me.jpeg";
+import {useStore} from "../../store/store"
 
 const NavBar: React.FC = () => {
+  const store = useStore()
   return (
     <nav className="flex items-center justify-between text-white w-full h-14 px-4 max-lg:hidden mt-5 mb-4">
       <div className="w-1/3" />
@@ -20,7 +22,7 @@ const NavBar: React.FC = () => {
       <div className="flex items-center gap-6 w-1/3 justify-end">
         <Notification02Icon className="size-8 hover:text-[#00ADB5] cursor-pointer max-sm:hidden" />
         <img
-          src={meProfile}
+          src={store.image_url}
           className="size-12 rounded-full hover:text-[#00ADB5] cursor-pointer max-sm:hidden"
           alt="Profile"
         />

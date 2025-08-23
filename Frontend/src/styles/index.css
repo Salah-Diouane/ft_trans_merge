@@ -59,12 +59,12 @@ html, body, #root {
 
 .custom-scroll::-webkit-scrollbar-track {
   /* display: none; */
-  background: #393E46; 
+  background-color: #222831;
   /* background: #222831;  */
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
   width: 2px;
-  background-color: #222831;
+  background: #393E46; 
   border-radius: 100px;
 }

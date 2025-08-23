@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, Navigate, Link } from "react-router-dom";
+import { useStore } from "../../store/store";
 
 export default function TwoFA() {
 
@@ -10,6 +11,7 @@ export default function TwoFA() {
 	const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 	const [erros, seterros] = useState('');
 	const state = location.state as { username: string; password: string } | undefined;
+	const store = useStore();
 
 	if (!state) {
 		return <Navigate to="/login/Signin" replace />;
@@ -28,7 +30,7 @@ export default function TwoFA() {
 			password: state.password
 		};
 		try {
-			const response = await fetch(`http://e3r4p16.1337.ma:3000/login/verify2fa`, {
+			const response = await fetch("http://e3r7p17.1337.ma:3000/login/verify2fa", {
 				method: "POST",
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),
@@ -38,8 +40,10 @@ export default function TwoFA() {
 			if (!response.login) {
 				seterros(response.message);
 			}
-			else
+			else {
+				await store.fetchUserInfo();
 				navigate('/');
+			}
 		} catch (err: any) {
 			alert(err.message || '2FA failed.');
 		}
@@ -63,10 +67,10 @@ export default function TwoFA() {
 			<h1 className="mb-4 text-xl font-russo  font-semibold">Two-Factor Auth</h1>
 			<h6 className="text-xs">We Send a code to your email ****@gmail.com </h6>
 			<br />
-			<form onSubmit={Donebutton} className="flex flex-col">
+			<div className="flex flex-col">
 				<div className="flex space-x-2 mb-4">
 					{numbers.map((value, index) => (
-						<input autoFocus={index == 0} key={index} maxLength={1} value={value} ref={(el) => (inputRefs.current[index] = el)}
+						<input key={index} maxLength={1} value={value} ref={(el) => (inputRefs.current[index] = el)}
 							onChange={(e) => {
 								const val = e.target.value;
 								const newNumbers = [...numbers];
@@ -92,7 +96,7 @@ export default function TwoFA() {
 				<div className="flex justify-center space-x-2">
 					<button onClick={Donebutton} className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" > Verify </button>
 				</div>
-			</form>
+			</div>
 		</>
 	);
 }

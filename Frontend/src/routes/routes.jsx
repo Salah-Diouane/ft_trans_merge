@@ -16,8 +16,12 @@ import Signup from '../features/userauth/signup';
 import ProtectedRoute from '../features/userauth/protectauth'
 import RemoteGame from "../features/Game/Remote/RemoteGame"
 import LocalGame from '../features/Game/Local/LocalGame';
-import LocalPong from '../features/Game/PingPong/Local/LocalPong'
-import RemotePong from '../features/Game/PingPong/Remote/RemotePong'
+import LocalPong from '../features/Game/PingPong/Local/LocalPong';
+import RemotePong from '../features/Game/PingPong/Remote/RemotePong';
+import GameSettings from '../features/Settings/Game';
+import ProfileSetting from '../features/Settings/Profile';
+import SecurtitySettings from '../features/Settings/Security';
+
 export const routes  = [
   {
     path: '/login',
@@ -51,7 +55,15 @@ export const routes  = [
 					{path: "tic-tac-toe/remote-game", element: <RemoteGame />},
 				],
 			},
-			{ path: 'settings', element: <Settings /> },
+			{
+				path: 'settings',
+				element: <Settings />,
+				children: [
+				  { path: 'profile', element: <ProfileSetting /> },
+				  { path: 'game', element: <GameSettings /> },
+				  { path: 'security', element: <SecurtitySettings /> },
+				]
+			},
 			{ path: 'logout', element: <Logout /> },
 			{ path: 'profile', element: <Profile /> },
 		],

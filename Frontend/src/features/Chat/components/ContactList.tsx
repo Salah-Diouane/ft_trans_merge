@@ -83,7 +83,7 @@ const ContactList: FC<ContactListProps> = ({
                     {/* Profile Info */}
                     <div className="flex items-center gap-x-4">
                       <img
-                        src={meProfile}
+                        src={user.image_url}
                         className="size-14 rounded-full object-cover border-2 border-gray-600"
                         alt="profile"
                       />

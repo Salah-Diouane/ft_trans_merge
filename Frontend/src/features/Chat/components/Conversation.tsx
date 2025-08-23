@@ -1,5 +1,5 @@
 
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, use, useEffect, useRef, useState } from "react";
 import { VscSend } from "react-icons/vsc";
 import { LuSendHorizontal } from "react-icons/lu";
 import { IoBanOutline, IoGameControllerOutline } from "react-icons/io5";
@@ -10,7 +10,7 @@ import { LuImagePlus } from "react-icons/lu";
 import { MdDelete, MdCancel, MdEmojiEmotions } from "react-icons/md";
 import { HiEllipsisVertical } from "react-icons/hi2";
 import { IoIosArrowBack } from "react-icons/io";
-
+import { useStore } from '../../../store/store';
 import meProfile from "../Assets/me.jpeg";
 import Subtract from "../Assets/Subtract.svg";
 
@@ -19,7 +19,7 @@ import socket from "../services/socket";
 
 
 interface ConversationProps {
-  user: { username: string } | null;
+  user: { username: string, image_url: string };
   messages: Message[];
   history: Message[]
   input: string;
@@ -39,6 +39,7 @@ const Conversation: FC<ConversationProps> = ({
   onBack,
   loggedInUsername,
 }) => {
+
   const isMobile = typeof window !== "undefined" && window.outerWidth < 1024;
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -55,6 +56,9 @@ const Conversation: FC<ConversationProps> = ({
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [isInviteSent, setIsInviteSent] = useState<boolean>(false);
 
+  console.log("users : ")
+  console.log(user.image_url)
+
   if (!user) {
 
     return (
@@ -63,7 +67,7 @@ const Conversation: FC<ConversationProps> = ({
       </div>
     );
   }
-
+  const store = useStore()
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -183,7 +187,6 @@ const Conversation: FC<ConversationProps> = ({
 
   };
 
-
   return (
     <div className="flex flex-col w-full h-full  max-sm:h-[93%] rounded-2xl p-[2px] max-lg:bg-none ">
       <div className="flex flex-col flex-grow  rounded-xl max-lg:rounded-none p-2 overflow-hidden bg-no-repeat bg-cover" style={{ backgroundImage: `url(${Subtract})` }}>
@@ -196,7 +199,7 @@ const Conversation: FC<ConversationProps> = ({
                 <IoIosArrowBack className="size-7  rounded-full p-0.5" />
               </button>
             )}
-            <img src={meProfile} className="size-14 rounded-full max-lg:w-12 max-lg:h-12 border-2 border-[#0077FF]" alt="User profile" />
+            <img src={user.image_url} className="size-14 rounded-full max-lg:w-12 max-lg:h-12 border-2 border-[#0077FF]" alt="User profile" />
             <div className="flex flex-col">
               <strong className="text-white text-lg font-bold max-lg:text-sm">
                 {user?.username || "User"}
@@ -320,7 +323,6 @@ const Conversation: FC<ConversationProps> = ({
           })}
           <div ref={messagesEndRef} />
         </div>
-
 
         {showDeleteModal && (
           <div  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4">

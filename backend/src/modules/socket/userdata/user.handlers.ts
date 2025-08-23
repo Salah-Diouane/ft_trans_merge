@@ -52,11 +52,6 @@ export default function handleUserEvents({fastify, io, socket} : handleUserEvent
 
     socket.on("request:init", () => {
 
-        // const userData = (socket as AuthenticatedSocket).user;
-        // socket.emit("profile-data", {
-        //     user: userData?.username,
-        // });
-
         db.all("SELECT * FROM user_authentication ORDER BY id ASC", (err, user_authentication: User[]) => {
 
         if (!err) {
