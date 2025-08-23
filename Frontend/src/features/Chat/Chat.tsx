@@ -224,7 +224,7 @@ const ChatApp: FC = () => {
       setShowContactList(false);
     setUnreadCounts((prev) => ({ ...prev, [user.id]: 0 }));
   };
-
+                                                                                                                                                                                                                
   // ---------------- Derived ----------------
   const filteredUsers = users.filter(
     (user) =>
@@ -237,22 +237,37 @@ const ChatApp: FC = () => {
 
 
   const EmptyState = () => (
-    <div className="flex flex-col w-full h-full justify-center items-center bg-[#222831]  text-slate-100 p-8">
-      <div className="flex items-center justify-center mb-12">
+    <div className="flex flex-col w-full h-full rounded-2xl p-[2px] max-lg:h-full ">
+      <div className="flex flex-col h-full justify-center items-center rounded-[inherit]  space-y-6 p-4" style={{ backgroundImage: `url(${Subtract})` }} >
+
         <img src={gf} className="h-36  rounded-2xl shadow-2xl " />
-      </div>
-      <div className="text-center space-y-4 max-w-md">
-        <h2 className="text-4xl  font-semibold text-slate-100 mb-3 tracking-tight">
-          Choose a Contact !
-        </h2>
 
-        <p className="text-slate-400 text-lg leading-relaxed font-light">
-          Select a conversation from your contact list to begin messaging.
-        </p>
+        <div className="text-center space-y-4 max-w-md">
 
+          <h2 className="text-4xl  font-semibold text-slate-100 mb-3 tracking-tight">
+            Choose a Contact !
+          </h2>
+
+          <p className="text-slate-400 text-lg leading-relaxed font-light">
+            Select a conversation from your contact list to begin messaging.
+          </p>
+
+        </div>
       </div>
     </div>
   );
+
+  // const EmptyState = () => (
+  // <div className="flex flex-col w-full h-full rounded-2xl p-[2px] max-lg:h-full ">
+  //   <div className="flex flex-col h-full justify-center items-center rounded-[inherit]  p-4" style={{ backgroundImage: `url(${Subtract})` }} >
+  //       <FiUser className="h-20 w-20 mb-6 text-[#0077FF] animate-pulse" />
+  //       <p className="text-2xl font-bold text-[#0077FF] tracking-wide mb-2">Select a Contact</p>
+  //       <p className="mt-1 text-center max-w-xs leading-relaxed text-[#0077FF]">
+  //         Please choose a contact from the list to start chatting.
+  //       </p>
+  //     </div>
+  //   </div>
+  // );
 
   // ---------------- Render ----------------
   return (

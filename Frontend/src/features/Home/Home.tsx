@@ -10,48 +10,137 @@ interface DisplayItemProps {
   level?: string | number;
   stat?: string;
   color?: string;
+  rank?: number;
 }
 
 
-const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, color }) => {
+import { FaCrown, FaMedal, FaTrophy, FaBolt, FaStar, FaGamepad, FaFire, FaChevronRight, } from "react-icons/fa";
+import { ShieldHalf } from "lucide-react"
+const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, color, rank }) => {
 
   const store = useStore()
   const level_int = level ? parseFloat(level.toString()) : 0;
+  const getRankIcon = (rank?: number) => {
+    switch (rank) {
+      case 1: return <FaCrown className="text-yellow-400 text-lg" />;
+      case 2: return <FaMedal className="text-gray-300 text-lg" />;
+      case 3: return <FaMedal className="text-amber-600 text-lg" />;
+      default: return <span className='text-cyan-200 font-bold text-sm'>{rank}</span>
+      // default: return <ShieldHalf className='text-cyan-200 font-bold text-sm' />
+    }
+  };
+
+  // const getStatIcon = (stat?: string) => {
+  //   console.log("stat : ")
+  //   console.log(stat)
+  //   switch (stat?.toLowerCase()) {
+  //     case 'VICTORY': return <FaTrophy className="text-emerald-400 animate-pulse" />;
+  //     case 'DEFEAT': return <FaBolt className="text-red-400 animate-pulse" />;
+  //     case 'DRAW': return <FaStar className="text-blue-400 animate-spin" />;
+  //     default: return <FaGamepad className="text-gray-400" />;
+  //   }
+  // };
+  const getStatElement = (stat?: string, color?: string) => {
+    console.log("stat : ", stat);
+    switch (stat?.toLowerCase()) {
+      case 'victory': 
+        return (
+          <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
+            <FaTrophy className="text-emerald-400 animate-pulse" />
+            {stat}
+          </div>
+        );
+      case 'defeat': 
+        return (
+          <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
+            <FaBolt className="text-red-400 animate-pulse" />
+            {stat}
+          </div>
+        );
+      case 'draw': 
+        return (
+          <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
+            <FaStar className="text-blue-400 animate-spin" />
+            {stat}
+          </div>
+        );
+      default: 
+        return (
+          <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
+            <FaGamepad className="text-gray-400" />
+            {stat}
+          </div>
+        );
+    }
+  };
+
 
   return (
     <>
       {type === 'level' && (
-        <div className="flex items-center p-4 bg-[#222831] m-2 h-16 rounded-3xl">
+        <div className="flex items-center p-4 bg-[#222831] m-2 h-16 rounded-3xl  border border-[#393E46]/50 hover:border-[#0077FF]/50">
 
           <div className="flex items-center gap-5 w-1/6">
+            <div className="relative flex-shrink-0">
+              {getRankIcon(rank)}
+            </div>
             <img src={store.image_url} className="size-12 rounded-full border-2 border-white" alt="player profile" />
             <div className="h-12 flex items-center">
               <p className="font-russo text-white truncate max-w-40 leading-tight">{name}</p>
             </div>
           </div>
 
-          <div className="flex-1 flex items-center gap-4">
-            <div className="flex-1 h-5 bg-white rounded-lg overflow-hidden">
+          <div className="flex-1 flex items-center gap-4 ml-4 ">
+            <div className="flex-1 h-3 bg-[#5e7396] rounded-full overflow-hidden border border-[#393E46]">
               <div
-                className="h-full bg-[#0077FF]"
-                style={{ width: `${level_int}%` }}
+                className="h-full bg-[#0077FF] rounded-full transition-all duration-500 ease-out shadow-lg shadow-[#0077FF]/30"
+                style={{ width: `${Math.min(level_int, 100)}%` }}
               />
             </div>
-            <p className="font-russo text-white">{level}</p>
+            <div className="text-right flex items-center space-x-4">
+              <p className="font-bold text-[#EEEEEE] text-lg">{level}</p>
+              <p className="text-gray-400 text-xs">Level</p>
+            </div>
           </div>
 
         </div>
       )}
 
       {type === 'stat' && (
-        <div className='bg-[#222831]  m-2 h-16 rounded-3xl flex items-center p-4 justify-between'>
-          <img src={store.image_url} className='size-12 rounded-full border-2 border-white' alt="player profile" />
+        <div className='group bg-[#222831]  m-2 h-16 rounded-3xl flex items-center p-4 justify-between border border-[#393E46]/50 hover:border-[#0077FF]/50 transition-all duration-300 hover:shadow-md'>
+
+          <img
+            src={store.image_url}
+            className='size-12 rounded-full border-2 border-[#393E46] group-hover:border-[#0077FF] transition-all shadow-md'
+            alt="player profile"
+          />
+
           <div className='flex-1 flex items-center justify-between pl-4 pr-2'>
-            <p className={`font-russo ${color} text-lg`}>6</p>
-            <p className={`font-russo ${color} text-lg flex-1 text-center`}>{stat}</p>
-            <p className={`font-russo ${color} text-lg`}>6</p>
-            <img src={store.image_url} className='size-12 rounded-full border-2 border-white ml-4' alt="opponent profile" />
+            <p className={`font-russo ${color} text-lg font-bold`}>6</p>
+
+            {/* <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-[#393E46] border border-[#393E46]`}> */}
+            {/* {getStatIcon(stat)}
+            <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm`}>
+              {stat}
+            </div> */}
+            {/* <div className="flex items-center gap-2 group-hover:scale-105 transition-transform duration-300">
+              {getStatIcon(stat)}
+              <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300`}>
+                {stat}
+              </div>
+            </div> */}
+            <div className="group-hover:scale-105 transition-transform duration-300">
+              {getStatElement(stat, color)}
+            </div>
+            <p className={`font-russo ${color} text-lg font-bold`}>6</p>
+
           </div>
+            <img
+              src={store.image_url}
+              className='size-12 rounded-full border-2 border-[#393E46] group-hover:border-[#0077FF] transition-all shadow-md ml-4'
+              alt="opponent profile"
+            />
+
         </div>
       )}
     </>
@@ -85,7 +174,7 @@ const WelcomeCard: React.FC = () => {
       <div className="absolute transform -translate-x-1/2 -bottom-4 left-1/2 h-[80%] flex justify-center">
         <svg
           viewBox="0 0 207 110"
-          // xmlns="http://www.w3.org/2000/svg"
+        // xmlns="http://www.w3.org/2000/svg"
         >
           <path
             d="M102.267 0.434814C132.402 0.434814 156.831 24.8643 156.831 54.9993C156.831 59.7291 156.229 64.3183 155.098 68.6946C155.021 69.5379 154.981 70.389 154.981 71.2463C154.982 92.1843 178.085 109.197 206.771 109.556V109.565H0.228516V109.484C27.7613 108.213 49.5513 91.5806 49.5518 71.2463C49.5518 70.389 49.511 69.5379 49.4346 68.6946C48.3034 64.3184 47.7021 59.729 47.7021 54.9993C47.7021 24.8643 72.1317 0.434882 102.267 0.434814Z"
@@ -147,34 +236,34 @@ const Home: React.FC = () => {
       <div className='w-[70%]  p-2 space-y-3 overflow-auto'>
         <WelcomeCard />
         <div className=' w-full h-[79%] bg-[#393E46] rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll '>
-          <div className='sticky top-0  font-russo  text-2xl h-16 size-auto bg-[#393E46] p-5'>LeaderBoard</div>
-          <DisplayItem type='level' name="salah" level="10.25 Lvl" />
-          <DisplayItem type='level' name="ahmed" level="15.01 Lvl" />
-          <DisplayItem type='level' name="fatimafatimafatimafatimafatimafatimafatimafatima" level="13.37 Lvl" />
-          <DisplayItem type='level' name="omar" level="42.42 Lvl" />
-          <DisplayItem type='level' name="layla" level="54.87 Lvl" />
-          <DisplayItem type='level' name="youssef" level="15.09 Lvl" />
-          <DisplayItem type='level' name="sara" level="28.99 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
-          <DisplayItem type='level' name="ali" level="10.10 Lvl" />
+          <div className='sticky top-0 z-10 font-russo  text-2xl h-16 size-auto bg-[#393E46] p-5'>LeaderBoard</div>
+          <DisplayItem type='level' name="salah" level="10.25" rank={1} />
+          <DisplayItem type='level' name="ahmed" level="15.01" rank={2} />
+          <DisplayItem type='level' name="fatimafatimafatimafatimafatimafatimafatimafatima" level="13.37" rank={3} />
+          <DisplayItem type='level' name="omar" level="42.42" rank={4}/>
+          <DisplayItem type='level' name="layla" level="54.87" rank={5}/>
+          <DisplayItem type='level' name="youssef" level="15.09" rank={6}/>
+          <DisplayItem type='level' name="sara" level="28.99" rank={7}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={8}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={9}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={10}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={11}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={12}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={13}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={14}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={15}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={16}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={17}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={18}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={19}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={20}/>
+          <DisplayItem type='level' name="ali" level="10.10" rank={21}/>
 
         </div>
       </div>
       <div className='w-[30%]   p-2 '>
         <div className='h-full  bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll '>
-          <div className='sticky top-0 font-russo p-5 h-16 text-2xl size-auto bg-[#393E46]'>History</div>
+          <div className='sticky top-0 z-10 font-russo p-5 h-16 text-2xl size-auto bg-[#393E46]'>History</div>
           <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
           <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
           <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
@@ -242,3 +331,6 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
+
+
