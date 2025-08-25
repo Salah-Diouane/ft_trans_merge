@@ -21,7 +21,7 @@ import RemotePong from '../features/Game/PingPong/Remote/RemotePong';
 import GameSettings from '../features/Settings/Game';
 import ProfileSetting from '../features/Settings/Profile';
 import SecurtitySettings from '../features/Settings/Security';
-
+import Friends from "../features/Friends/Friends"
 export const routes  = [
   {
     path: '/login',
@@ -41,6 +41,16 @@ export const routes  = [
 		),
 		children: [
 			{ index: true, element:  <Home /> },
+			{
+				path: 'friends',
+				element: <Friends />,
+				// children: [
+				//   { path: 'all', element: <FriendsAll /> },
+				//   { path: 'sent', element: <FriendSent /> },
+				//   { path: 'requests', element: <FriendsReq /> },
+				//   { path: 'blocked', element: <FriendsBlocked /> },
+				// ]
+			},
 			{ path: 'chat', element: <ChatApp /> },
 			{
 				path: 'game',

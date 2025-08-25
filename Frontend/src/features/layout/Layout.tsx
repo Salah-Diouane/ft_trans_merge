@@ -4,6 +4,8 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { useStore } from '../../store/store';
 import meProfile from "../Assets/me.jpeg";
 import logo from "../Assets/logo.png";
+import { LiaUserFriendsSolid } from "react-icons/lia";
+
 
 import {
   BubbleChatNotificationIcon,
@@ -60,6 +62,10 @@ const Layout: React.FC = () => {
 
               <Link to="/game" className={isActive("/game")}>
                 <GameController03Icon className="size-8 max-lg:size-6 cursor-pointer" />
+              </Link>
+
+              <Link to="/friends" className={isActive("/friends")}>
+                <LiaUserFriendsSolid className="size-8 max-lg:size-6 cursor-pointer" />
               </Link>
 
               <Link to="/chat" className={isActive("/chat")}>

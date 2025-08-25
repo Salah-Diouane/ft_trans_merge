@@ -76,16 +76,23 @@ const Conversation: FC<ConversationProps> = ({
     setInput(input + emoji.native);
   };
 
-  const OnlineStatusIcon: React.FC<{ isOnline: boolean; size?: number }> = ({ isOnline, size = 10 }) => {
-    const styles = {
-      width: size,
-      height: size,
-      borderRadius: '9999px',
-      backgroundColor: isOnline ? '#22c55e' : '#FF0000',
-      display: 'inline-block',
-    };
-    return <span style={styles} title={isOnline ? 'Online' : 'Offline'}></span>;
-  };
+  const OnlineStatusIcon: React.FC<{ isOnline: boolean; size?: number }> = ({ isOnline, size = 12 }) => {
+    return (
+        <div className="relative">
+            <div 
+                className={`w-${size/4} h-${size/4} rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} border-2 border-[#222831]`}
+                style={{ width: size, height: size }}
+                title={isOnline ? 'Online' : 'Offline'}
+            />
+            {isOnline && (
+                <div 
+                    className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"
+                    style={{ width: size, height: size }}
+                />
+            )}
+        </div>
+    );
+};
 
   const handleBlockUser = () => {
 
@@ -325,7 +332,7 @@ const Conversation: FC<ConversationProps> = ({
         </div>
 
         {showDeleteModal && (
-          <div  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4">
+          <div  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4 ">
             <div className="bg-white rounded-2xl max-w-sm w-full mx-4 overflow-hidden">
               
               <div className="p-6 text-center">
