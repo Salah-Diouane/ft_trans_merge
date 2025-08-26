@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from "../../store/store"
-import { FaHourglassEnd } from "react-icons/fa";
-import { Search, MessageCircle, UserMinus, UserCheck, UserX, Clock, Shield } from "lucide-react";
+import { Search, MessageCircle, UserMinus, UserCheck, UserX, Clock, Shield, Users, Send, UserPlus, X } from "lucide-react";
 
 const OnlineStatusIcon: React.FC<{ isOnline: boolean; size?: number }> = ({ isOnline, size = 12 }) => {
     return (
@@ -42,8 +41,15 @@ const SectionFriendSend: React.FC = () => {
             <div className='flex flex-1 items-center justify-end gap-4'>
 
                 <div className="flex items-center gap-2 text-[#0077FF] ">
-                    <Clock size={20} />
-                    <span className="text-sm font-semibold">Request Sent</span>
+
+                    <button className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2">
+                    <Clock size={16} />
+                    Request Sent
+                </button>
+                    <button className="bg-red-500 text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2">
+                        <X size={16} />
+                        cancel
+                    </button>
                 </div>
 
             </div>
@@ -70,12 +76,12 @@ const SectionFriendRequest: React.FC = () => {
             </div>
 
             <div className='flex flex-1 items-center justify-end gap-4'>
-                {/* <button className='bg-[#0077FF] rounded-2xl w-40 h-10'>Accept</button>
-                <button className='bg-[#0077FF] rounded-2xl w-40 h-10'>Reject</button> */}
-                <button className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
+                <button className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2">
+                    <UserCheck size={16} />
                     Accept
                 </button>
-                <button className="bg-gray-600 text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
+                <button className="bg-red-500 text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2">
+                    <UserX size={16} />
                     Reject
                 </button>
             </div>
@@ -103,7 +109,8 @@ const SectionFriendBlocked: React.FC = () => {
             </div>
 
             <div className='flex flex-1 items-center justify-end gap-4'>
-                <button className="bg-blue-500 text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
+                <button className="bg-blue-500 text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-3">
+                    <Shield size={20} />
                     Unblock
                 </button>
             </div>
@@ -131,12 +138,13 @@ const SectionFriendAll: React.FC = () => {
             </div>
 
             <div className='flex flex-1 items-center justify-end gap-4'>
-                <button className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
+                <button className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2" >
+                    <MessageCircle size={16} />
                     Chat
                 </button>
-                <button className="bg-red-500 text-white p-2 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
+                {/* <button className="bg-red-500 text-white p-2 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors">
                     <UserMinus size={18} />
-                </button>
+                </button> */}
             </div>
         </div>
 
@@ -146,7 +154,7 @@ const SectionFriendAll: React.FC = () => {
 
 const All: React.FC = () => {
     return (
-        <div className='bg-[#393E46] w-full h-[93%] mt-7 rounded-2xl p-4'>
+        <div className='bg-[#393E46] w-full h-[93%] mt-7 rounded-2xl p-4 overflow-hidden'>
             <div className="sticky top-0 z-10  px-14  pt-4 pb-4  ">
                 <div className="flex items-center bg-[#222831] rounded-full px-4 h-12 shadow-md ">
                     <Search className="text-gray-400 mr-2" size={20} />
@@ -164,14 +172,14 @@ const All: React.FC = () => {
             <SectionFriendAll />
             <SectionFriendAll />
             <SectionFriendAll />
-
+            <SectionFriendAll />
         </div>
     )
 }
 
 const Sent: React.FC = () => {
     return (
-        <div className='bg-[#393E46] w-full h-[93%] mt-7 rounded-2xl p-4'>
+        <div className='bg-[#393E46] w-full h-[93%] mt-7 rounded-2xl p-4 overflow-hidden'>
             <div className="sticky top-0 z-10  px-14  pt-4 pb-4  ">
                 <div className="flex items-center bg-[#222831] rounded-full px-4 h-12 shadow-md ">
                     <Search className="text-gray-400 mr-2" size={20} />
@@ -196,7 +204,7 @@ const Sent: React.FC = () => {
 
 const Requests: React.FC = () => {
     return (
-        <div className='bg-[#393E46] w-full h-[93%] mt-7 rounded-2xl p-4'>
+        <div className='bg-[#393E46] w-full h-[93%] mt-7 rounded-2xl p-4 overflow-hidden'>
             <div className="sticky top-0 z-10  px-14  pt-4 pb-4  ">
                 <div className="flex items-center bg-[#222831] rounded-full px-4 h-12 shadow-md ">
                     <Search className="text-gray-400 mr-2" size={20} />
@@ -220,7 +228,7 @@ const Requests: React.FC = () => {
 }
 const Blocked: React.FC = () => {
     return (
-        <div className='bg-[#393E46] w-full h-[93%] mt-7 rounded-2xl p-4'>
+        <div className='bg-[#393E46] w-full h-[93%] mt-7 rounded-2xl p-4 overflow-hidden'>
             <div className="sticky top-0 z-10  px-14  pt-4 pb-4  ">
                 <div className="flex items-center bg-[#222831] rounded-full px-4 h-12 shadow-md ">
                     <Search className="text-gray-400 mr-2" size={20} />
@@ -231,6 +239,7 @@ const Blocked: React.FC = () => {
                     />
                 </div>
             </div>
+            <SectionFriendBlocked />
             <SectionFriendBlocked />
             <SectionFriendBlocked />
             <SectionFriendBlocked />
@@ -274,75 +283,67 @@ const Friends: React.FC = () => {
         setOnlineClicked(false)
         setAllClicked(false)
     }
+
     return (
-        <div className="w-full h-full   bg-[#222831] p-14  " >
+        <div className="w-full    bg-[#222831] p-40  " >
+            <div className="max-w-7xl mx-auto h-full flex flex-col ">
+                <div className=" w-full h-6 rounded-2xl flex justify-center gap-24 p-2 items-center" >
+                    <div
+                        className={`${allClicked ? "text-blue-600 border-b-2 border-blue-600 pb-1" : "text-white hover:text-blue-600"} cursor-pointer font-russo text-2xl flex items-center gap-3`}
+                        onClick={handleAllClick}
+                    >
+                        <Users size={20} />
+                        <span>All</span>
+                    </div>
+                    <div
+                        className={`${onlineClicked ? "text-blue-600 border-b-2 border-blue-600 pb-1" : "text-white hover:text-blue-600"} cursor-pointer font-russo text-2xl flex items-center gap-3`}
+                        onClick={handleOnlineClick}
+                    >
+                        <Send size={20} />
+                        <span>Sent</span>
+                    </div>
+                    <div
+                        className={`${requestClicked ? "text-blue-600 border-b-2 border-blue-600 pb-1" : "text-white hover:text-blue-600"} cursor-pointer font-russo text-2xl flex items-center gap-3`}
+                        onClick={handleReqClick}
+                    >
+                        <UserPlus size={20} />
+                        <span>Requests</span>
+                    </div>
+                    <div
+                        className={`${blockClicked ? "text-blue-600 border-b-2 border-blue-600 pb-1" : "text-white hover:text-blue-600"} cursor-pointer font-russo text-2xl flex items-center gap-3`}
+                        onClick={handleBlockClick}
+                    >
+                        <Shield size={20} />
+                        <span>Blocked</span>
+                    </div>
+                </div>
 
-            {/* <div className="bg-[#393E46] w-full h-[8%] rounded-2xl flex flex-row justify-center gap-24 p-2 items-center">
-                <div className='size-5 bg-white rounded-2xl w-[10%] h-12 text-center flex items-center justify-center cursor-pointer' onClick={handleAllClick}>
-                    All
-                </div>
-                <div className='size-5 bg-white rounded-2xl w-[10%] h-12 text-center flex items-center justify-center cursor-pointer' onClick={handleOnlineClick}>
-                    Sent
-                </div>
-                <div className='size-5 bg-white rounded-2xl w-[10%] h-12 text-center flex items-center justify-center cursor-pointer' onClick={handleReqClick}>
-                    Requests
-                </div>
-                <div className='size-5 bg-white rounded-2xl w-[10%] h-12 text-center flex items-center justify-center cursor-pointer' onClick={handleBlockClick}>
-                    Blocked
-                </div>
-            </div> */}
-            <div className=" w-full h-6 rounded-2xl flex justify-center gap-24 p-2 items-center" >
-                <div
-                    className={`${allClicked ? "text-blue-600 border-b-2 border-blue-600 pb-1" : "text-white hover:text-blue-600"} cursor-pointer font-russo text-2xl`}
-                    onClick={handleAllClick}
-                >
-                    All
-                </div>
-                <div
-                    className={`${onlineClicked ? "text-blue-600 border-b-2 border-blue-600 pb-1" : "text-white hover:text-blue-600"} cursor-pointer font-russo text-2xl`}
-                    onClick={handleOnlineClick}
-                >
-                    Sent
-                </div>
-                <div
-                    className={`${requestClicked ? "text-blue-600 border-b-2 border-blue-600 pb-1" : "text-white hover:text-blue-600"} cursor-pointer font-russo text-2xl`}
-                    onClick={handleReqClick}
-                >
-                    Requests
-                </div>
-                <div
-                    className={`${blockClicked ? "text-blue-600 border-b-2 border-blue-600 pb-1" : "text-white hover:text-blue-600"} cursor-pointer font-russo text-2xl`}
-                    onClick={handleBlockClick}
-                >
-                    Blocked
-                </div>
+                {allClicked && !onlineClicked && !requestClicked && !blockClicked && (
+                    <All />
+                )}
+
+                {onlineClicked && !allClicked && !requestClicked && !blockClicked && (
+                    <Sent />
+                )}
+
+                {requestClicked && !allClicked && !blockClicked && !onlineClicked && (
+                    <Requests />
+                )}
+
+                {blockClicked && !onlineClicked && !allClicked && !requestClicked && (
+                    <Blocked />
+                )}
+
+
             </div>
-
-            {/* <div className='bg-[#393E46] w-full h-[93%] rounded-2xl flex flex-row justify-center gap-24 p-2 items-center mt-11'> */}
-            {allClicked && !onlineClicked && !requestClicked && !blockClicked && (
-                <All />
-            )}
-
-            {onlineClicked && !allClicked && !requestClicked && !blockClicked && (
-                <Sent />
-            )}
-
-            {requestClicked && !allClicked && !blockClicked && !onlineClicked && (
-                <Requests />
-            )}
-
-            {blockClicked && !onlineClicked && !allClicked && !requestClicked && (
-                <Blocked />
-            )}
-
-
-            {/* </div> */}
         </div>
+
 
     );
 };
 
 export default Friends;
+
 
 
 

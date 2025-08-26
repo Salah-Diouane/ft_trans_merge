@@ -19,7 +19,7 @@ export default function Signin() {
 			password: password.current?.value || ''
 		};
 		try {
-			const response = await fetch('http://e3r4p16.1337.ma:3000/login/signin' , {
+			const response = await fetch('http://e3r1p1.1337.ma:3000/login/signin' , {
 				method: 'POST',
 				headers: {'Content-type' : 'application/json'},
 				body: JSON.stringify(body), 

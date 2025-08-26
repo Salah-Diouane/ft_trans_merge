@@ -40,7 +40,6 @@ app.register(auth02);
 
 app.register(cloudinaryPlugin);
 
-
 app.ready();
 
 app.addHook("onRequest", async (request, reply) => {
@@ -119,9 +118,7 @@ app.setErrorHandler((error, request, reply) => {
     }
 });
 
-
 const server: http.Server = app.server;
-
 
 const io = new IOServer(server, {
   cors: {

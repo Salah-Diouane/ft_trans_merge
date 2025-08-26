@@ -3,6 +3,13 @@ import socket from '../Chat/services/socket';
 import '../../styles/index.css'
 import { useStore } from "../../store/store"
 import { FaPlay } from "react-icons/fa";
+import { FaCrown, FaMedal, FaTrophy, FaBolt, FaStar, FaGamepad, FaFire, FaChevronRight, } from "react-icons/fa";
+
+interface User {
+  name: string;
+  level: string | number;
+  rank: number;
+}
 
 interface DisplayItemProps {
   type: 'level' | 'stat';
@@ -11,12 +18,11 @@ interface DisplayItemProps {
   stat?: string;
   color?: string;
   rank?: number;
+  // user: User[];
 }
 
 
-import { FaCrown, FaMedal, FaTrophy, FaBolt, FaStar, FaGamepad, FaFire, FaChevronRight, } from "react-icons/fa";
-import { ShieldHalf } from "lucide-react"
-const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, color, rank }) => {
+const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank }) => {
 
   const store = useStore()
   const level_int = level ? parseFloat(level.toString()) : 0;
@@ -25,46 +31,45 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, colo
       case 1: return <FaCrown className="text-yellow-400 text-lg" />;
       case 2: return <FaMedal className="text-gray-300 text-lg" />;
       case 3: return <FaMedal className="text-amber-600 text-lg" />;
-      default: return <span className='text-cyan-200 font-bold text-sm'>{rank}</span>
+      default: return <span className='text-cyan-200 font-bold text-lg'>{rank}</span>
       // default: return <ShieldHalf className='text-cyan-200 font-bold text-sm' />
     }
   };
 
-  // const getStatIcon = (stat?: string) => {
-  //   console.log("stat : ")
-  //   console.log(stat)
-  //   switch (stat?.toLowerCase()) {
-  //     case 'VICTORY': return <FaTrophy className="text-emerald-400 animate-pulse" />;
-  //     case 'DEFEAT': return <FaBolt className="text-red-400 animate-pulse" />;
-  //     case 'DRAW': return <FaStar className="text-blue-400 animate-spin" />;
-  //     default: return <FaGamepad className="text-gray-400" />;
-  //   }
-  // };
+  let color:string;
+  if (stat === 'DRAW'){
+    color = "text-[#469CFD]"
+  }
+  else if (stat === 'DEFEAT')
+    color = "text-[#F85761]"
+  else 
+    color = "text-[#3AA64B]"
+
   const getStatElement = (stat?: string, color?: string) => {
     console.log("stat : ", stat);
     switch (stat?.toLowerCase()) {
-      case 'victory': 
+      case 'victory':
         return (
           <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
             <FaTrophy className="text-emerald-400 animate-pulse" />
             {stat}
           </div>
         );
-      case 'defeat': 
+      case 'defeat':
         return (
           <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
             <FaBolt className="text-red-400 animate-pulse" />
             {stat}
           </div>
         );
-      case 'draw': 
+      case 'draw':
         return (
           <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
             <FaStar className="text-blue-400 animate-spin" />
             {stat}
           </div>
         );
-      default: 
+      default:
         return (
           <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
             <FaGamepad className="text-gray-400" />
@@ -73,12 +78,11 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, colo
         );
     }
   };
-
-
+  
   return (
     <>
       {type === 'level' && (
-        <div className="flex items-center p-4 bg-[#222831] m-2 h-16 rounded-3xl  border border-[#393E46]/50 hover:border-[#0077FF]/50">
+        <div className="flex items-center p-4 bg-[#222831] m-2 h-16 rounded-3xl  border border-[#393E46]/50 hover:border-[#0077FF]/50 justify-between">
 
           <div className="flex items-center gap-5 w-1/6">
             <div className="relative flex-shrink-0">
@@ -106,6 +110,7 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, colo
         </div>
       )}
 
+
       {type === 'stat' && (
         <div className='group bg-[#222831]  m-2 h-16 rounded-3xl flex items-center p-4 justify-between border border-[#393E46]/50 hover:border-[#0077FF]/50 transition-all duration-300 hover:shadow-md'>
 
@@ -116,7 +121,7 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, colo
           />
 
           <div className='flex-1 flex items-center justify-between pl-4 pr-2'>
-            <p className={`font-russo ${color} text-lg font-bold`}>6</p>
+            <p className={`font-russo ${color} text-lg font-bold`}>{6}</p>
 
             {/* <div className={`px-4 py-2 rounded-full text-sm font-bold ${color} bg-[#393E46] border border-[#393E46]`}> */}
             {/* {getStatIcon(stat)}
@@ -135,11 +140,11 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, colo
             <p className={`font-russo ${color} text-lg font-bold`}>6</p>
 
           </div>
-            <img
-              src={store.image_url}
-              className='size-12 rounded-full border-2 border-[#393E46] group-hover:border-[#0077FF] transition-all shadow-md ml-4'
-              alt="opponent profile"
-            />
+          <img
+            src={store.image_url}
+            className='size-12 rounded-full border-2 border-[#393E46] group-hover:border-[#0077FF] transition-all shadow-md ml-4'
+            alt="opponent profile"
+          />
 
         </div>
       )}
@@ -158,8 +163,8 @@ const WelcomeCard: React.FC = () => {
       <div className=' flex flex-col space-y-12 p-4'>
 
         <div className=''>
-          <h1 className='font-russo text-6xl text-white'>Welcome Back!</h1>
-          <h2 className='font-russo text-5xl text-white mt-1'>Player</h2>
+          <h1 className='font-russo text-6xl text-white animate-pulse'>Welcome Back!</h1>
+          <h2 className='font-russo text-5xl text-white mt-1 animate-pulse'>Player</h2>
         </div>
 
         <button className='mt-4 w-fit px-8 py-3 rounded-full bg-[#0077FF] text-white font-bold flex items-center justify-center space-x-2'>
@@ -199,7 +204,7 @@ const WelcomeCard: React.FC = () => {
         </svg>
       </div>
 
-      <div className="absolute top-0 right-0 z-20 h-full  w-[25%] flex justify-end">
+      <div className="absolute top-0 right-0 z-20 h-full  w-[25%] flex justify-end ">
         <svg
           className="h-full w-[70%]"
           viewBox="0 0 220 270"
@@ -222,6 +227,25 @@ const WelcomeCard: React.FC = () => {
   );
 };
 
+const Users: User[] = [
+  { name: "mohamed", level: "75.32", rank:1 },
+  { name: "ali", level: "70", rank:2 },
+  { name: "salah", level: "66.22", rank:3 },
+  { name: "fatimafatimafatimafatimafatimafatimafatimafatima", level: "55.29", rank:4 },
+  { name: "ahmed", level: "44.58", rank:5 },
+  { name: "youssef", level: "39.85", rank:6 },
+  { name: "omar", level: "30.25", rank:7 },
+  { name: "adam", level: "10.25", rank:8 },
+]
+
+const Stat = [
+  { name:"salah", image_url: "url", stat: "DRAW", user: Users[2] },
+  { name:"adam", image_url: "url", stat: "VICTORY", user: Users[7] },
+  { name:"mohamed", image_url: "url", stat: "DEFEAT", user: Users[0] },
+  { name:"youssef", image_url: "url", stat: "DRAW", user: Users[5] },
+  { name:"omar", image_url: "url", stat: "DEFEAT", user: Users[6] },
+  { name:"ahmed", image_url: "url", stat: "DRAW", user: Users[4] }
+];
 
 const Home: React.FC = () => {
 
@@ -233,99 +257,44 @@ const Home: React.FC = () => {
   return (
 
     <div className="w-full h-full flex flex-row  bg-[#222831] p-5">
+
       <div className='w-[70%]  p-2 space-y-3 overflow-auto'>
         <WelcomeCard />
+
         <div className=' w-full h-[79%] bg-[#393E46] rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll '>
+
           <div className='sticky top-0 z-10 font-russo  text-2xl h-16 size-auto bg-[#393E46] p-5'>LeaderBoard</div>
-          <DisplayItem type='level' name="salah" level="10.25" rank={1} />
-          <DisplayItem type='level' name="ahmed" level="15.01" rank={2} />
-          <DisplayItem type='level' name="fatimafatimafatimafatimafatimafatimafatimafatima" level="13.37" rank={3} />
-          <DisplayItem type='level' name="omar" level="42.42" rank={4}/>
-          <DisplayItem type='level' name="layla" level="54.87" rank={5}/>
-          <DisplayItem type='level' name="youssef" level="15.09" rank={6}/>
-          <DisplayItem type='level' name="sara" level="28.99" rank={7}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={8}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={9}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={10}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={11}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={12}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={13}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={14}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={15}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={16}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={17}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={18}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={19}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={20}/>
-          <DisplayItem type='level' name="ali" level="10.10" rank={21}/>
+
+          {Users.length > 0 ? (
+            Users.map((user, idx) => (
+              <DisplayItem type='level' name={user.name} level={user.level} rank={user.rank} />
+            ))
+          ) : (
+            <span className="text-blue-400 text-center">No matching users</span>
+          )}
 
         </div>
+        
       </div>
+
       <div className='w-[30%]   p-2 '>
+
         <div className='h-full  bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll '>
+
           <div className='sticky top-0 z-10 font-russo p-5 h-16 text-2xl size-auto bg-[#393E46]'>History</div>
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-          <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-          <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
+
+          {Stat.length > 0 ? (
+            Stat.map((stat, idx) => (
+              <DisplayItem type='stat'  stat={stat.stat}   />
+            ))
+          ) : (
+            <span className="text-blue-400 text-center">No matching users</span>
+          )}
+
         </div>
+
       </div>
+
     </div>
   );
 };
