@@ -39,7 +39,7 @@ export const createUserSlice: StateCreator<userinfo> = (set) => ({
 	setcover_url: (newcover_url) => set({ cover_url: newcover_url }),
 	fetchUserInfo: async () => {
 		try {
-			const respone = await fetch('http://e3r1p1.1337.ma:3000/userinfo', {
+			const respone = await fetch('http://e3r1p17.1337.ma:3000/userinfo', {
 				credentials: 'include',
 			}).then(e => e.json()) as { userinfo: boolean, data: userinfo };
 

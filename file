@@ -1,0 +1,83 @@
+| Plage d’écran (px)    | Tailwind direct | Tailwind avec `max-`     | Devices courants                                                 |
+| --------------------- | --------------- | ------------------------ | ---------------------------------------------------------------- |
+| **0 – 639px**         | *(par défaut)*  | `max-sm`                 | Mobiles (iPhone, Android)                                        |
+| **≥ 640px – 767px**   | `sm:`           | `sm:max-md`              | Petits téléphones en paysage                                     |
+| **≥ 768px – 1023px**  | `md:`           | `md:max-lg`              | Tablettes (iPad Mini portrait, iPad portrait, tablettes Android) |
+| **≥ 1024px – 1279px** | `lg:`           | `lg:max-xl`              | Tablettes paysage, petits laptops (11"–13")                      |
+| **≥ 1280px – 1535px** | `xl:`           | `xl:max-2xl`             | Laptops standards (MacBook Air/Pro 13", écrans full HD fenêtrés) |
+| **≥ 1536px et +**     | `2xl:`          | *(pas de max au-dessus)* | Grands écrans, 1440p, 4K, ultra-wide                             |
+
+
+<div className="
+  bg-red-500              <!-- Mobile par défaut (<640px) -->
+  sm:bg-yellow-500        <!-- ≥640px -->
+  md:bg-green-500         <!-- ≥768px -->
+  lg:bg-blue-500          <!-- ≥1024px -->
+  xl:bg-purple-500        <!-- ≥1280px -->
+  2xl:bg-pink-500         <!-- ≥1536px -->
+
+  max-sm:border           <!-- ≤639px -->
+  sm:max-md:rounded-xl    <!-- 640–767px -->
+  md:max-lg:shadow-xl     <!-- 768–1023px -->
+  lg:max-xl:p-10          <!-- 1024–1279px -->
+  xl:max-2xl:text-3xl     <!-- 1280–1535px -->
+">
+  Responsive Box
+</div>
+
+
+
+Mobiles = max-sm
+
+Tablettes portrait = md ou md:max-lg
+
+Tablettes paysage = lg
+
+Laptops = xl
+
+Grands écrans = 2xl
+
+
+
+
+
+
+
+
+
+
+Features in this version
+
+Fully responsive
+
+xs: 344px → Z Fold 5 folded
+
+sm: 360px → Galaxy S8+
+
+md: 412px → Galaxy A51/A71/S20 Ultra
+
+smx: 540px → mid-size phones
+
+lg: 720px → Z Fold 5 open / tablet
+
+xl: 1024px+ → tablet/desktop
+
+Simplified tabs
+
+Loops over ['all','sent','request','blocked'] instead of 4 click handlers.
+
+Unified FriendCard
+
+Handles all types: all, sent, request, blocked
+
+Responsive padding, font, icon sizes
+
+Search bar and overflow
+
+Search bar uses px-2 xs:px-4 sm:px-8 → scales nicely
+
+Section scrollable with overflow-auto
+
+No fixed sizes like size-12
+
+Fixed with w-12 h-12

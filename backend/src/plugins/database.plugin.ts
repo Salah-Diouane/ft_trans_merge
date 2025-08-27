@@ -3,9 +3,11 @@ import sqlite from 'sqlite3'
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 
 const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+
 	const db = new sqlite.Database("./database.db", (err) => {
 		if (err) throw err;
 	});
+
 	const user_authentication_table: string = `
 		CREATE TABLE IF NOT EXISTS user_authentication (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,

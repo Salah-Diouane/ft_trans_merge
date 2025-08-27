@@ -545,68 +545,128 @@ const WelcomeCard: React.FC = () => {
   );
 };
 
+// const Home: React.FC = () => {
+//   const [isVisible, setIsVisible] = useState(false);
+
+//   useEffect(() => {
+//     // Simulating socket connection
+//     setTimeout(() => setIsVisible(true), 200);
+//   }, []);
+
+//   return (
+//     <div className="w-full h-screen bg-[#222831] p-5 overflow-hidden">
+      
+//       <div className={`w-full h-full flex flex-row space-y-3 transition-all duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+        
+//         <div className='w-[70%] p-2 space-y-3 overflow-auto animate-slideInLeft'>
+//           <WelcomeCard />
+//           <div className='w-full h-[79%] bg-[#393E46] rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll animate-slideInUp shadow-lg hover:shadow-xl hover:shadow-[#0077FF]/10 transition-shadow duration-500'>
+//             <div className='sticky top-0 z-10 font-russo text-2xl h-16 size-auto bg-[#393E46] p-5 border-b border-[#222831]/20 backdrop-blur-sm'>
+//               <span className="hover:text-[#0077FF] transition-colors duration-300 cursor-default">LeaderBoard</span>
+//             </div>
+            
+//             {/* Staggered animation for leaderboard items */}
+//             <div className="animate-staggerChildren">
+//               <DisplayItem type='level' name="salah" level="10.25" rank={1} />
+//               <DisplayItem type='level' name="ahmed" level="15.01" rank={2} />
+//               <DisplayItem type='level' name="fatima" level="13.37" rank={3} />
+//               <DisplayItem type='level' name="omar" level="42.42" />
+//               <DisplayItem type='level' name="layla" level="54.87" />
+//               <DisplayItem type='level' name="youssef" level="15.09" />
+//               <DisplayItem type='level' name="sara" level="28.99" />
+//               <DisplayItem type='level' name="ali" level="10.10" />
+//               <DisplayItem type='level' name="ali" level="10.10" />
+//               <DisplayItem type='level' name="ali" level="10.10" />
+//             </div>
+//           </div>
+//         </div>
+        
+//         <div className='w-[30%] p-2 animate-slideInRight'>
+//           <div className='h-full bg-[#393E46] rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll shadow-lg hover:shadow-xl hover:shadow-[#0077FF]/10 transition-shadow duration-500'>
+//             <div className='sticky top-0 z-10 font-russo p-5 h-16 text-2xl size-auto bg-[#393E46] border-b border-[#222831]/20 backdrop-blur-sm'>
+//               <span className="hover:text-[#0077FF] transition-colors duration-300 cursor-default">History</span>
+//             </div>
+            
+//             {/* Staggered animation for history items */}
+//             <div className="animate-staggerChildren">
+//               <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
+//               <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
+//               <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
+//               <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
+//               <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
+//               <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
+//               <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
+//               <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
+//               <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
+//               <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
+//             </div>
+//           </div>
+//         </div>
+        
+//       </div>
+
+//     </div>
+//   );
+// };
+
+// export default Home;
+
+
+
+
+
 const Home: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Simulating socket connection
-    setTimeout(() => setIsVisible(true), 200);
+    if (!socket.connect())
+      socket.connect()
   }, []);
 
   return (
-    <div className="w-full h-screen bg-[#222831] p-5 overflow-hidden">
+    <div className="w-full h-screen flex flex-col md:flex-row bg-[#222831] p-5 gap-4">
       
-      <div className={`w-full h-full flex flex-row space-y-3 transition-all duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-        
-        <div className='w-[70%] p-2 space-y-3 overflow-auto animate-slideInLeft'>
-          <WelcomeCard />
-          <div className='w-full h-[79%] bg-[#393E46] rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll animate-slideInUp shadow-lg hover:shadow-xl hover:shadow-[#0077FF]/10 transition-shadow duration-500'>
-            <div className='sticky top-0 z-10 font-russo text-2xl h-16 size-auto bg-[#393E46] p-5 border-b border-[#222831]/20 backdrop-blur-sm'>
-              <span className="hover:text-[#0077FF] transition-colors duration-300 cursor-default">LeaderBoard</span>
-            </div>
-            
-            {/* Staggered animation for leaderboard items */}
-            <div className="animate-staggerChildren">
-              <DisplayItem type='level' name="salah" level="10.25" rank={1} />
-              <DisplayItem type='level' name="ahmed" level="15.01" rank={2} />
-              <DisplayItem type='level' name="fatima" level="13.37" rank={3} />
-              <DisplayItem type='level' name="omar" level="42.42" />
-              <DisplayItem type='level' name="layla" level="54.87" />
-              <DisplayItem type='level' name="youssef" level="15.09" />
-              <DisplayItem type='level' name="sara" level="28.99" />
-              <DisplayItem type='level' name="ali" level="10.10" />
-              <DisplayItem type='level' name="ali" level="10.10" />
-              <DisplayItem type='level' name="ali" level="10.10" />
-            </div>
+      {/* Left Section */}
+      <div className="w-full md:w-[70%] flex flex-col gap-3">
+        <WelcomeCard />
+
+        <div className="flex-1 bg-[#393E46] rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll">
+          {/* Sticky Header */}
+          <div className="sticky top-0 z-10 font-russo text-2xl h-16 p-5 bg-[#393E46]">
+            LeaderBoard
           </div>
+
+          {Users.length > 0 ? (
+            Users.map((user, idx) => (
+              <DisplayItem key={idx} type="level" name={user.name} level={user.level} rank={user.rank} />
+            ))
+          ) : (
+            <span className="text-blue-400 text-center block p-4">No matching users</span>
+          )}
         </div>
-        
-        <div className='w-[30%] p-2 animate-slideInRight'>
-          <div className='h-full bg-[#393E46] rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll shadow-lg hover:shadow-xl hover:shadow-[#0077FF]/10 transition-shadow duration-500'>
-            <div className='sticky top-0 z-10 font-russo p-5 h-16 text-2xl size-auto bg-[#393E46] border-b border-[#222831]/20 backdrop-blur-sm'>
-              <span className="hover:text-[#0077FF] transition-colors duration-300 cursor-default">History</span>
-            </div>
-            
-            {/* Staggered animation for history items */}
-            <div className="animate-staggerChildren">
-              <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-              <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-              <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-              <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-              <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-              <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-              <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-              <DisplayItem type='stat' color="text-[#3AA64B]" stat="VICTORY" />
-              <DisplayItem type='stat' color="text-[#F85761]" stat="DEFEAT" />
-              <DisplayItem type='stat' color="text-[#469CFD]" stat="DRAW" />
-            </div>
-          </div>
-        </div>
-        
       </div>
 
+      {/* Right Section */}
+      <div className="w-full md:w-[30%] flex flex-col">
+        <div className="flex-1 bg-[#393E46] rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll">
+          <div className="sticky top-0 z-10 font-russo text-2xl h-16 p-5 bg-[#393E46]">
+            History
+          </div>
+
+          {Stat.length > 0 ? (
+            Stat.map((stat, idx) => (
+              <DisplayItem key={idx} type="stat" stat={stat.stat} />
+            ))
+          ) : (
+            <span className="text-blue-400 text-center block p-4">No matching stats</span>
+          )}
+        </div>
+      </div>
+      
     </div>
   );
 };
 
 export default Home;
+
+
+

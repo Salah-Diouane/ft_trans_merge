@@ -27,6 +27,7 @@ export default function createAuthMiddleware(fastify: FastifyInstance) {
 
       const decodedToken = await fastify.jwt.verify(token);
       socket.user = decodedToken;
+      
 
 
       console.log("------>User authenticated:", decodedToken);
