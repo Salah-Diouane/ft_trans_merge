@@ -101,13 +101,13 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 					<div className=" flex flex-col items-start  gap-1 xs:gap-2">
 
 						{/* <div className=" sm:flex flex-col items-end w-full max-w-[200px]"> */}
-							<p className="font-russo text-white text-left ">Level {level}</p>
-							<div className="h-3 bg-[#5e7396] rounded-full overflow-hidden border border-[#393E46] w-24">
-								<div
-									className="h-full bg-gradient-to-r from-[#0077FF] to-[#00AAFF] rounded-full transition-all duration-500 ease-out shadow-lg shadow-[#0077FF]/30"
-									style={{ width: `${Math.min(level_int, 100)}%` }}
-								/>
-							</div>
+						<p className="font-russo text-white text-left ">Level {level}</p>
+						<div className="h-3 bg-[#5e7396] rounded-full overflow-hidden border border-[#393E46] w-24">
+							<div
+								className="h-full bg-gradient-to-r from-[#0077FF] to-[#00AAFF] rounded-full transition-all duration-500 ease-out shadow-lg shadow-[#0077FF]/30"
+								style={{ width: `${Math.min(level_int, 100)}%` }}
+							/>
+						</div>
 						{/* </div> */}
 
 					</div>
@@ -154,23 +154,40 @@ const WelcomeCard: React.FC = () => {
 
 		<div className='z-10 relative w-full h-[20%] bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-hidden '>
 
-			<div className=' flex flex-col space-y-12 p-4'>
+			<div className=' flex flex-col gap-8 2xl:gap-5 xl:gap-4 lg:gap-4 md:gap-3 sm:gap-4 p-4'>
 
+				{/* <div className=''>
+					<h1 className='font-russo text-2xl sm:text-4xl sm:bg-gray-700 md:bg-blue-500 md:text-4xl lg:bg-red-300 xl:bg-yellow-200 2xl:bg-black sm_md:bg-green-600 2xl:text-7xl text-white animate-pulse'>Welcome Back!</h1>
+					<h2 className='font-russo text-1xl sm:text-4xl sm:bg-gray-700 md:bg-blue-500 md:text-4xl lg:bg-red-300 xl:bg-yellow-200 2xl:bg-black sm_md:bg-green-600 2xl:text-7xl text-white mt-1 animate-pulse'>Player</h2>
+				</div> */}
 				<div className=''>
-					<h1 className='font-russo text-6xl text-white animate-pulse'>Welcome Back!</h1>
-					<h2 className='font-russo text-5xl text-white mt-1 animate-pulse'>Player</h2>
+					<h1 className='font-russo text-2xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-7xl text-white animate-pulse'>Welcome Back!</h1>
+					<h2 className='font-russo text-1xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-7xl text-white mt-1 animate-pulse'>Player</h2>
 				</div>
 
-				<button className='mt-4 w-fit px-8 py-3 rounded-full bg-[#0077FF] text-white font-bold flex items-center justify-center space-x-2'>
+				<button className=' w-fit px-8 py-3 h-[50%] rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600  text-white font-bold flex items-center justify-center space-x-2'>
 					<FaPlay className='text-lg' />
 					<span>Play</span>
 				</button>
 
 			</div>
 
-			{/* <img src={store.image_url} alt="Player Profile" className='size-44  object-cover rounded-full' /> */}
 
-			<div className="absolute transform -translate-x-1/2 -bottom-4 left-1/2 h-[80%] flex justify-center">
+
+			<div className="absolute top-[50%] right-2 sm:hidden flex items-center justify-center w-20 h-20 rounded-full overflow-hidden shadow-lg ">
+				<div className='w-16 h-16 rounded-2xl overflow-hidden border-3 border-slate-600 shadow-lg"'>
+
+					<img
+						src={store.image_url}
+						alt="Player Avatar"
+						className="w-full h-full object-cover"
+					/>
+				</div>
+			</div>
+
+
+
+			<div className="sm:absolute sm:transform sm:-translate-x-1/2  sm:-bottom-4 sm:left-1/2 h-[80%] sm:justify-center hidden  sm:flex">
 				<svg
 					viewBox="0 0 207 110"
 				// xmlns="http://www.w3.org/2000/svg"
@@ -198,9 +215,9 @@ const WelcomeCard: React.FC = () => {
 				</svg>
 			</div>
 
-			<div className="absolute top-0 right-0 z-20 h-full  w-[25%] flex justify-end ">
+			<div className="sm:absolute sm:top-0 sm:right-0 sm:z-20 sm:h-full md:w-[30%] xl:w-[20%] sm:w-[40%] sm:justify-end hidden sm:flex ">
 				<svg
-					className="h-full w-[70%]"
+					className="h-full w-full"
 					viewBox="0 0 220 270"
 					xmlns="http://www.w3.org/2000/svg"
 					fill="none"
@@ -220,6 +237,11 @@ const WelcomeCard: React.FC = () => {
 		</div>
 	);
 };
+
+
+// Mock store for demonstration
+
+
 
 const Users: User[] = [
 	{ name: "mohamed diouane", level: "75.32", rank: 1 },

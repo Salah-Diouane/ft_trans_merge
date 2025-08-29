@@ -23,6 +23,7 @@ export default {
           fold: '344px',     // Z Fold compact width
           tab: '540px',      // Mid-size devices
           md: '768px',       // Keep default md for tablets+
+          // sm_md: { 'min': '640px', 'max': '770px' },
         }
     },
   },
