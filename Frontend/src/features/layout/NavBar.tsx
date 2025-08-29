@@ -4,16 +4,19 @@ import { Notification02Icon } from "hugeicons-react";
 import meProfile from "../Assets/me.jpeg";
 import { useStore } from "../../store/store"
 import { Search, UserPlus } from "lucide-react";
+import { User } from "../Chat/types/User";
+import socket from "../Chat/services/socket";
 interface handleSearchProps {
   showSearch: boolean,
   setShowSearch: React.Dispatch<React.SetStateAction<boolean>>;
   setQuery: React.Dispatch<React.SetStateAction<string>>;
   result: User[]
+  currentUser: string,
 }
 
-interface User {
-  name: string,
-}
+// interface User {
+//   name: string,
+// }
 
 const Users = [
   { name: "Salah" },
@@ -27,12 +30,14 @@ const Users = [
 ]
 
 
-const HandleSearch: React.FC<handleSearchProps> = ({ showSearch, setShowSearch, setQuery, result }) => {
+const HandleSearch: React.FC<handleSearchProps> = ({ showSearch, setShowSearch, setQuery, currentUser,  result }) => {
 
   const store = useStore()
 
   if (!showSearch)
     return null
+  console.log("----> currentUser:")
+  console.log(currentUser)
 
   return (
     <div className="absolute top-full  mt-2 p-4 z-50 w-[500px]  bg-[#222831] bg-opacity-85  rounded-xl flex flex-col items-center justify-center"
@@ -51,7 +56,7 @@ const HandleSearch: React.FC<handleSearchProps> = ({ showSearch, setShowSearch, 
                 alt="player profile"
               />
               <strong className="text-white text-lg font-bold max-lg:text-sm truncate">
-                {user.name}
+                {user.username}
               </strong>
             </div>
 
@@ -86,6 +91,36 @@ const NavBar: React.FC = () => {
   const [result, setResult] = useState<User[]>([])
   const store = useStore()
   const searchRef = useRef<HTMLDivElement>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState("");
+  const currentUserRef = useRef("");
+  const usersRef = useRef<User[]>([]);
+
+  useEffect( () => {
+    socket.emit("request:init");
+    socket.emit("get-my-profile");
+
+    socket.on("user:list", (backendUsers: User[]) => {
+      console.log("Received users:", backendUsers);
+      setUsers(backendUsers);
+      usersRef.current = backendUsers;
+    });
+
+    socket.on("profile-data", (socketData: { user: string, online: boolean }) => {
+      console.log("Received current user profile:", socketData.user);
+      currentUserRef.current = socketData.user;
+      setCurrentUser(socketData.user);
+      socket.emit("profile-data", socketData);
+    });
+    return () => {;
+      socket.off("profile-data");
+    };
+  }, []);
+
+  // console.log("users : ")
+  // console.log(users)
+
   useEffect(() => {
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -119,11 +154,19 @@ const NavBar: React.FC = () => {
     if (query.trim() === "")
       setResult([]);
     else {
-      const filteredUsers = Users.filter(
+      // const filteredUsers = Users.filter(
+      //   (user) =>
+      //     user.name.toLowerCase().includes(query.toLowerCase()) &&
+      //     user.name !== query
+      // );
+      console.log("--> query.toLowerCase()")
+      console.log(query.toLowerCase())
+      const filteredUsers = users.filter(
         (user) =>
-          user.name.toLowerCase().includes(query.toLowerCase()) &&
-          user.name !== query
+          user.username.toLowerCase().includes(query.toLowerCase()) || user.username !== currentUserRef.current
       );
+      console.log("-------> filteredUsers")
+      console.log(filteredUsers)
       setResult(filteredUsers)
     }
 
@@ -143,10 +186,13 @@ const NavBar: React.FC = () => {
             placeholder="Search..."
             className="flex-grow bg-transparent text-white placeholder-blue-200 outline-none h-7 max-sm:w-full"
             onFocus={() => setShowSearch(true)}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value)
+              // setSearchTerm(e.target.value)
+            }}
           />
         </div>
-        <HandleSearch showSearch={showSearch} setShowSearch={setShowSearch} setQuery={setQuery} result={result} />
+        <HandleSearch showSearch={showSearch} setShowSearch={setShowSearch} setQuery={setQuery} currentUser={currentUserRef.current} result={result} />
         {/* {setShowSearch(false)} */}
       </div>
 
