@@ -161,8 +161,8 @@ const WelcomeCard: React.FC = () => {
 					<h2 className='font-russo text-1xl sm:text-4xl sm:bg-gray-700 md:bg-blue-500 md:text-4xl lg:bg-red-300 xl:bg-yellow-200 2xl:bg-black sm_md:bg-green-600 2xl:text-7xl text-white mt-1 animate-pulse'>Player</h2>
 				</div> */}
 				<div className=''>
-					<h1 className='font-russo text-2xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-7xl text-white animate-pulse'>Welcome Back!</h1>
-					<h2 className='font-russo text-1xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-7xl text-white mt-1 animate-pulse'>Player</h2>
+					<h1 className='font-russo text-2xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white animate-pulse'>Welcome Back!</h1>
+					<h2 className='font-russo text-1xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white mt-1 animate-pulse'>Player</h2>
 				</div>
 
 				<button className=' w-fit px-8 py-3 h-[50%] rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600  text-white font-bold flex items-center justify-center space-x-2'>
