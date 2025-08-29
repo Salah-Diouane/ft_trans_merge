@@ -19,7 +19,7 @@ import socket from "../services/socket";
 
 
 interface ConversationProps {
-  user: { username: string, image_url: string };
+  user: { username: string, image_url: string, online: boolean };
   messages: Message[];
   history: Message[]
   input: string;
@@ -56,8 +56,9 @@ const Conversation: FC<ConversationProps> = ({
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [isInviteSent, setIsInviteSent] = useState<boolean>(false);
 
-  console.log("users : ")
-  console.log(user.image_url)
+  console.log("-->users : ")
+  console.log(user.username)
+  console.log(user.online)
 
   if (!user) {
 
@@ -212,7 +213,7 @@ const Conversation: FC<ConversationProps> = ({
                 {user?.username || "User"}
               </strong>
               <strong className="text-gray-400 text-sm max-lg:text-xs flex items-center gap-x-2">
-                <OnlineStatusIcon isOnline={true} />
+                <OnlineStatusIcon isOnline={user.online} />
                 Online
               </strong>
             </div>

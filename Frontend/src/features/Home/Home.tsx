@@ -21,7 +21,6 @@ interface DisplayItemProps {
 	// user: User[];
 }
 
-
 const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank }) => {
 
 	const store = useStore()

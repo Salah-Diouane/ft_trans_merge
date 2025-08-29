@@ -164,15 +164,25 @@ const ChatApp: FC = () => {
       });
     });
 
-    socket.on("profile-data", (socketData: { user: string }) => {
+    socket.on("profile-data", (socketData: { user: string, online: boolean }) => {
       console.log("Received current user profile:", socketData.user);
       currentUserRef.current = socketData.user;
       setCurrentUser(socketData.user);
       socket.emit("profile-data", socketData);
     });
 
+    socket.on("user:status", ({ username, online }) => {
+      console.log(`User status update: ${username} is ${online ? 'online' : 'offline'}`);
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.username === username ? { ...user, online } : user
+        )
+      );
+    });
+
     return () => {
       socket.off("user:list");
+      socket.off("user:status");
       socket.off("chat:history");
       socket.off("chat:message");
       socket.off("chat:deleted");

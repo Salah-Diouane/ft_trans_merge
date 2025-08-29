@@ -4,6 +4,7 @@ import { Server as IOServer } from "socket.io";
 
 interface AuthenticatedSocket extends Socket {
   user?: any;
+  online: boolean
 }
 
 

@@ -8,6 +8,7 @@ import { Server as IOServer } from "socket.io";
 
 interface AuthenticatedSocket extends Socket {
   user?: any;
+  online?: boolean
 }
 
 interface handleChatEventsProps {
@@ -45,9 +46,23 @@ const userSockets = new Map<string, string>();
 
 export default function handleChatEvents({fastify, io, socket} : handleChatEventsProps){
     const db = fastify.db;
-
+    socket.on("connect", () => {
+      const userData = socket.user;
+      if (userData) {
+        userSockets.set(userData.username, socket.id);
+        console.log(`Socket mapped: ${userData.username} -> ${socket.id}`);
+      }
+    });
+    
+    socket.on("disconnect", () => {
+      const userData = socket.user;
+      if (userData) {
+        userSockets.delete(userData.username);
+        console.log(`Socket unmapped: ${userData.username}`);
+      }
+    });
   const id_nbr = 0;
-    socket.on("profile-data", (socket_data: { user: string }) => {
+    socket.on("profile-data", (socket_data: { user: string, online: boolean }) => {
         userSockets.set(socket_data.user, socket.id);
     });
 
