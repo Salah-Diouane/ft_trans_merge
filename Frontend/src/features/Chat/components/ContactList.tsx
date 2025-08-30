@@ -79,8 +79,7 @@ const ContactList: FC<ContactListProps> = ({
                     onClick={() => setSelectedUser(user)}
                     className={`relative flex items-center justify-between rounded-xl p-4 h-16 my-2 cursor-pointer transition-all duration-100 ${isSelected ? "bg-[#2f3542] border-l-4  border-[#0077FF]" : "bg-[#222831] hover:bg-[#2f3542]"}`}
                   >
-            
-                    {/* Profile Info */}
+
                     <div className="flex items-center gap-x-4">
                       <img
                         src={user.image_url}

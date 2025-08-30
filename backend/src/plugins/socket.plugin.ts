@@ -9,7 +9,6 @@ import pongGameHandlers from "../modules/socket/pong/pong.game.handlers";
 import { startGameLoop } from "../modules/socket/pong/gameLoop";
 interface AuthenticatedSocket extends Socket {
     user?: any;
-    online?: boolean
 }
 // const userSockets = new Map<string, string>();
 export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
@@ -27,12 +26,6 @@ export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
       
       socket.on("disconnect", () => {
         console.log("---------------> User disconnected:", socket.id);
-        // if () {
-        //   socket.online = false;
-    
-        //   // Broadcast offline status
-        //   io.emit("user:status", { username: userData.username, online: false });
-        // }
       });
     });
     startGameLoop({fastify, io});

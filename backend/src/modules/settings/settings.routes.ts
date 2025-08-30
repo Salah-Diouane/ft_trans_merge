@@ -3,13 +3,15 @@ import { error } from "console"
 import fastify, { FastifyInstance } from "fastify"
 import { get, request } from "http"
 import { resolve } from "path"
-import { profile_setting, game_setting } from './settings.schema'
+import { profile_setting, game_setting, security_settings } from './settings.schema'
 import { getuser } from "../../utils/userauth.utils"
 import { type User } from "../../utils/userauth.utils"
 import { UpdateProfile } from "../../utils/settings.utils"
 import { v2 as cloudinary } from 'cloudinary';
 import { getgameinfo, UpdateGame } from "../../utils/settings.utils"
-import type { gameinfo } from "../../utils/settings.utils";
+import type { gameinfo, securityinfo } from "../../utils/settings.utils";
+import { setpassword } from "../../utils/settings.utils"
+import { settwoFA } from "../../utils/settings.utils"
 
 export const profile = async (fastify: FastifyInstance) => {
 	fastify.put('/profile', {
@@ -81,7 +83,6 @@ export const GameSettings = async (fastify: FastifyInstance) => {
 			const gameinfo = request.body as gameinfo;
 			await UpdateGame(fastify, gameinfo, decodetoken.username);
 		} catch (err) {
-			console.log("hi hi !");
 			reply.code(500).send({ message: (err as Error).message });
 		}
 	})
@@ -98,6 +99,41 @@ export const GetGameInfo = async (fastify: FastifyInstance) => {
 			const gameinfo = await getgameinfo(fastify, decodetoken.username);
 			return reply.send({ ball_color: gameinfo?.ball_color, paddle_color: gameinfo?.paddle_color, table_color: gameinfo?.table_color });
 		} catch (err) {
+			reply.code(500).send({ message: (err as Error).message });
+		}
+	})
+}
+
+export const UpateSecurity = async (fastify: FastifyInstance) => {
+	fastify.put('/security', {
+		schema: {
+			body: security_settings
+		}
+	}, async (request, reply) => {
+		try {
+			const body = request.body as securityinfo;
+			const token = request.cookies.accessToken;
+			if (!token)
+				return reply.code(401).send({ userinfo: false, message: "No access token in cookies", accesstoken: false, refreshtoken: true });
+			const decodetoken = fastify.jwt.decode(token) as { username: string };
+			const user = await getuser(fastify, decodetoken.username);
+			if (body.password !== undefined) {
+				console.log("the password : ", user?.password);
+				console.log("old password : ", body.oldpassowrd);
+				console.log("the current password : ", body.password);
+				console.log("the confure passowrd : ", body.confirmpassword);
+				if (user?.password !== body.oldpassowrd)
+					return (reply.code(400).send({ type: "oldpassowrd", message: "the current password is invalid" }));
+				else if (body.password !== body.confirmpassword)
+					return (reply.code(400).send({ type: 'confirmpassword', message: 'password and confirmpassword are not the same !' }));
+				await setpassword(fastify, user.username, body.password);
+			}
+			if (body.twoFA !== undefined) {
+				console.log("the twofa : ", body.twoFA);
+				await settwoFA(fastify, user?.username || "", body.twoFA);
+			}
+		} catch (err) {
+			console.log("error : ", err);
 			reply.code(500).send({ message: (err as Error).message });
 		}
 	})

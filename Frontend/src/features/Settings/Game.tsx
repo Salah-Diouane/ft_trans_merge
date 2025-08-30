@@ -11,7 +11,7 @@ const Game = () => {
 
 	useEffect(() => {
 		const setgameinfo = async () => {
-			const response = await fetch("http://e3r7p17.1337.ma:3000/settings/gameinfo", {
+			const response = await fetch("http://e3r4p16.1337.ma:3000/settings/gameinfo", {
 				credentials: 'include'
 			});
 			if (response.ok) {
@@ -148,7 +148,7 @@ const Game = () => {
 			paddle_color: paddleColor,
 			table_color: tableColor,
 		};
-		const response = await fetch("http://e3r7p17.1337.ma:3000/settings/game", {
+		const response = await fetch("http://e3r4p16.1337.ma:3000/settings/game", {
 			method: 'PUT',
 			credentials: "include",
 			headers: { 'Content-type': 'application/json' },

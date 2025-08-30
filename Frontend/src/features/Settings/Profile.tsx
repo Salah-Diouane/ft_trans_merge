@@ -2,6 +2,7 @@ import toast from "react-hot-toast";
 import { useStore } from "../../store/store";
 import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import i18n from '../../translation/translation'; 
 
 export default function Profile() {
 	const store = useStore();
@@ -15,7 +16,7 @@ export default function Profile() {
 	const family_nameRef: any = useRef(null);
 	const LanguageRef: any = useRef(null);
 	const [erros, seterros] = useState<{ [key: string]: string }>({});
-	const { t, i18n } = useTranslation();
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		if (store.Language) {
@@ -31,7 +32,7 @@ export default function Profile() {
 			const formData = new FormData();
 			formData.append('file', file);
 			try {
-				const res = await fetch('http://e3r7p17.1337.ma:3000/settings/imageUrl', {
+				const res = await fetch('http://e3r4p16.1337.ma:3000/settings/imageUrl', {
 					method: 'POST',
 					body: formData,
 					credentials: 'include'
@@ -65,7 +66,7 @@ export default function Profile() {
 				image_url: Imgurl,
 				cover_url: Coverurl
 			};
-			const respone = await fetch("http://e3r7p17.1337.ma:3000/settings/profile", {
+			const respone = await fetch("http://e3r4p16.1337.ma:3000/settings/profile", {
 				credentials: 'include',
 				method: "PUT",
 				headers: { 'Content-type': 'application/json' },
@@ -87,6 +88,7 @@ export default function Profile() {
 			toast.error(`${err}`);
 		}
 	}
+	
 	const inputClass = (fieldName: string) => {
 		const baseStyle = "w-full sm:w-60 p-3 text-base rounded-lg border outline-none bg-[#222831]";
 		const errorStyle = "border-red-500 text-red-500";
@@ -104,7 +106,7 @@ export default function Profile() {
 	};
 	return (
 		<>
-			<div className="flex flex-col w-full max-w-[1100px] mx-auto px-4 space-y-4 items-center pb-10">
+			<div className="flex flex-col w-full max-w-[1100px] mx-auto px-4 space-y-4 items-center pb-10 font-russo">
 				<div className="flex flex-col items-center w-full">
 					<div className="relative w-full rounded-[20px] overflow-hidden">
 						<img src={Coverurl} alt="Cover" className="w-full h-[200px]  bg-cover bg-center sm:h-[300px] object-cover" />
@@ -136,7 +138,7 @@ export default function Profile() {
 					</div>
 					<div className="flex flex-col sm:flex-row items-start sm:items-center w-full justify-center gap-2 sm:gap-11">
 						<label className="text-white sm:min-w-[8rem] sm:w-32">{t("email")}:</label>
-						<input type="email" value={store.email} className="w-full sm:w-60 p-3 text-base rounded-lg border-black outline-none bg-[#2D3541] text-white" />
+						<input type="email" value={store.email} readOnly className="w-full sm:w-60 p-3 text-base rounded-lg border-black outline-none bg-[#2D3541] text-white" />
 					</div>
 					<div className="flex flex-col sm:flex-row items-start sm:items-center w-full justify-center gap-2 sm:gap-10">
 						<label className="text-white sm:min-w-[8rem] sm:w-32">{t("language")}</label>
@@ -146,7 +148,7 @@ export default function Profile() {
 							<option value="ar">🇸🇦 Arabic</option>
 						</select>
 					</div>
-					<button className="mt-4 px-10 py-3 bg-blue-600 text-white font-russo hover:bg-blue-700 rounded-lg shadow-md transition-all duration-300" onClick={(e) => sendInfo(e)}>Save</button>
+					<button className="mt-4 px-10 py-3 text-white border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition" onClick={(e) => sendInfo(e)}>Save</button>
 				</div>
 
 			</div>

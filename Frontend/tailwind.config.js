@@ -18,13 +18,6 @@ export default {
           '50%': { transform: 'scale(1.15)', opacity: 0.9 },
         },
       },
-      screens: {
-          galaxy: '412px',   // Galaxy-specific breakpoint
-          fold: '344px',     // Z Fold compact width
-          tab: '540px',      // Mid-size devices
-          md: '768px',       // Keep default md for tablets+
-          // sm_md: { 'min': '640px', 'max': '770px' },
-        }
     },
   },
   plugins: [],

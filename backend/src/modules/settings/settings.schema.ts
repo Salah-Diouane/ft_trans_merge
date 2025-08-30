@@ -18,10 +18,20 @@ export const game_setting = {
 	type: 'object',
 	required: ['ball_color', 'paddle_color', 'table_color'],
 	properties: {
-	  ball_color: { type: 'string' },
-	  paddle_color: { type: 'string' },
-	  table_color: { type: 'string' }
+		ball_color: { type: 'string' },
+		paddle_color: { type: 'string' },
+		table_color: { type: 'string' }
 	},
 	additionalProperties: false,
-  };
-  
+};
+
+export const security_settings = {
+	type: 'object',
+	properties: {
+		oldpassowrd: { type: 'string', minLength: 8, errorMessage: "Password must be at least 8 characters" },
+		password: { type: 'string', minLength: 8, errorMessage: "Password must be at least 8 characters" },
+		confirmpassword: { type: 'string' },
+		twoFA: { type: 'boolean' },
+	},
+	additionalProperties: false,
+}

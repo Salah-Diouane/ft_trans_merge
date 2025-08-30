@@ -17,6 +17,22 @@ export interface User {
 	Language?: string;
 }
 
+
+export async function getuserid(fastify: FastifyInstance, username: string) : Promise<number | null> {
+	return new Promise((resolve, rejects) => {
+		fastify.db.get(
+			`SELECT id from user_authentication WHERE username = ? `,
+			[
+				username
+			],
+			(err : Error, row: { id: number}) => {
+				if (err) rejects(err);
+				resolve(row.id);
+			}
+		);
+	})
+}
+
 export async function getuser(fastify: FastifyInstance, username: string): Promise<User | null> {
 	return (new Promise((resolve, rejects) => {
 		fastify.db.get('SELECT * FROM user_authentication WHERE username = ?', [username],

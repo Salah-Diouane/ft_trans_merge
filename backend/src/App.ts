@@ -40,6 +40,7 @@ app.register(auth02);
 
 app.register(cloudinaryPlugin);
 
+
 app.ready();
 
 app.addHook("onRequest", async (request, reply) => {
@@ -82,7 +83,8 @@ app.get('/userinfo', async (request, reply) => {
 				Language: user?.Language,
 				image_url: user?.image_url,
 				cover_url: user?.cover_url,
-				email: user?.email
+				email: user?.email,
+                twofa: user?.twoFA
 			}
 		});
 	} catch (err) {
@@ -118,7 +120,9 @@ app.setErrorHandler((error, request, reply) => {
     }
 });
 
+
 const server: http.Server = app.server;
+
 
 const io = new IOServer(server, {
   cors: {

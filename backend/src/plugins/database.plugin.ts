@@ -3,11 +3,10 @@ import sqlite from 'sqlite3'
 import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 
 const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-
 	const db = new sqlite.Database("./database.db", (err) => {
 		if (err) throw err;
 	});
-
+	
 	const user_authentication_table: string = `
 		CREATE TABLE IF NOT EXISTS user_authentication (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,7 +33,7 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			FOREIGN KEY(username) REFERENCES user_authentication(username)
 	  	);
 	`;
-	
+
 	const createBlockedUsersTable = `
 		CREATE TABLE IF NOT EXISTS blocked_users (
 			blocker TEXT NOT NULL,
@@ -52,25 +51,44 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 		);
 	`;
-	
+
+	const friendship: string = `
+		CREATE TABLE IF NOT EXISTS friendship (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id_sender INTEGER NOT NULL,
+			id_receiver INTEGER NOT NULL,
+			accepted BOOLEAN DEFAULT false,
+			FOREIGN KEY(id_sender) REFERENCES user_authentication(id),
+			FOREIGN KEY(id_receiver) REFERENCES user_authentication(id),
+			UNIQUE(id_sender, id_receiver),
+			CHECK (id_sender != id_receiver)
+		);
+	`;
+
 	await new Promise<void>((resolve, reject) => {
 		db.run(user_authentication_table, (err) => {
 			if (err) return reject(err);
 			resolve();
 		});
-		
+
 		db.run(game_settings_table, (err2) => {
 			if (err2) return reject(err2);
 			resolve();
 		});
-		
+
 		db.run(createBlockedUsersTable, (err) => {
 			if (err)
 				reject(err);
 			resolve();
 		});
-		
+
 		db.run(createMessageTable, (err) => {
+			if (err)
+				reject(err);
+			resolve();
+		})
+
+		db.run(friendship, (err) => {
 			if (err)
 				reject(err);
 			resolve();

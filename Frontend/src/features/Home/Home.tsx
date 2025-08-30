@@ -238,7 +238,7 @@ const WelcomeCard: React.FC = () => {
 };
 
 
-// Mock store for demonstration
+
 
 
 

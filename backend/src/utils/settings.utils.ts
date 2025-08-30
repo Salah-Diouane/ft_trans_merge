@@ -9,6 +9,28 @@ export interface gameinfo {
 	table_color: string;
 };
 
+export interface securityinfo {
+	twoFA: boolean;
+	oldpassowrd: string;
+	password: string;
+	confirmpassword: string;
+};
+
+export async function getuserid(fastify: FastifyInstance, username: string) : Promise<number | null> {
+	return new Promise((resolve, rejects) => {
+		fastify.db.get(
+			`SELECT id from user_authentication WHERE username = ? `,
+			[
+				username
+			],
+			(err : Error, row: { id: number}) => {
+				if (err) rejects(err);
+				resolve(row.id);
+			}
+		);
+	})
+}
+
 export async function updateImage(fastify: FastifyInstance, username: string, newImage: string): Promise<void> {
 	return new Promise((resolve, reject) => {
 		fastify.db.run(
@@ -106,4 +128,36 @@ export async function setdefaultgame(fastify: FastifyInstance, username: string)
 			}
 		);
 	});
+}
+
+export async function setpassword(fastify: FastifyInstance, username: string, newpassowrd: string): Promise<void> {
+	return new Promise((resolve, rejects) => {
+		fastify.db.run(
+			'UPDATE user_authentication SET password = ?  WHERE username = ?',
+			[
+				newpassowrd,
+				username
+			],
+			(err) => {
+				if (err) return rejects(err);
+				resolve();
+			}
+		)
+	})
+}
+
+export async function settwoFA(fastify: FastifyInstance, username: string, newTwofa: boolean): Promise<void> {
+	return new Promise((resolve, rejects) => {
+		fastify.db.run(
+			'UPDATE user_authentication SET twoFA = ?  WHERE username = ?',
+			[
+				newTwofa,
+				username
+			],
+			(err) => {
+				if (err) return rejects(err);
+				resolve();
+			}
+		)
+	})
 }

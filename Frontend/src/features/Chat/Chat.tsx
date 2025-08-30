@@ -7,11 +7,11 @@ import Conversation from "./components/Conversation";
 
 import { FiUser } from "react-icons/fi";
 import Subtract from "../Assets/Subtract.svg";
-import gf from "../Assets/gf4.gif"
+import gf from "./Assets/gf4.gif"
+
 
 import { User } from "./types/User";
 
-// ---------------- Types ----------------
 interface Message {
   id?: string | number;
   sender: string;
@@ -22,7 +22,7 @@ interface Message {
 
 const ChatApp: FC = () => {
 
-  // --- State ---
+
   const [users, setUsers] = useState<User[]>([]);
   const [messages, setMessages] = useState<Record<number, Message[]>>({});
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -32,14 +32,13 @@ const ChatApp: FC = () => {
   const [currentUser, setCurrentUser] = useState("");
   const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({});
 
-  // --- Refs ---
   const usersRef = useRef<User[]>([]);
   const currentUserRef = useRef("");
   const selectedUserRef = useRef<User | null>(null);
   const requestedHistoryRef = useRef<Set<string>>(new Set());
   const isMobile = window.outerWidth < 1024;
 
-  // ---------------- Effects ----------------
+
 
   // Handle screen resize
   useEffect(() => {
@@ -53,12 +52,10 @@ const ChatApp: FC = () => {
     selectedUserRef.current = selectedUser;
   }, [selectedUser]);
 
-  // Ensure socket is connected
   useEffect(() => {
     if (!socket.connected) socket.connect();
   }, []);
 
-  // Request chat history for all users
   useEffect(() => {
     if (!currentUserRef.current || users.length === 0) return;
 
@@ -73,13 +70,12 @@ const ChatApp: FC = () => {
     });
   }, [users, currentUser]);
 
-  // Socket event listeners
   useEffect(() => {
     socket.emit("request:init");
     socket.emit("get-my-profile");
 
     socket.on("user:list", (backendUsers: User[]) => {
-      console.log("Received users:", backendUsers);
+      // console.log("Received users:", backendUsers);
       setUsers(backendUsers);
       usersRef.current = backendUsers;
     });
@@ -93,7 +89,7 @@ const ChatApp: FC = () => {
 
       const contact = usersRef.current.find((user) => user.username === contactUsername);
       if (!contact) {
-        console.warn("Contact not found for received history", contactUsername);
+        console.warn("Contct not found for received history", contactUsername);
         return;
       }
 
@@ -119,7 +115,8 @@ const ChatApp: FC = () => {
         }
 
         // const isSender = msg.sender === currentUserRef.current;
-        // if (isSender) return;
+        // if (isSender) 
+        //    return;
 
         const isSender = msg.sender === currentUserRef.current;
 
@@ -190,7 +187,7 @@ const ChatApp: FC = () => {
     };
   }, []);
 
-  // ---------------- Handlers ----------------
+  
 
   const handleSend = () => {
     const username = currentUserRef.current;
@@ -234,8 +231,7 @@ const ChatApp: FC = () => {
       setShowContactList(false);
     setUnreadCounts((prev) => ({ ...prev, [user.id]: 0 }));
   };
-                                                                                                                                                                                                                
-  // ---------------- Derived ----------------
+  
   const filteredUsers = users.filter(
     (user) =>
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) &&

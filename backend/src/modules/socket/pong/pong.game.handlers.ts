@@ -6,7 +6,6 @@ import { createGame, getGame, addPlayerToGame, games } from './gameManager';
 
 interface AuthenticatedSocket extends Socket {
   user?: any;
-
 }
 
 interface pongGameHandlersProps {

@@ -9,6 +9,7 @@ export type userinfo = {
 	image_url: string;
 	cover_url: string;
 	hasFetchedUser: boolean;
+	twofa:boolean;
 
 	setusername: (newusername: string) => void;
 	setfirst_name: (newfirst_name: string) => void;
@@ -18,6 +19,7 @@ export type userinfo = {
 	setimage_url: (newimage_url: string) => void;
 	setcover_url: (newcover_url: string) => void;
 	fetchUserInfo: () => Promise<void>;
+	setTwoFA: (TwoFA: boolean) => void;
 };
 
 export const createUserSlice: StateCreator<userinfo> = (set) => ({
@@ -29,6 +31,7 @@ export const createUserSlice: StateCreator<userinfo> = (set) => ({
 	image_url: '',
 	cover_url: '',
 	hasFetchedUser: false,
+	twofa: false,
 
 	setusername: (newusername) => set({ username: newusername }),
 	setfirst_name: (newfirst_name) => set({ first_name: newfirst_name }),
@@ -37,9 +40,10 @@ export const createUserSlice: StateCreator<userinfo> = (set) => ({
 	setUserinfo: (newusername, newfirst_name, newfamily_name, newLanguage) => set({ username: newusername, first_name: newfirst_name, family_name: newfamily_name, Language: newLanguage }),
 	setimage_url: (newimage_url) => set({ image_url: newimage_url }),
 	setcover_url: (newcover_url) => set({ cover_url: newcover_url }),
+	setTwoFA : (TwoFA) => set({twofa: TwoFA}),
 	fetchUserInfo: async () => {
 		try {
-			const respone = await fetch('http://e3r7p17.1337.ma:3000/userinfo', {
+			const respone = await fetch('http://e3r4p16.1337.ma:3000/userinfo', {
 				credentials: 'include',
 			}).then(e => e.json()) as { userinfo: boolean, data: userinfo };
 
@@ -54,6 +58,7 @@ export const createUserSlice: StateCreator<userinfo> = (set) => ({
 				Language: respone.data.Language,
 				image_url: respone.data.image_url,
 				cover_url: respone.data.cover_url,
+				twofa: respone.data.twofa
 			});
 			console.log(respone.data);
 			set({ hasFetchedUser: true });
