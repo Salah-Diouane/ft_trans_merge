@@ -8,30 +8,43 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 	});
 	
 	const user_authentication_table: string = `
-		CREATE TABLE IF NOT EXISTS user_authentication (
+	CREATE TABLE IF NOT EXISTS user_authentication (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		username VARCHAR(25) UNIQUE NOT NULL,
+		email VARCHAR(25) UNIQUE NOT NULL,
+		first_name VARCHAR(25),
+		family_name VARCHAR(25),
+		password VARCHAR(25),
+		twoFA BOOLEAN DEFAULT true,
+		twoFA_code INTEGER,
+		Language VARCHAR(25) DEFAULT 'english',
+		image_url VARCHAR(200) NOT NULL DEFAULT 'https://res.cloudinary.com/dgwo1ehtt/image/upload/v1754901100/defaultprofile.jpg',
+		cover_url VARCHAR(200) NOT NULL DEFAULT 'https://res.cloudinary.com/dgwo1ehtt/image/upload/v1754901213/defaultcover.jpg'
+		);
+	`;
+		
+	const friendship: string = `
+		CREATE TABLE IF NOT EXISTS friendship (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			username VARCHAR(25) UNIQUE NOT NULL,
-			email VARCHAR(25) UNIQUE NOT NULL,
-			first_name VARCHAR(25),
-			family_name VARCHAR(25),
-			password VARCHAR(25),
-			twoFA BOOLEAN DEFAULT true,
-			twoFA_code INTEGER,
-			Language VARCHAR(25) DEFAULT 'english',
-			image_url VARCHAR(200) NOT NULL DEFAULT 'https://res.cloudinary.com/dgwo1ehtt/image/upload/v1754901100/defaultprofile.jpg',
-			cover_url VARCHAR(200) NOT NULL DEFAULT 'https://res.cloudinary.com/dgwo1ehtt/image/upload/v1754901213/defaultcover.jpg'
-	  	);
+			id_sender INTEGER NOT NULL,
+			id_receiver INTEGER NOT NULL,
+			accepted BOOLEAN DEFAULT false,
+			FOREIGN KEY(id_sender) REFERENCES user_authentication(id),
+			FOREIGN KEY(id_receiver) REFERENCES user_authentication(id),
+			UNIQUE(id_sender, id_receiver),
+			CHECK (id_sender != id_receiver)
+		);
 	`;
 
 	const game_settings_table: string = `
-		CREATE TABLE IF NOT EXISTS game_settings_table (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			username VARCHAR(25),
-			ball_color VARCHAR(25) DEFAULT '#FF0000',
-			paddle_color VARCHAR(25) DEFAULT '#0000FF',
-			table_color VARCHAR(25) DEFAULT '#EEEEEE',
-			FOREIGN KEY(username) REFERENCES user_authentication(username)
-	  	);
+	CREATE TABLE IF NOT EXISTS game_settings_table (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		username VARCHAR(25),
+		ball_color VARCHAR(25) DEFAULT '#FF0000',
+		paddle_color VARCHAR(25) DEFAULT '#0000FF',
+		table_color VARCHAR(25) DEFAULT '#EEEEEE',
+		FOREIGN KEY(username) REFERENCES user_authentication(username)
+	);
 	`;
 
 	const createBlockedUsersTable = `
@@ -52,20 +65,20 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 		);
 	`;
 
-	const friendship: string = `
-		CREATE TABLE IF NOT EXISTS friendship (
+	const createNotificationTable: string = `
+		CREATE TABLE IF NOT EXISTS notification (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			id_sender INTEGER NOT NULL,
-			id_receiver INTEGER NOT NULL,
-			accepted BOOLEAN DEFAULT false,
-			FOREIGN KEY(id_sender) REFERENCES user_authentication(id),
-			FOREIGN KEY(id_receiver) REFERENCES user_authentication(id),
-			UNIQUE(id_sender, id_receiver),
-			CHECK (id_sender != id_receiver)
+			id_sender INTEGER PRIMARY KEY AUTOINCREMENT,
+			id_receiver INTEGER PRIMARY KEY AUTOINCREMENT,
+			data TEXT NOT NULL,
+			FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
+			FOREIGN KEY (id_receiver) REFERENCES user_authentication(id),
 		);
 	`;
 
+
 	await new Promise<void>((resolve, reject) => {
+
 		db.run(user_authentication_table, (err) => {
 			if (err) return reject(err);
 			resolve();
@@ -87,6 +100,12 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 				reject(err);
 			resolve();
 		})
+
+		// db.run(createNotificationTable, (err) => {
+		// 	if (err)
+		// 		reject(err);
+		// 	resolve();
+		// })
 
 		db.run(friendship, (err) => {
 			if (err)

@@ -32,7 +32,7 @@ const Layout: React.FC = () => {
       ? "bg-[#0077FF] rounded-full size-10 flex items-center justify-center p-2"
       : "";
 
-      const store = useStore()
+  const store = useStore()
   return (
     // <div className="flex flex-col h-full">
      <div className="flex flex-col h-screen">
@@ -76,7 +76,9 @@ const Layout: React.FC = () => {
                 <Settings02Icon className="size-8 max-lg:size-6 cursor-pointer" />
               </Link>
 
-              <Notification02Icon className="hidden max-lg:block size-8 max-lg:size-6 cursor-pointer" />
+              {/* <Link to="/notification" className={isActive("/notification")}>
+                <Notification02Icon className="hidden max-lg:block size-8 max-lg:size-6 cursor-pointer" />
+              </Link> */}
 
             </div>
 

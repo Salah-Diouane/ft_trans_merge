@@ -196,7 +196,7 @@ const Conversation: FC<ConversationProps> = ({
   };
 
   return (
-    <div className="flex flex-col w-full h-full  max-sm:h-[93%] rounded-2xl p-[2px] max-lg:bg-none ">
+    <div className="flex flex-col w-full h-full  max-sm:h-[100%] rounded-2xl p-[2px] max-lg:bg-none ">
       <div className="flex flex-col flex-grow  rounded-xl max-lg:rounded-none p-2 overflow-hidden bg-no-repeat bg-cover" style={{ backgroundImage: `url(${Subtract})` }}>
 
         {/* Header */}

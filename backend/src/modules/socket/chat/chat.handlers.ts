@@ -33,7 +33,6 @@ interface Message {
     text: string;
     // timestamp: string;
     blocked: boolean;
-
   }
 
   interface MessageRow {
@@ -105,16 +104,24 @@ export default function handleChatEvents({fastify, io, socket} : handleChatEvent
 
                 if (senderSocketId) {
                   io.to(senderSocketId).emit("chat:message", messageData);
+                  io.to(senderSocketId).emit("notification", {messageData});
                 }
                 if (recipientSocketId) {
                   io.to(recipientSocketId).emit("chat:message", messageData);
+                  io.to(recipientSocketId).emit("notification", {messageData});
                 }
+
               }
             );
           }
         );
+        socket.on("notif:chat", () => {
+      
+        })
     });
-          
+    
+
+    
     socket.on("chat:delete", ({id, username}) => {
       console.log("in the backend!!")
       if (!id || !username){
