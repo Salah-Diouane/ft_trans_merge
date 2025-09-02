@@ -1,3 +1,4 @@
+
 import React, { FC, useEffect, useRef, useState } from "react";
 import socket from "./services/socket";
 
@@ -5,153 +6,128 @@ import ContactList from "./components/ContactList";
 import ContactList_Mobile from "./components/ContactList_Mobile";
 import Conversation from "./components/Conversation";
 
-import { FiUser } from "react-icons/fi";
 import Subtract from "../Assets/Subtract.svg";
-import gf from "./Assets/gf4.gif"
-
+import gf from "./Assets/gf4.gif";
 
 import { User } from "./types/User";
 
 interface Message {
   id?: string | number;
-  sender: string;
-  recipient: string;
+  recipientId: number;
+  senderId: number;
   text: string;
   timestamp: string;
 }
 
 const ChatApp: FC = () => {
-
-
   const [users, setUsers] = useState<User[]>([]);
   const [messages, setMessages] = useState<Record<number, Message[]>>({});
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [inputs, setInputs] = useState<Record<number, string>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [showContactList, setShowContactList] = useState(window.outerWidth < 1024);
-  const [currentUser, setCurrentUser] = useState("");
+  const [currentUser, setCurrentUser] = useState<Partial<User> | null>(null);
   const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({});
 
   const usersRef = useRef<User[]>([]);
-  const currentUserRef = useRef("");
+  const currentUserRef = useRef<number | null>(null);
   const selectedUserRef = useRef<User | null>(null);
-  const requestedHistoryRef = useRef<Set<string>>(new Set());
+  const requestedHistoryRef = useRef<Set<number>>(new Set());
   const isMobile = window.outerWidth < 1024;
 
-
+  // Keep refs in sync
+  useEffect(() => { selectedUserRef.current = selectedUser; }, [selectedUser]);
 
   // Handle screen resize
   useEffect(() => {
     const handleResize = () => setShowContactList(window.outerWidth < 1024);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Keep ref in sync
+  // Connect socket
   useEffect(() => {
-    selectedUserRef.current = selectedUser;
-  }, [selectedUser]);
-
-  useEffect(() => {
-    if (!socket.connected) socket.connect();
+    if (!socket.connected)
+      socket.connect();
   }, []);
 
-  useEffect(() => {
-    if (!currentUserRef.current || users.length === 0) return;
-
-    users.forEach((user) => {
-      if (!requestedHistoryRef.current.has(user.username)) {
-        requestedHistoryRef.current.add(user.username);
-        socket.emit("request:history", {
-          username: currentUserRef.current,
-          recipient: user.username,
-        });
-      }
-    });
-  }, [users, currentUser]);
-
+  // Socket events
   useEffect(() => {
     socket.emit("request:init");
     socket.emit("get-my-profile");
 
+    // const myAllfriends = async () => {
+    //   const res = await fetch("http://e3r11p2.1337.ma:3000/friends/allfriends", { credentials: "include" });
+    //   const data = await res.json();
+    //   console.log("all friends : ", data)
+    //   setUsers(data);
+    // };
+    // myAllfriends();
+    
     socket.on("user:list", (backendUsers: User[]) => {
-      // console.log("Received users:", backendUsers);
       setUsers(backendUsers);
       usersRef.current = backendUsers;
     });
 
-    socket.on("chat:history", (history: Message[]) => {
-
-      if (history.length === 0)
-        return;
-
-      const contactUsername = history[0].sender === currentUserRef.current ? history[0].recipient : history[0].sender;
-
-      const contact = usersRef.current.find((user) => user.username === contactUsername);
-      if (!contact) {
-        console.warn("Contct not found for received history", contactUsername);
-        return;
-      }
-
-      setMessages((prev) => ({
-        ...prev,
-        [contact.id]: history,
-      }));
+    socket.on("profile-data", (data: { id: number; username: string; online: boolean }) => {
+      console.log("-->data.id")
+      console.log(data.id)
+      currentUserRef.current = data.id;
+      setCurrentUser({ id: data.id, username: data.username, online: data.online });
     });
 
-    socket.on(
-      "chat:message",
-      (msg: {
-        id: string | number;
-        sender: string;
-        recipient: string;
-        text: string;
-        timestamp: string;
-        blocked: boolean;
-      }) => {
-        if (!currentUserRef.current) {
-          console.warn("Current user not set, cannot process message");
-          return;
-        }
+    socket.on("chat:history", (history: Message[]) => {
+      if (!history.length)
+        return;
 
-        // const isSender = msg.sender === currentUserRef.current;
-        // if (isSender) 
-        //    return;
+      const contactId = history[0].senderId === currentUserRef.current
+        ? history[0].recipientId
+        : history[0].senderId;
 
-        const isSender = msg.sender === currentUserRef.current;
+      const contact = usersRef.current.find((u) => u.id === contactId);
+      if (!contact) 
+        return;
 
-        const otherUser = usersRef.current.find((u) =>
-          isSender ? u.username === msg.recipient : u.username === msg.sender
-        );
+      setMessages((prev) => ({ ...prev, [contact.id]: history }));
+    });
 
-        if (!otherUser) {
-          console.warn("User not found in current list", msg);
-          return;
-        }
+    socket.on("chat:message", (msg: Message & { blocked?: boolean }) => {
+      if (!currentUserRef.current)
+        return;
 
-        const newMsg = {
-          id: msg.id,
-          sender: msg.sender,
-          recipient: msg.recipient,
-          text: msg.text,
-          timestamp: msg.timestamp,
-        };
+      // Fix: Determine the other user correctly
+      const otherUserId = msg.senderId === currentUserRef.current ? msg.recipientId : msg.senderId;
 
-        setMessages((prev) => ({
+      const otherUser = usersRef.current.find((u) => u.id === otherUserId);
+
+      if (!otherUser)
+        return;
+
+      const newMsg = {
+        id: msg.id,
+        senderId: msg.senderId,
+        recipientId: msg.recipientId,
+        text: msg.text,
+        timestamp: msg.timestamp,
+      };
+
+      console.log("Adding message to conversation with user:", otherUser.id);
+      
+      setMessages((prev) => ({
+        ...prev,
+        [otherUser.id]: [...(prev[otherUser.id] || []), newMsg],
+      }));
+
+      // Update unread counts only if message is from another user and they're not currently selected
+      if (msg.senderId !== currentUserRef.current && selectedUserRef.current?.id !== msg.senderId) {
+        setUnreadCounts((prev) => ({
           ...prev,
-          [otherUser.id]: [...(prev[otherUser.id] || []), newMsg],
+          [otherUser.id]: (prev[otherUser.id] || 0) + 1,
         }));
-
-        if (!isSender && selectedUserRef.current?.username !== msg.sender) {
-          setUnreadCounts((prev) => ({
-            ...prev,
-            [otherUser.id]: (prev[otherUser.id] || 0) + 1,
-          }));
-        }
       }
-    );
+    });
 
-    socket.on("chat:deleted", ({ id }) => {
+    socket.on("chat:deleted", ({ id }: { id: number | string }) => {
       setMessages((prev) => {
         const updated = { ...prev };
         for (const key in updated) {
@@ -161,121 +137,96 @@ const ChatApp: FC = () => {
       });
     });
 
-    socket.on("profile-data", (socketData: { user: string, online: boolean }) => {
-      console.log("Received current user profile:", socketData.user);
-      currentUserRef.current = socketData.user;
-      setCurrentUser(socketData.user);
-      socket.emit("profile-data", socketData);
-    });
-
-    socket.on("user:status", ({ username, online }) => {
-      console.log(`User status update: ${username} is ${online ? 'online' : 'offline'}`);
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.username === username ? { ...user, online } : user
-        )
-      );
+    socket.on("user:status", ({ id, online }: { id: number; online: boolean }) => {
+      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, online } : u)));
     });
 
     return () => {
       socket.off("user:list");
-      socket.off("user:status");
+      socket.off("profile-data");
       socket.off("chat:history");
       socket.off("chat:message");
       socket.off("chat:deleted");
-      socket.off("profile-data");
+      socket.off("user:status");
     };
   }, []);
 
+  // Request chat history once per user
+  useEffect(() => {
+    if (!currentUserRef.current || users.length === 0) return;
+
+    users.forEach((user) => {
+      if (!requestedHistoryRef.current.has(user.id)) {
+          requestedHistoryRef.current.add(user.id);
+          socket.emit("request:history", {
+              senderId: currentUser?.id,
+              recipientId: user.id,
+          });
+      }
+  });
   
+  }, [users]); 
 
   const handleSend = () => {
-    const username = currentUserRef.current;
-    const currentInput = selectedUser?.id ? inputs[selectedUser.id] || "" : "";
+    console.log("111111111")
+    console.log("selectedUser?.id ")
+    console.log(selectedUser?.id )
+    console.log("currentUserRef.current")
+    console.log(currentUserRef.current)
 
-    if (!currentInput.trim() || !selectedUser || !username) {
-      console.log("Error: one of input | selectedUser | username is empty!");
+    if (!selectedUser?.id || !currentUserRef.current)
       return;
-    }
 
+    const text = inputs[selectedUser.id] || "";
+    if (!text.trim())
+      return;
 
     socket.emit("chat:message", {
-      username: username,
-      recipient: selectedUser.username,
-      text: currentInput,
+      senderId: currentUser?.id,
+      recipientId: selectedUser.id,
+      text,
     });
-
-    setInputs((prev) => ({
-      ...prev,
-      [selectedUser.id]: "",
-    }));
+  
+    setInputs((prev) => ({ ...prev, [selectedUser.id]: "" }));
   };
 
+  const getCurrentInput = () => (selectedUser?.id ? inputs[selectedUser.id] || "" : "");
 
-  const getCurrentInput = (): string => {
-    return selectedUser?.id ? inputs[selectedUser.id] || "" : "";
+  const setCurrentInput = (value: string) => {
+    if (selectedUser?.id) setInputs((prev) => ({ ...prev, [selectedUser.id]: value }));
   };
 
-  const setCurrentInput = (value: string): void => {
-    if (selectedUser?.id) {
-      setInputs((prev) => ({
-        ...prev,
-        [selectedUser.id]: value,
-      }));
-    }
-  };
-
-  const handleUserSelect = (user: User): void => {
+  const handleUserSelect = (user: User) => {
     setSelectedUser(user);
-    if (isMobile)
-      setShowContactList(false);
+    if (isMobile) setShowContactList(false);
     setUnreadCounts((prev) => ({ ...prev, [user.id]: 0 }));
   };
-  
+
   const filteredUsers = users.filter(
-    (user) =>
-      user.username.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      user.username !== currentUser
+    (u) => u.username.toLowerCase().includes(searchTerm.toLowerCase())
+      && u.id !== currentUserRef.current
   );
 
   const userMessages = selectedUser?.id ? messages[selectedUser.id] || [] : [];
 
-
-
   const EmptyState = () => (
-    <div className="flex flex-col w-full h-full rounded-2xl p-[2px] max-lg:h-full ">
-      <div className="flex flex-col h-full justify-center items-center rounded-[inherit]  space-y-6 p-4" style={{ backgroundImage: `url(${Subtract})` }} >
-
-        <img src={gf} className="h-36  rounded-2xl shadow-2xl " />
-
+    <div className="flex flex-col w-full h-full rounded-2xl p-[2px] max-lg:h-full">
+      <div className="flex flex-col h-full justify-center items-center rounded-[inherit] space-y-6 p-4"
+           style={{ backgroundImage: `url(${Subtract})` }}>
+        <img src={gf} className="h-36 rounded-2xl shadow-2xl" />
         <div className="text-center space-y-4 max-w-md">
-
-          <h2 className="text-4xl  font-semibold text-slate-100 mb-3 tracking-tight">
-            Choose a Contact !
+          <h2 className="text-4xl font-semibold text-slate-100 mb-3 tracking-tight">
+            Choose a Contact!
           </h2>
-
           <p className="text-slate-400 text-lg leading-relaxed font-light">
             Select a conversation from your contact list to begin messaging.
           </p>
-
         </div>
       </div>
     </div>
   );
 
-  // const EmptyState = () => (
-  // <div className="flex flex-col w-full h-full rounded-2xl p-[2px] max-lg:h-full ">
-  //   <div className="flex flex-col h-full justify-center items-center rounded-[inherit]  p-4" style={{ backgroundImage: `url(${Subtract})` }} >
-  //       <FiUser className="h-20 w-20 mb-6 text-[#0077FF] animate-pulse" />
-  //       <p className="text-2xl font-bold text-[#0077FF] tracking-wide mb-2">Select a Contact</p>
-  //       <p className="mt-1 text-center max-w-xs leading-relaxed text-[#0077FF]">
-  //         Please choose a contact from the list to start chatting.
-  //       </p>
-  //     </div>
-  //   </div>
-  // );
-
-  // ---------------- Render ----------------
+  // Render
   return (
     <div className="flex flex-row h-full w-full gap-4 p-0 overflow-hidden max-lg:p-0 bg-[#121418] rounded-lg max-lg:bg-[#121418] max-lg:pb-0">
       {isMobile ? (
@@ -293,12 +244,11 @@ const ChatApp: FC = () => {
           <Conversation
             user={selectedUser}
             messages={userMessages}
-            history={history}
             input={getCurrentInput()}
             setInput={setCurrentInput}
             onSend={handleSend}
             onBack={() => setShowContactList(true)}
-            loggedInUsername={currentUserRef.current}
+            loggedInUserId={currentUserRef.current}
           />
         )
       ) : (
@@ -316,15 +266,12 @@ const ChatApp: FC = () => {
             <Conversation
               user={selectedUser}
               messages={userMessages}
-              history={history}
               input={getCurrentInput()}
               setInput={setCurrentInput}
               onSend={handleSend}
-              loggedInUsername={currentUserRef.current}
+              loggedInUserId={currentUserRef.current}
             />
-          ) : (
-            <EmptyState />
-          )}
+          ) : <EmptyState />}
         </>
       )}
     </div>

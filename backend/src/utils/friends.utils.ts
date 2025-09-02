@@ -41,6 +41,23 @@ export function setFriendReq(fastify: FastifyInstance, id_sender: number, id_rec
 	})
 }
 
+export function getBlockUser(fastify: FastifyInstance,blockerId: number): Promise<{ blocker: number, blocked: number }[]> {
+    return new Promise((resolve, reject) => {
+        fastify.db.all(
+            `SELECT blocker, blocked FROM blocked_users WHERE blocker = ?`,
+            [blockerId],
+            (err: Error | null, rows: { blocker: number, blocked: number }[]) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(rows); 
+            }
+        );
+    });
+}
+
+
 export function getSentFriendReqUsernames(fastify: FastifyInstance, id_sender: number): Promise<User[]> {
 	return new Promise((resolve, reject) => {
 		fastify.db.all(

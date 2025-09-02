@@ -49,19 +49,25 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 
 	const createBlockedUsersTable = `
 		CREATE TABLE IF NOT EXISTS blocked_users (
-			blocker TEXT NOT NULL,
-			blocked TEXT NOT NULL,
-			UNIQUE(blocker, blocked)
+			blocker INTEGER NOT NULL,
+			blocked INTEGER NOT NULL,
+			blocker_name TEXT NOT NULL,
+			blocked_name TEXT NOT NULL,
+			UNIQUE(blocker, blocked),
+			FOREIGN KEY (blocker) REFERENCES user_authentication(id),
+			FOREIGN KEY (blocked) REFERENCES user_authentication(id)
 		);
 	`;
 
 	const createMessageTable: string = `
 		CREATE TABLE IF NOT EXISTS messages (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			sender TEXT NOT NULL,
-			recipient TEXT NOT NULL,
+			id_sender INTEGER NOT NULL,
+			id_recipient INTEGER NOT NULL,
 			text TEXT NOT NULL,
-			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
+			FOREIGN KEY (id_recipient) REFERENCES user_authentication(id)
 		);
 	`;
 

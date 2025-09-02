@@ -1,3 +1,4 @@
+
 import { ExtendedError, Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
 import { IncomingMessage } from "http";
@@ -36,6 +37,9 @@ interface Message {
 export default function handleUserEvents({ fastify, io, socket }: handleUserEventsProps) {
     const db = fastify.db;
     const userData = socket.user;
+    console.log("0===>socket  ")
+    console.log(userData.userid)
+    console.log(socket.user.userid)
   
     if (userData) {
       socket.online = true;
@@ -43,37 +47,44 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
       socket.join(`user:${userData.username}`);
       io.emit("user:status", { 
         username: userData.username,
+        id: userData.userid,
         online: true
       });
 
       socket.emit("profile-data", {
         user: userData.username,
+        id: userData.userid,
         online: true,
       });
 
       console.log(`User ${userData.username} connected and set online`);
     }
-
+    
     socket.on("disconnect", () => {
 
       console.log("User disconnecting");
 
       if (userData && socket.online) {
         socket.online = false;
-
+        
         io.emit("user:status", {
           username: userData.username,
+          id: userData.userid,
           online: false
         });
-
+        
         console.log(`User ${userData.username} disconnected and set offline`);
       }
     });
-  
+    
     socket.on("get-my-profile", () => {
       if (userData) {
+        // data: { id: number; username: string; online: boolean }
+        console.log(userData.userid)
+        console.log(userData.username)
         socket.emit("profile-data", {
-          user: userData.username,
+          id: userData.userid,
+          username: userData.username,
           online: socket.online ?? true,
         });
       }

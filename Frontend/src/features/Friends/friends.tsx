@@ -114,25 +114,33 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
   const [friends, setFriends] = useState<User[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [allreqs, setAllreqs] = useState<User[]>([]);
+  const [allBlocked, setAllBlocked] = useState<User[]>([]);
   const { users, currentUser } = useUsers();
 
   useEffect(() => {
     const fetchRequest = async () => {
-      const res = await fetch("http://e3r1p1.1337.ma:3000/friends/allsendreq", { credentials: "include" });
+      const res = await fetch("http://e3r11p2.1337.ma:3000/friends/allsendreq", { credentials: "include" });
       const data = await res.json();
       setFriends(Array.isArray(data) ? data : []);
     };
 
     const myAllfriends = async () => {
-      const res = await fetch("http://e3r1p1.1337.ma:3000/friends/allfriends", { credentials: "include" });
+      const res = await fetch("http://e3r11p2.1337.ma:3000/friends/allfriends", { credentials: "include" });
       const data = await res.json();
       setAllUsers(data);
     };
 
     const allRecvReq = async () => {
-      const res = await fetch("http://e3r1p1.1337.ma:3000/friends/allrecvreq", { credentials: "include" });
+      const res = await fetch("http://e3r11p2.1337.ma:3000/friends/allrecvreq", { credentials: "include" });
       const data = await res.json();
       setAllreqs(Array.isArray(data) ? data : []);
+    };
+
+    const allBlocked = async () => {
+      const res = await fetch("http://e3r11p2.1337.ma:3000/friends/blockReq", { credentials: "include" });
+      const data = await res.json();
+      console.log("all blocked : ", data);
+      setAllBlocked(Array.isArray(data) ? data : []);
     };
 
     if (status === "sent")
@@ -141,11 +149,13 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
         myAllfriends();
     if (status === "request")
         allRecvReq();
+    if (status === "blocked")
+      allBlocked();
   }, [status]);
 
   const handleAccept = async (username: string) => {
 
-    await fetch("http://e3r1p1.1337.ma:3000/friends/acceptrequest", {
+    await fetch("http://e3r11p2.1337.ma:3000/friends/acceptrequest", {
 
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -160,7 +170,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
 
   const handleReject = async (username: string) => {
 
-    await fetch("http://e3r1p1.1337.ma:3000/friends/deletereq", {
+    await fetch("http://e3r11p2.1337.ma:3000/friends/deletereq", {
 
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -175,7 +185,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
 
   const handleCancel = async (username: string) => {
 
-    await fetch("http://e3r1p1.1337.ma:3000/friends/deletereq", {
+    await fetch("http://e3r11p2.1337.ma:3000/friends/deletereq", {
 
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -201,7 +211,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
         </div>
       </div>
 
-        <div className="flex flex-col  ">
+        <div className="flex flex-col ">
             {status === "sent" && friends.length > 0 ? (
 
                 friends.map(user => (
@@ -221,7 +231,13 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
                 <FriendCard key={user.username} name={user.username} image_url={user.image_url} status="request" onAccept={handleAccept} onReject={handleReject} />
                 ))
 
-            ) : (
+            )  : status === "blocked" && allBlocked.length > 0 ? (
+
+                allBlocked.map(user => (
+                <FriendCard key={user.username} name={user.username} image_url={user.image_url} status="blocked" />
+                ))
+
+            ): (
 
                 <p className="text-gray-400 text-center">No users found</p>
                 

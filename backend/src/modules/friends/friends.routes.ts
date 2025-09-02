@@ -1,8 +1,26 @@
 import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { friend_request, delete_req } from './friends.schema'
 import { getuserid, } from '../../utils/userauth.utils';
-import { addNewFriendReq, setFriendReq, getFriends, getSentFriendReqUsernames, getReceivedFriendRequests, deleteFriendReq } from '../../utils/friends.utils';
-// /friends/sendrequest
+import { addNewFriendReq, setFriendReq, getFriends, getSentFriendReqUsernames, getReceivedFriendRequests, deleteFriendReq, getBlockUser } from '../../utils/friends.utils';
+
+export const blockReq = async (fastify: FastifyInstance) => {
+    fastify.get('/blockReq', async (req, reply) => {
+        try {
+            const token = req.cookies.accessToken;
+            if (!token)
+                return reply.code(401).send({ message: "No access token in cookies", accesstoken: false, refreshtoken: true });
+
+            const decode = fastify.jwt.decode(token) as { userid: number };
+            const blockedUsers = await getBlockUser(fastify, decode.userid);
+            console.log("---------------> allblockreq");
+            console.log(blockedUsers);
+
+            return reply.send(blockedUsers);
+        } catch (err) {
+            reply.code(500).send({ error: (err as Error).message });
+        }
+    })
+}
 
 export const sendRequest = async (fastify: FastifyInstance) => {
 	fastify.post('/sendrequest', {

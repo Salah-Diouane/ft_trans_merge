@@ -3,10 +3,7 @@ import { FastifyInstance } from "fastify";
 import { IncomingMessage } from "http";
 import { parse as parseCookie } from "cookie";
 import { Server as IOServer } from "socket.io";
-
-interface AuthenticatedSocket extends Socket {
-  user?: any;
-}
+import {AuthenticatedSocket} from "../pong/interfaces"
 
 interface handleGameEventsProps {
   fastify: FastifyInstance;

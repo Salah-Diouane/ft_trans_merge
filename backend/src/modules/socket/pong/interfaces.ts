@@ -2,10 +2,15 @@ import { Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
 import { Server as IOServer } from "socket.io";
 
-interface AuthenticatedSocket extends Socket {
-  user?: any;
-}
+// const numericId = Number(socket.id);
 
+
+export interface AuthenticatedSocket extends Socket {
+	user?: any;
+	numericId?: number;
+	online?: boolean
+}
+  
 
 export interface ballProps {
 	x: number,

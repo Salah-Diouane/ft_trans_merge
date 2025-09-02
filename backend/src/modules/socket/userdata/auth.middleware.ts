@@ -3,11 +3,9 @@ import { ExtendedError, Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
 import { IncomingMessage } from "http";
 import { parse as parseCookie } from "cookie";
+import { Console } from "console";
+import {AuthenticatedSocket} from "../pong/interfaces"
 
-interface AuthenticatedSocket extends Socket {
-  user?: any;
-  online?: boolean
-}
 
 export default function createAuthMiddleware(fastify: FastifyInstance) {
   return async (socket: AuthenticatedSocket, next: (err?: ExtendedError) => void) => {
@@ -29,7 +27,8 @@ export default function createAuthMiddleware(fastify: FastifyInstance) {
       socket.user = decodedToken;
       socket.online = true;
         
-      console.log("------>User authenticated:", decodedToken);
+      console.log("------>User authenticated:");
+      console.log(socket?.user.userid)
       next();
     } catch (error) {
       console.log("Authentication failed:", error);

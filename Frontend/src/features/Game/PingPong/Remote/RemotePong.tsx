@@ -21,7 +21,7 @@ const RemotePong: React.FC = () => {
     socket.emit('get-my-profile');
 
     const handleProfile = (user: any) => {
-      const userName = user.user;
+      const userName = user.username;
       if (userName) {
         setName(userName);
         userNameRef.current = userName;

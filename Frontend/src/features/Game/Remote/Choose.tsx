@@ -17,9 +17,11 @@ export default function Choose({ onChoose }: ChooseProps) {
         socket.emit("request:init");
         socket.emit("get-my-profile");
 
-        socket.on("profile-data", (socket_data: { user: string }) => {
+        socket.on("profile-data", (socket_data: { username: string }) => {
             // currentUserRef.current = socket_data.user;
-            setCurrentUser(socket_data.user);
+            console.log("---> : socket_data")
+            console.log(socket_data.username)
+            setCurrentUser(socket_data.username);
             // setIsLoading(false);
         });
 

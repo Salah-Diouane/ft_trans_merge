@@ -19,14 +19,14 @@ import socket from "../services/socket";
 
 
 interface ConversationProps {
-  user: { username: string, image_url: string, online: boolean };
+  user: { username: string,id: number ,  image_url: string, online: boolean };
   messages: Message[];
   history: Message[]
   input: string;
   setInput: (value: string) => void;
   onSend: () => void;
   onBack?: () => void;
-  loggedInUsername: string;
+  loggedInUserId: number;
 }
 
 const Conversation: FC<ConversationProps> = ({
@@ -37,7 +37,7 @@ const Conversation: FC<ConversationProps> = ({
   setInput,
   onSend,
   onBack,
-  loggedInUsername,
+  loggedInUserId,
 }) => {
 
   const isMobile = typeof window !== "undefined" && window.outerWidth < 1024;
@@ -56,9 +56,8 @@ const Conversation: FC<ConversationProps> = ({
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [isInviteSent, setIsInviteSent] = useState<boolean>(false);
 
-  console.log("-->users : ")
-  console.log(user.username)
-  console.log(user.online)
+  console.log("--> : messages");
+  console.log(messages)
 
   if (!user) {
 
@@ -99,10 +98,12 @@ const Conversation: FC<ConversationProps> = ({
 
     if (!user)
         return;
-
+    // blockerId, blockedId
     socket.emit("block:user", {
-      blocker: loggedInUsername,
-      blocked: user.username,
+      blockerId: loggedInUserId,
+      blockedId: user.id,
+      // blocker_name: user.username
+      // blocked_name:
     });
 
     setBlockClicked((prev) => ({ ...prev, [user.username]: true }));
@@ -119,10 +120,10 @@ const Conversation: FC<ConversationProps> = ({
 
     if (!user)
         return;
-
+    // blockerId, blockedId
     socket.emit("unblock:user", {
-      blocker: loggedInUsername,
-      blocked: user.username,
+      blockerId: loggedInUserId,
+      blockedId: user.id,
     });
 
     setBlockClicked((prev) => ({ ...prev, [user.username]: false }));
@@ -140,6 +141,7 @@ const Conversation: FC<ConversationProps> = ({
   };
 
   const handleDeleteClick = (messageId: string | number) => {
+    console.log("=> : messageId", messageId)
     setMessageToDelete(messageId);
     setShowDeleteModal(true);
     setShowMenu(null);
@@ -151,7 +153,7 @@ const Conversation: FC<ConversationProps> = ({
 
       socket.emit("chat:delete", {
         id: messageToDelete,
-        username: loggedInUsername,
+        userId: loggedInUserId,
       });
 
       setShowDeleteModal(false);
@@ -186,7 +188,7 @@ const Conversation: FC<ConversationProps> = ({
       return;
 
     socket.emit("send:invite", {
-      sender: loggedInUsername,
+      sender: loggedInUserId,
       recipient: user.username,
     });
 
@@ -270,10 +272,13 @@ const Conversation: FC<ConversationProps> = ({
                 ? new Date(messages[index - 1].timestamp).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
                 : null;
             const time = msgDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-            const isMe = msg.sender === loggedInUsername;
+            const isMe = msg.senderId === loggedInUserId;
             const showDate = index === 0 || currentDateStr !== previousDateStr;
-
-            return (
+            // console.log("===>loggedInUserId")
+            // console.log(loggedInUserId)
+            // console.log("===>msg.senderId")
+            // console.log(msg.senderId)
+            return (  
                 <div key={msg.id || index}>
                 {showDate && (
                   <div className="flex items-center justify-center my-4">
