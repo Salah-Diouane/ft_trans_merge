@@ -57,7 +57,7 @@ const ChatApp: FC = () => {
     socket.emit("get-my-profile");
 
     // const myAllfriends = async () => {
-    //   const res = await fetch("http://e3r11p2.1337.ma:3000/friends/allfriends", { credentials: "include" });
+    //   const res = await fetch("http://e3r10p12.1337.ma:3000/friends/allfriends", { credentials: "include" });
     //   const data = await res.json();
     //   console.log("all friends : ", data)
     //   setUsers(data);

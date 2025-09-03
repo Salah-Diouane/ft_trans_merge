@@ -119,25 +119,25 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
 
   useEffect(() => {
     const fetchRequest = async () => {
-      const res = await fetch("http://e3r11p2.1337.ma:3000/friends/allsendreq", { credentials: "include" });
+      const res = await fetch("http://e3r10p12.1337.ma:3000/friends/allsendreq", { credentials: "include" });
       const data = await res.json();
       setFriends(Array.isArray(data) ? data : []);
     };
 
     const myAllfriends = async () => {
-      const res = await fetch("http://e3r11p2.1337.ma:3000/friends/allfriends", { credentials: "include" });
+      const res = await fetch("http://e3r10p12.1337.ma:3000/friends/allfriends", { credentials: "include" });
       const data = await res.json();
       setAllUsers(data);
     };
 
     const allRecvReq = async () => {
-      const res = await fetch("http://e3r11p2.1337.ma:3000/friends/allrecvreq", { credentials: "include" });
+      const res = await fetch("http://e3r10p12.1337.ma:3000/friends/allrecvreq", { credentials: "include" });
       const data = await res.json();
       setAllreqs(Array.isArray(data) ? data : []);
     };
 
     const allBlocked = async () => {
-      const res = await fetch("http://e3r11p2.1337.ma:3000/friends/blockReq", { credentials: "include" });
+      const res = await fetch("http://e3r10p12.1337.ma:3000/friends/blockReq", { credentials: "include" });
       const data = await res.json();
       console.log("all blocked : ", data);
       setAllBlocked(Array.isArray(data) ? data : []);
@@ -155,7 +155,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
 
   const handleAccept = async (username: string) => {
 
-    await fetch("http://e3r11p2.1337.ma:3000/friends/acceptrequest", {
+    await fetch("http://e3r10p12.1337.ma:3000/friends/acceptrequest", {
 
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -170,7 +170,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
 
   const handleReject = async (username: string) => {
 
-    await fetch("http://e3r11p2.1337.ma:3000/friends/deletereq", {
+    await fetch("http://e3r10p12.1337.ma:3000/friends/deletereq", {
 
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -185,7 +185,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
 
   const handleCancel = async (username: string) => {
 
-    await fetch("http://e3r11p2.1337.ma:3000/friends/deletereq", {
+    await fetch("http://e3r10p12.1337.ma:3000/friends/deletereq", {
 
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
