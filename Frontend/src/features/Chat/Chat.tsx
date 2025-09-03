@@ -24,6 +24,7 @@ const ChatApp: FC = () => {
   const [messages, setMessages] = useState<Record<number, Message[]>>({});
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [inputs, setInputs] = useState<Record<number, string>>({});
+  const [block, setBlock] = useState<Record<number, string>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [showContactList, setShowContactList] = useState(window.outerWidth < 1024);
   const [currentUser, setCurrentUser] = useState<Partial<User> | null>(null);
@@ -193,7 +194,15 @@ const ChatApp: FC = () => {
   const getCurrentInput = () => (selectedUser?.id ? inputs[selectedUser.id] || "" : "");
 
   const setCurrentInput = (value: string) => {
-    if (selectedUser?.id) setInputs((prev) => ({ ...prev, [selectedUser.id]: value }));
+    if (selectedUser?.id)
+      setInputs((prev) => ({ ...prev, [selectedUser.id]: value }));
+  };
+
+  const getCurrentBlockUser = () => (selectedUser?.id ? inputs[selectedUser.id] || "" : "");
+
+  const setCurrentBlockUser = (value: string) => {
+    if (selectedUser?.id)
+      setInputs((prev) => ({ ...prev, [selectedUser.id]: value }));
   };
 
   const handleUserSelect = (user: User) => {
@@ -246,6 +255,8 @@ const ChatApp: FC = () => {
             messages={userMessages}
             input={getCurrentInput()}
             setInput={setCurrentInput}
+            // isBlock={getCurrentInput()}
+            // setIsBlock={setCurrentInput}
             onSend={handleSend}
             onBack={() => setShowContactList(true)}
             loggedInUserId={currentUserRef.current}

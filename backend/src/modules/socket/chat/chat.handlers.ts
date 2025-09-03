@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
 import { Server as IOServer } from "socket.io";
 import { AuthenticatedSocket } from "../pong/interfaces";
+import { console } from "inspector/promises";
 
 interface handleChatEventsProps {
     fastify: FastifyInstance
@@ -54,8 +55,10 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
             "SELECT 1 FROM blocked_users WHERE blocker = ? AND blocked = ?",
             [senderId, recipientId],
             (err, row) => {
-                if (err || row)
-                  return;
+                if (err || row){
+                    console.log("row : ", row)
+                    return;
+                }
                   console.log("before inserting : ", senderId, recipientId, text, new Date().toISOString())
                 db.run(
                     "INSERT INTO messages (id_sender, id_recipient, text, timestamp) VALUES (?, ?, ?, ?)",

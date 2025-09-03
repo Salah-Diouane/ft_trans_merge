@@ -16,7 +16,7 @@ import Subtract from "../Assets/Subtract.svg";
 
 import { Message } from "../types/Message";
 import socket from "../services/socket";
-
+import { User } from "../types/User";
 
 interface ConversationProps {
   user: { username: string,id: number ,  image_url: string, online: boolean };
@@ -40,6 +40,7 @@ const Conversation: FC<ConversationProps> = ({
   loggedInUserId,
 }) => {
 
+  
   const isMobile = typeof window !== "undefined" && window.outerWidth < 1024;
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -55,6 +56,7 @@ const Conversation: FC<ConversationProps> = ({
   const [messageToDelete, setMessageToDelete] = useState<string | number | null>(null);
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [isInviteSent, setIsInviteSent] = useState<boolean>(false);
+  const [allBlocked, setAllBlocked] = useState<User[]>([]);
 
   console.log("--> : messages");
   console.log(messages)
@@ -67,6 +69,17 @@ const Conversation: FC<ConversationProps> = ({
       </div>
     );
   }
+
+  useEffect ( () => {
+    const allBlocked_fct = async () => {
+      const res = await fetch("http://e3r10p12.1337.ma:3000/friends/blockReq", { credentials: "include" });
+      const data = await res.json();
+      console.log("all blocked : ", data);
+      setAllBlocked(Array.isArray(data) ? data : []);
+    };
+    allBlocked_fct();
+  }, [])
+
   const store = useStore()
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -105,8 +118,13 @@ const Conversation: FC<ConversationProps> = ({
       // blocker_name: user.username
       // blocked_name:
     });
-
+    // allBlocked_fct();
+    console.log("all blocked : ", allBlocked)
     setBlockClicked((prev) => ({ ...prev, [user.username]: true }));
+    const blockedUsers = allBlocked.filter(
+      (u) => u.id !== loggedInUserId
+    );
+    console.log("-> : blockedUsers : ", blockClicked)
     setIsBlocked(true)
   };
 
@@ -126,9 +144,15 @@ const Conversation: FC<ConversationProps> = ({
       blockedId: user.id,
     });
 
-    setBlockClicked((prev) => ({ ...prev, [user.username]: false }));
+    // setBlockClicked((prev) => ({ ...prev, [user.username]: false }));
     setShowInvBlock(false)
     setIsBlocked(false)
+
+    // array.forEach(function(currentValue, index, allBlocked), )
+    // for (const [key, value] of Object.entries(allBlocked)) {
+    //   // console.log(`${key}: ${value}`);
+    //   if (key === )
+    // }
 
   };
 
@@ -230,7 +254,8 @@ const Conversation: FC<ConversationProps> = ({
               {(showInvBlock) && (
                   <div className={`absolute   right-20 `}>
                     <div className="bg-[#393E46] rounded-lg shadow-lg border-1 border-gray-900 min-w-[120px]">
-                      {!isBlocked ? (
+                      {/* {!isBlocked ? ( */}
+                      {allBlocked.some(blockedUser => blockedUser.id !== user.id) ? (
                         <button
                             onClick={handleBlockClick}
                             className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
@@ -239,7 +264,7 @@ const Conversation: FC<ConversationProps> = ({
                             Block
                           </button>
                         ) : (
-                          <button    
+                          <button
                           onClick={handleUnblockUser}
                           className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-gray-100 flex items-center gap-2"
                           role="menuitem"
@@ -401,6 +426,7 @@ const Conversation: FC<ConversationProps> = ({
         )}
 
         {/* Input section */}
+        {/* {allBlocked.some(blockedUser => blockedUser.id === user.id) ? ( */}
         {!blockClicked[user.username] ? (
           <div className="relative mt-4 opacity-80">
             <input

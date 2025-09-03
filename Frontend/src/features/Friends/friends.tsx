@@ -30,6 +30,7 @@ interface FriendCardProps {
   onAccept?: (username: string) => void;
   onReject?: (username: string) => void;
   onCancel?: (username: string) => void;
+  unblockUser?: (username: string) => void;
 }
 
 const FriendCard: React.FC<FriendCardProps> = ({
@@ -40,6 +41,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
   onAccept,
   onReject,
   onCancel,
+  unblockUser,
 }) => {
   return (
     <div className="flex items-center p-3 xs:p-4 bg-[#222831] m-2 h-16 rounded-3xl border border-[#393E46]/50 hover:border-[#0077FF]/50 transition-all duration-300 justify-between">
@@ -95,7 +97,9 @@ const FriendCard: React.FC<FriendCardProps> = ({
         )}
 
         {status === "blocked" && (
-          <button className="bg-blue-500 text-white py-2 px-4 rounded-full text-sm font-semibold flex items-center gap-3">
+          <button className="bg-blue-500 text-white py-2 px-4 rounded-full text-sm font-semibold flex items-center gap-3"
+            onClick={() => unblockUser?.(name)}
+          >
             <Shield size={20} /> Unblock
           </button>
         )}
@@ -198,6 +202,16 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
 
   };
 
+  const unblockUser = async (username: string) => {
+    console.log(" in unblock !!!")
+    await fetch("http://e3r10p12.1337.ma:3000/friends/unblockUser", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ frined_username: username, type: "send" }),
+      credentials: "include",
+    })
+  }
+
   return (
     <div className="flex flex-col font-russo text-base sm:text-lg ">
       <div className="sticky top-12 z-20 px-14 pt-4 pb-4 bg-[#393E46]">
@@ -234,7 +248,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
             )  : status === "blocked" && allBlocked.length > 0 ? (
 
                 allBlocked.map(user => (
-                <FriendCard key={user.username} name={user.username} image_url={user.image_url} status="blocked" />
+                <FriendCard key={user.username} name={user.username} image_url={user.image_url} status="blocked" unblockUser={unblockUser} />
                 ))
 
             ): (

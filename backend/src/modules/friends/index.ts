@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import {friend_request} from './friends.schema'
-import {sendRequest, acceptRequest, allfriends, allsendreq, allrecvreq, deleteReq, blockReq} from './friends.routes'
+import {sendRequest, acceptRequest, allfriends, allsendreq, allrecvreq, deleteReq, blockReq, unblockUser} from './friends.routes'
 
 
 export default function friends(fastify: FastifyInstance) {
@@ -11,4 +11,5 @@ export default function friends(fastify: FastifyInstance) {
 	fastify.register(allrecvreq, {prefix: "/friends"});
 	fastify.register(deleteReq, {prefix: "/friends"});
 	fastify.register(blockReq, {prefix: "/friends"});
+	fastify.register(unblockUser, {prefix: "/friends"});
 }
