@@ -142,6 +142,8 @@ const Conversation: FC<ConversationProps> = ({
       console.log("user.id : ", user.id)
       u.id !== user.id
     }));
+  
+    setShowInvBlock(false);
   };
   
   
@@ -186,7 +188,7 @@ const Conversation: FC<ConversationProps> = ({
   
   const confirmBlock = () => {
     handleBlockUser();
-    seShowInvBlockmenu(false);
+    setShowInvBlockmenu(false);
 
   }
 
