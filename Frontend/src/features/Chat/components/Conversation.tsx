@@ -1,4 +1,6 @@
 
+
+
 import React, { FC, use, useEffect, useRef, useState } from "react";
 import { VscSend } from "react-icons/vsc";
 import { LuSendHorizontal } from "react-icons/lu";
@@ -17,6 +19,7 @@ import Subtract from "../Assets/Subtract.svg";
 import { Message } from "../types/Message";
 import socket from "../services/socket";
 import { User } from "../types/User";
+// import { User } from "lucide-react";
 
 interface ConversationProps {
   user: { username: string,id: number ,  image_url: string, online: boolean };
@@ -54,12 +57,12 @@ const Conversation: FC<ConversationProps> = ({
   const [showInvBlockMenu, setShowInvBlockmenu] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [messageToDelete, setMessageToDelete] = useState<string | number | null>(null);
-  const [isBlocked, setIsBlocked] = useState<boolean>(false);
+  // const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [isInviteSent, setIsInviteSent] = useState<boolean>(false);
   const [allBlocked, setAllBlocked] = useState<User[]>([]);
 
-  console.log("--> : messages");
-  console.log(messages)
+  console.log("--> : USER");
+  console.log(user)
 
   if (!user) {
 
@@ -72,89 +75,80 @@ const Conversation: FC<ConversationProps> = ({
 
   useEffect ( () => {
     const allBlocked_fct = async () => {
-      const res = await fetch("http://e3r10p12.1337.ma:3000/friends/blockReq", { credentials: "include" });
+      const res = await fetch("http://e3r10p18.1337.ma:3000/friends/blockReq", { credentials: "include" });
       const data = await res.json();
       console.log("all blocked : ", data);
       setAllBlocked(Array.isArray(data) ? data : []);
+      // setIsBlocked(allBlocked.some(blockedUser => blockedUser.id === loggedInUserId))
     };
     allBlocked_fct();
   }, [])
-
+  
   const store = useStore()
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
+  
   const addToInput = (emoji: { native: string }) => {
     setInput(input + emoji.native);
   };
-
+  
   const OnlineStatusIcon: React.FC<{ isOnline: boolean; size?: number }> = ({ isOnline, size = 12 }) => {
     return (
-        <div className="relative">
+      <div className="relative">
             <div 
                 className={`w-${size/4} h-${size/4} rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} border-2 border-[#222831]`}
                 style={{ width: size, height: size }}
                 title={isOnline ? 'Online' : 'Offline'}
-            />
-            {isOnline && (
-                <div 
-                    className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"
-                    style={{ width: size, height: size }}
                 />
+            {isOnline && (
+              <div 
+              className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"
+              style={{ width: size, height: size }}
+              />
             )}
         </div>
     );
-};
+  };
+  
+  
+  
+  let isBlocked = allBlocked.some(blockedUser => blockedUser.username === user.username);
+  console.log("isBlocked Value : ", isBlocked, "user.username",user.username)
+  console.log("allBlocked==> ", allBlocked)
 
   const handleBlockUser = () => {
-
-    if (!user)
-        return;
-    // blockerId, blockedId
+    if (!user) return;
+  
     socket.emit("block:user", {
       blockerId: loggedInUserId,
       blockedId: user.id,
-      // blocker_name: user.username
-      // blocked_name:
     });
-    // allBlocked_fct();
-    console.log("all blocked : ", allBlocked)
-    setBlockClicked((prev) => ({ ...prev, [user.username]: true }));
-    const blockedUsers = allBlocked.filter(
-      (u) => u.id !== loggedInUserId
-    );
-    console.log("-> : blockedUsers : ", blockClicked)
-    setIsBlocked(true)
+
+    setAllBlocked((prev) => [...prev, user as User]);
   };
-
-  const  handleBlockClick = () => {
-    setShowInvBlockmenu(true);
-    setShowInvBlock(false)
-
-  }
-
+  
   const handleUnblockUser = () => {
-
-    if (!user)
-        return;
-    // blockerId, blockedId
+    if (!user) return;
+  
     socket.emit("unblock:user", {
       blockerId: loggedInUserId,
       blockedId: user.id,
     });
+  
 
-    // setBlockClicked((prev) => ({ ...prev, [user.username]: false }));
-    setShowInvBlock(false)
-    setIsBlocked(false)
-
-    // array.forEach(function(currentValue, index, allBlocked), )
-    // for (const [key, value] of Object.entries(allBlocked)) {
-    //   // console.log(`${key}: ${value}`);
-    //   if (key === )
-    // }
-
+    setAllBlocked((prev) => prev.filter((u) => {
+      console.log("u.id : ", u.id)
+      console.log("user.id : ", user.id)
+      u.id !== user.id
+    }));
   };
+  
+  
+  const  handleBlockClick = () => {
+    setShowInvBlockmenu(true);
+    setShowInvBlock(false);
+  }
 
   const handleThreeDotsClick = (messageId: string | number, e: React.MouseEvent) => {
     setShowMenu(showMenu === messageId ? null : messageId);
@@ -182,28 +176,22 @@ const Conversation: FC<ConversationProps> = ({
 
       setShowDeleteModal(false);
       setMessageToDelete(null);
-
     }
   };
 
   const cancelDelete = () => {
-
     setShowDeleteModal(false);
     setMessageToDelete(null);
-
   };
   
   const confirmBlock = () => {
-
     handleBlockUser();
-    setShowInvBlockmenu(false);
+    seShowInvBlockmenu(false);
 
   }
 
   const cancelBlock = () => {
-
     setShowInvBlockmenu(false);
-
   }
 
   const handleSendInvite = () => {
@@ -246,7 +234,7 @@ const Conversation: FC<ConversationProps> = ({
           </div>
 
           <div className="flex gap-x-6">
-             <button
+              <button
               onClick={(e) => handleThreeDotsInvBlock(e)}
               className={`group-hover:opacity-100 transition-opacity duration-200 text-gray-500 rounded-full `}>
               <HiEllipsisVertical className="size-6" />
@@ -254,8 +242,8 @@ const Conversation: FC<ConversationProps> = ({
               {(showInvBlock) && (
                   <div className={`absolute   right-20 `}>
                     <div className="bg-[#393E46] rounded-lg shadow-lg border-1 border-gray-900 min-w-[120px]">
-                      {/* {!isBlocked ? ( */}
-                      {allBlocked.some(blockedUser => blockedUser.id !== user.id) ? (
+                      {/* {allBlocked.some(blockedUser => blockedUser.id !== user.id) ? ( */}
+                      {!isBlocked ? (
                         <button
                             onClick={handleBlockClick}
                             className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
@@ -425,9 +413,7 @@ const Conversation: FC<ConversationProps> = ({
           </div>
         )}
 
-        {/* Input section */}
-        {/* {allBlocked.some(blockedUser => blockedUser.id === user.id) ? ( */}
-        {!blockClicked[user.username] ? (
+        {!isBlocked ? (
           <div className="relative mt-4 opacity-80">
             <input
               type="text"
@@ -435,11 +421,11 @@ const Conversation: FC<ConversationProps> = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !blockClicked[user.username])
+                if (e.key === "Enter" && !isBlocked)
                   onSend();
               }}
               className="w-full bg-[#393E46] h-14 max-lg:h-12 text-white placeholder-gray-500 rounded-full py-3 px-5 pr-12 outline-none focus:ring-2 focus:ring-[#0077FF] transition"
-              disabled={blockClicked[user.username]}
+              disabled={isBlocked}
             />
             {showEmojiPicker && (
               <div className="absolute bottom-16 left-0 z-50">
@@ -467,11 +453,11 @@ const Conversation: FC<ConversationProps> = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !blockClicked[user.username])
+                if (e.key === "Enter" && !isBlocked)
                   onSend();
               }}
               className="w-full bg-[#393E46] h-14 text-center placeholder-white rounded-full py-3 px-5 pr-12 outline-none focus:ring-2 focus:ring-[#0077FF] transition"
-              disabled={blockClicked[user.username]}
+              disabled={isBlocked}
             />
             
           </div>
@@ -482,6 +468,4 @@ const Conversation: FC<ConversationProps> = ({
 };
 
 export default Conversation;
-
-
 

@@ -132,7 +132,7 @@ export function deleteFriendReq(fastify: FastifyInstance, id_sender: number, id_
 export function getBlockUser(fastify: FastifyInstance,blockerId: number): Promise<{ blocker: number, blocked: number }[]> {
 	return new Promise((resolve, reject) => {
 		fastify.db.all(
-			`SELECT u.username, u.first_name, u.family_name, u.image_url
+			`SELECT u.id, u.username, u.first_name, u.family_name, u.image_url
 				FROM blocked_users f
 				JOIN user_authentication u ON f.blocked = u.id 
 				WHERE f.blocker = ?`,
