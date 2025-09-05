@@ -70,16 +70,24 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			FOREIGN KEY (id_recipient) REFERENCES user_authentication(id)
 		);
 	`;
-
+	
+	// CREATE TABLE IF NOT EXISTS notification (
+	// 		id INTEGER PRIMARY KEY AUTOINCREMENT,
+	// 		id_sender INTEGER PRIMARY KEY AUTOINCREMENT,
+	// 		id_receiver INTEGER PRIMARY KEY AUTOINCREMENT,
+	// 		data TEXT NOT NULL,
+	// 		FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
+	// 		FOREIGN KEY (id_receiver) REFERENCES user_authentication(id),
+	// 	);
 	const createNotificationTable: string = `
-		CREATE TABLE IF NOT EXISTS notification (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			id_sender INTEGER PRIMARY KEY AUTOINCREMENT,
-			id_receiver INTEGER PRIMARY KEY AUTOINCREMENT,
-			data TEXT NOT NULL,
-			FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
-			FOREIGN KEY (id_receiver) REFERENCES user_authentication(id),
-		);
+	CREATE TABLE IF NOT EXISTS notification (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id_sender INTEGER NOT NULL,
+		id_receiver INTEGER NOT NULL,
+		data TEXT NOT NULL,
+		FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
+		FOREIGN KEY (id_receiver) REFERENCES user_authentication(id)
+	  );
 	`;
 
 
@@ -107,11 +115,11 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			resolve();
 		})
 
-		// db.run(createNotificationTable, (err) => {
-		// 	if (err)
-		// 		reject(err);
-		// 	resolve();
-		// })
+		db.run(createNotificationTable, (err) => {
+			if (err)
+				reject(err);
+			resolve();
+		})
 
 		db.run(friendship, (err) => {
 			if (err)

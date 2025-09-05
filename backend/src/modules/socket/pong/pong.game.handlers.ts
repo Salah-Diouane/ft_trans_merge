@@ -18,7 +18,6 @@ export const paddleDirections = new Map();
 
 export default function pongGameHandlers({ fastify, io, socket }: pongGameHandlersProps) {
   const userData = socket.user;
-
   socket.on('join', (playerName) => {
     let roomId: string | null = null;
     let isReconnecting = false;

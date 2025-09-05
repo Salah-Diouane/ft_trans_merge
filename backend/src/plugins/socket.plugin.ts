@@ -17,8 +17,7 @@ export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
     io.use(authMiddleware);
 
     io.on("connection", (socket) => {
-      console.log(" User connected:", socket.id);
-     
+      
       handleUserEvents({fastify, io, socket});
       handleChatEvents({fastify, io, socket});
       handleGameEvents({fastify, io, socket});

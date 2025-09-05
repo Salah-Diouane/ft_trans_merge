@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
 import { Server as IOServer } from "socket.io";
 import { AuthenticatedSocket } from "../pong/interfaces";
-import { console } from "inspector/promises";
+// import { console } from "inspector/promises";
 
 interface handleChatEventsProps {
     fastify: FastifyInstance
@@ -24,20 +24,13 @@ const userSockets = new Map<number, string>();
 export default function handleChatEvents({ fastify, io, socket }: handleChatEventsProps) {
     const db = fastify.db;
 
-    // socket.on("connect", () => {
-    //     const userData = socket.user;
-    //     if (userData) {
-    //         userSockets.set(userData.id, socket.id);
-    //         console.log(`Socket mapped: ${userData.username} -> ${socket.id}`);
-    //     }
-    // });
-    // socket.on("connect", () => {
+    console.log
+
       const userData = socket.user;
       if (userData) {
         userSockets.set(userData.userid, socket.id);
         console.log(`Socket mapped: ${userData.userid} -> ${socket.id}`);
       }
-    // });
     socket.on("disconnect", () => {
         const userData = socket.user;
         if (userData) {
@@ -47,13 +40,14 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
     });
 
     socket.on("chat:message", (data: Message) => {
-        const { senderId, recipientId, text } = data;
-        if (!senderId || !recipientId || !text)
-            return;
+      const { senderId, recipientId, text } = data;
 
+      if (!senderId || !recipientId || !text)
+        return;
+      console.log("data---> : ", data)
         db.get(
-            "SELECT 1 FROM blocked_users WHERE blocker = ? AND blocked = ?",
-            [senderId, recipientId],
+            "SELECT 1 FROM blocked_users WHERE (blocker = ? AND blocked = ?) OR (blocker = ? AND blocked = ?)",
+            [senderId, recipientId, recipientId, senderId],
             (err, row) => {
                 if (err || row){
                     console.log("row : ", row)
@@ -88,12 +82,12 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
                         if (senderSocketId) {
                           io.to(senderSocketId).emit("chat:message", messageData);
                           io.to(senderSocketId).emit("notification", {messageData});
-                          console.log("===> messageData : ", messageData)
+                          // console.log("===> messageData : ", messageData)
                         }
                         if (recipientSocketId) {
                           io.to(recipientSocketId).emit("chat:message", messageData);
                           io.to(recipientSocketId).emit("notification", {messageData});
-                          console.log("===> messageData : ", messageData)
+                          // console.log("===> messageData : ", messageData)
                         }
                     }
                 );
@@ -101,6 +95,87 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
         );
           
     });
+
+
+  socket.on("notification:insert", (notif) => {
+    const { messageData } = notif;
+
+    if (!messageData)
+      return;
+
+    const { senderId, recipientId, text, timestamp } = messageData;
+
+    const data = JSON.stringify({ text, timestamp });
+
+    db.run(
+      "INSERT INTO notification (id_sender, id_receiver, data) VALUES (?, ?, ?)",
+      [senderId, recipientId, data],
+      (err) => {
+        if (err) {
+          console.error("Failed to insert notification:", err);
+          return;
+        }
+
+        console.log(" Notification inserted successfully");
+      }
+    );
+  });
+
+
+  socket.on("notification:get", ( userId ) => {
+    db.all(
+      "SELECT * FROM notification WHERE id_receiver = ? ORDER BY timestamp DESC LIMIT 50",
+      [userId],
+      (err, rows:any) => {
+        if (err) {
+          console.error("Failed to fetch notifications:", err);
+          return;
+        }
+
+        const parsedRows = rows.map((row:any) => ({
+          ...row,
+          data: JSON.parse(row.data),
+        }));
+
+        socket.emit("notification:list", parsedRows);
+      }
+    );
+  });
+
+    // socket.on("notification:insert", ({notif})) => {
+    //   const { messageData } = notif;
+
+    //   if (!messageData)
+    //     return ;
+    //   const { senderId, recipientId, data } = messageData;
+
+    //   db.run("INSERT INTO notification (id_sender, id_recevier, data) VALUES (?, ?, ?)", [senderId, recipientId, data], (err, row:any) => {
+    //     if (err)
+    //       return ;
+    //     console.log("notification inserted successfully")
+    //   })
+    // }
+
+    // socket.on("notification:get", ({ userId }) => {
+    //   fastify.db.all(
+    //     "SELECT * FROM notification WHERE id_receiver = ? ORDER BY timestamp DESC LIMIT 50",
+    //     [userId],
+    //     (err, rows) => {
+    //       if (err) {
+    //         console.error("Failed to fetch notifications:", err);
+    //         return;
+    //       }
+    
+    //       const parsedRows = rows.map(row => ({
+    //         ...row,
+    //         data: JSON.parse(row.data),
+    //       }));
+    
+    //       socket.emit("notification:list", parsedRows);
+    //     }
+    //   );
+    // });
+    
 
     socket.on("chat:delete", ({ id, userId }: { id: number; userId: number }) => {
       console.log("id:=>", id)
