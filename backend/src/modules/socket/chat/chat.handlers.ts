@@ -44,7 +44,7 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
 
       if (!senderId || !recipientId || !text)
         return;
-      console.log("data---> : ", data)
+      // console.log("data---> : ", data)
         db.get(
             "SELECT 1 FROM blocked_users WHERE (blocker = ? AND blocked = ?) OR (blocker = ? AND blocked = ?)",
             [senderId, recipientId, recipientId, senderId],
@@ -71,23 +71,16 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
 
                         const senderSocketId = userSockets.get(senderId);
                         const recipientSocketId = userSockets.get(recipientId);
-                        
-                        console.log(senderId, "senderSocketId ==> ", senderSocketId)
-                        console.log(recipientId, "recipientSocketId ==> ", recipientSocketId)
-                        // if (senderSocketId)
-                        //   io.to(senderSocketId).emit("chat:message", messageData);
-                        // if (recipientSocketId)
-                        //   io.to(recipientSocketId).emit("chat:message", messageData);
+                        console.log("1--->",senderSocketId)
+                        console.log("2--->",recipientSocketId)
 
                         if (senderSocketId) {
                           io.to(senderSocketId).emit("chat:message", messageData);
                           io.to(senderSocketId).emit("notification", {messageData});
-                          // console.log("===> messageData : ", messageData)
                         }
                         if (recipientSocketId) {
                           io.to(recipientSocketId).emit("chat:message", messageData);
                           io.to(recipientSocketId).emit("notification", {messageData});
-                          // console.log("===> messageData : ", messageData)
                         }
                     }
                 );
@@ -106,76 +99,43 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
     const { senderId, recipientId, text, timestamp } = messageData;
 
     const data = JSON.stringify({ text, timestamp });
-
+    const senderSocketId = userSockets.get(senderId);
+    const recipientSocketId = userSockets.get(recipientId);
     db.run(
       "INSERT INTO notification (id_sender, id_receiver, data) VALUES (?, ?, ?)",
       [senderId, recipientId, data],
       (err) => {
         if (err) {
-          console.error("Failed to insert notification:", err);
           return;
         }
 
-        console.log(" Notification inserted successfully");
+        console.log(" Notification inserted successsfully");
       }
     );
   });
 
-
-  socket.on("notification:get", ( userId ) => {
+  socket.on("notification:get", (userId: number) => {
+    console.log("------------------> in the notification:get")
     db.all(
       "SELECT * FROM notification WHERE id_receiver = ? ORDER BY timestamp DESC LIMIT 50",
       [userId],
-      (err, rows:any) => {
+      (err, rows: any) => {
         if (err) {
-          console.error("Failed to fetch notifications:", err);
+          console.error("DB error in notification:get:", err.message);
           return;
         }
-
-        const parsedRows = rows.map((row:any) => ({
+        
+        const parsedRows = rows.map((row: any) => ({
           ...row,
           data: JSON.parse(row.data),
         }));
-
+        console.log("parseRows : ", parsedRows)
         socket.emit("notification:list", parsedRows);
       }
     );
   });
+  
 
-    // socket.on("notification:insert", ({notif})) => {
-    //   const { messageData } = notif;
-
-    //   if (!messageData)
-    //     return ;
-    //   const { senderId, recipientId, data } = messageData;
-
-    //   db.run("INSERT INTO notification (id_sender, id_recevier, data) VALUES (?, ?, ?)", [senderId, recipientId, data], (err, row:any) => {
-    //     if (err)
-    //       return ;
-    //     console.log("notification inserted successfully")
-    //   })
-    // }
-
-    // socket.on("notification:get", ({ userId }) => {
-    //   fastify.db.all(
-    //     "SELECT * FROM notification WHERE id_receiver = ? ORDER BY timestamp DESC LIMIT 50",
-    //     [userId],
-    //     (err, rows) => {
-    //       if (err) {
-    //         console.error("Failed to fetch notifications:", err);
-    //         return;
-    //       }
-    
-    //       const parsedRows = rows.map(row => ({
-    //         ...row,
-    //         data: JSON.parse(row.data),
-    //       }));
-    
-    //       socket.emit("notification:list", parsedRows);
-    //     }
-    //   );
-    // });
-    
 
     socket.on("chat:delete", ({ id, userId }: { id: number; userId: number }) => {
       console.log("id:=>", id)

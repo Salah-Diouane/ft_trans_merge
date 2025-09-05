@@ -79,16 +79,31 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 	// 		FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
 	// 		FOREIGN KEY (id_receiver) REFERENCES user_authentication(id),
 	// 	);
+	// const createNotificationTable: string = `
+	// CREATE TABLE IF NOT EXISTS notification (
+	// 	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	// 	id_sender INTEGER NOT NULL,
+	// 	id_receiver INTEGER NOT NULL,
+	// 	data TEXT NOT NULL,
+	// 	FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
+	// 	FOREIGN KEY (id_receiver) REFERENCES user_authentication(id)
+	//   );
+	// `;
+
 	const createNotificationTable: string = `
-	CREATE TABLE IF NOT EXISTS notification (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		id_sender INTEGER NOT NULL,
-		id_receiver INTEGER NOT NULL,
-		data TEXT NOT NULL,
-		FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
-		FOREIGN KEY (id_receiver) REFERENCES user_authentication(id)
-	  );
-	`;
+		CREATE TABLE IF NOT EXISTS notification (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id_sender INTEGER NOT NULL,
+			id_receiver INTEGER NOT NULL,
+			sender TEXT NOT NULL,
+			receiver TEXT NOT NULL,
+			data TEXT NOT NULL,
+			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
+			FOREIGN KEY (id_receiver) REFERENCES user_authentication(id)
+		);
+`;
+
 
 
 	await new Promise<void>((resolve, reject) => {

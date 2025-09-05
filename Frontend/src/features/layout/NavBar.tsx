@@ -43,11 +43,11 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notification
             key={i}
             className="w-full p-3 mb-2 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200"
           >
-            <p className="text-sm font-medium">📩 New message</p>
-            <p className="text-gray-700 text-sm truncate">Message : {notif.messageData?.text}</p>
-            <p className="text-gray-700 text-sm truncate">From : {notif.messageData?.sender}</p>
+            <p className="text-sm font-medium">New message</p>
+            <p className="text-gray-700 text-sm truncate">Message : {notif.data.text}</p>
+            <p className="text-gray-700 text-sm truncate">From : {notif.id_sender}</p>
             <span className="text-xs text-gray-400">
-              {new Date(notif.messageData?.timestamp).toLocaleTimeString()}
+              {new Date(notif.timestamp).toLocaleTimeString()}
             </span>
           </div>
         ))
@@ -65,6 +65,7 @@ const NavBar: React.FC = () => {
   const [result, setResult] = useState<User[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [ notifClicked, setNotifClicked ] = useState<boolean>(false)
 
   const store = useStore();
   const { users, currentUser, currentUserRef } = useUsers();
@@ -75,52 +76,43 @@ const NavBar: React.FC = () => {
       socket.connect()
   }, [])
 
-
-  // useEffect(() => {
-
-  //   socket.on("notification", (notif) => {
-
-
-  //     if (notif.messageData.senderId !== Number(currentUserRef.current)){
-
-  //       socket.emit("notification:insert", notif)
-  //       socket.emit("notification:get", (notif.senderId))
-  //       socket.on("notification:list", (parsedRows) => {
-  //         setNotifications((prev) => [parsedRows, ...prev]);
-  //         setUnreadCount((prev) => prev + 1);
-       
-  //       })
-
-  //     }
-  //   });
-
-  //   return () => {
-  //     socket.off("notification");
-  //   };
-  // }, [notifications]);
+  useEffect(() => {
+    if (currentUserRef.current) {
+      socket.emit("notification:get", Number(currentUserRef.current));
+    }
+  }, [currentUserRef.current]);
 
   useEffect(() => {
+
     const handleNotification = (notif: any) => {
       const currentUserId = Number(currentUserRef.current);
       const { senderId } = notif.messageData;
-      console.log("--->   ", notif)
+      
+      console.log("Received notification:", notif);
 
       if (senderId !== currentUserId) {
 
         socket.emit("notification:insert", notif);
+        
 
-        socket.emit("notification:get", (notif.senderId) );
+        socket.emit("notification:get", currentUserId);
+        
+
+        toast.success("New message received!", {
+          duration: 3000,
+          position: 'top-right',
+        });
 
       }
     };
-  
+    
     const handleNotificationList = (data: any[]) => {
-      console.log("Notifs List : ")
+      console.log("Notifications list received:", data);
       setNotifications(data);
-      setUnreadCount(data.length);
+
+        setUnreadCount((data.length));
     };
-    console.log("---> : notifications")
-    console.log(notifications)
+
     socket.on("notification", handleNotification);
     socket.on("notification:list", handleNotificationList);
 
@@ -128,8 +120,11 @@ const NavBar: React.FC = () => {
       socket.off("notification", handleNotification);
       socket.off("notification:list", handleNotificationList);
     };
-  }, [currentUserRef]);
+
+  }, [currentUserRef.current]);
   
+
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -201,6 +196,7 @@ const NavBar: React.FC = () => {
           <Notification02Icon className="size-8 hover:text-[#00ADB5] cursor-pointer max-sm:hidden"
             onClick={(e) => {
               setShowNotifs(true)
+              setNotifClicked(false);
               setUnreadCount(0)
             }}
           />
