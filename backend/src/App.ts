@@ -24,6 +24,17 @@ const app = fastify({
     }
 });
 
+const server: http.Server = app.server;
+
+
+const io = new IOServer(server, {
+  cors: {
+    origin: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  },
+});
+
 app.register(cors, {
     origin: true, // React app origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -60,7 +71,8 @@ app.addHook("onRequest", async (request, reply) => {
     }
 });
 
-app.register(Modules);
+app.register(Modules, { io });
+
 
 app.get("/hello", (request, reply) => {
     return reply.send({ refreshtoken: true, accesstoken: true });
@@ -121,16 +133,6 @@ app.setErrorHandler((error, request, reply) => {
 });
 
 
-const server: http.Server = app.server;
-
-
-const io = new IOServer(server, {
-  cors: {
-    origin: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  },
-});
 
 app.ready().then( () => {
     setupSocketIO(app, io);

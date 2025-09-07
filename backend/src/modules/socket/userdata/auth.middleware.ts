@@ -6,6 +6,7 @@ import { parse as parseCookie } from "cookie";
 import { Console } from "console";
 import {AuthenticatedSocket} from "../pong/interfaces"
 
+export const onlineUsers = new Map<number, AuthenticatedSocket>();
 
 export default function createAuthMiddleware(fastify: FastifyInstance) {
   return async (socket: AuthenticatedSocket, next: (err?: ExtendedError) => void) => {
@@ -26,7 +27,7 @@ export default function createAuthMiddleware(fastify: FastifyInstance) {
       const decodedToken = await fastify.jwt.verify(token);
       socket.user = decodedToken;
       socket.online = true;
-        
+      onlineUsers.set(socket.user.userid, socket);
       console.log("------>User authenticated:");
       console.log(socket?.user.userid)
       next();

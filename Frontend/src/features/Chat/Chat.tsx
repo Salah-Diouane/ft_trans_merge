@@ -57,22 +57,33 @@ const ChatApp: FC = () => {
     socket.emit("request:init");
     socket.emit("get-my-profile");
 
+  
     // const myAllfriends = async () => {
-    //   const res = await fetch("http://e3r10p18.1337.ma:3000/friends/allfriends", { credentials: "include" });
+    //   const res = await fetch("http://e3r1p1.1337.ma:3000/friends/allfriends", { 
+    //     credentials: "include" 
+    //   });
     //   const data = await res.json();
-    //   console.log("all friends : ", data)
+    
+    //   console.log("all friends raw data : ", data);
+    
+    //   // Vérifier si chaque user a un id
+    //   data.forEach((user: any, index: number) => {
+    //     console.log(`User ${index}:`, user);
+    //     console.log(` -> id: ${user.id}, username: ${user.username}`);
+    //   });
+    
     //   setUsers(data);
     // };
     // myAllfriends();
     
-    socket.on("user:list", (backendUsers: User[]) => {
+    socket.on("friends:list", (backendUsers: User[]) => {
       setUsers(backendUsers);
       usersRef.current = backendUsers;
     });
 
     socket.on("profile-data", (data: { id: number; username: string; online: boolean }) => {
-      console.log("-->data.id")
-      console.log(data.id)
+      // console.log("-->data.id")
+      // console.log(data.id)
       currentUserRef.current = data.id;
       setCurrentUser({ id: data.id, username: data.username, online: data.online });
     });
@@ -112,7 +123,7 @@ const ChatApp: FC = () => {
         timestamp: msg.timestamp,
       };
 
-      console.log("Adding message to conversation with user:", otherUser.id);
+
       
       setMessages((prev) => ({
         ...prev,
@@ -143,7 +154,7 @@ const ChatApp: FC = () => {
     });
 
     return () => {
-      socket.off("user:list");
+      socket.off("friends:list");
       socket.off("profile-data");
       socket.off("chat:history");
       socket.off("chat:message");
@@ -169,11 +180,7 @@ const ChatApp: FC = () => {
   }, [users]); 
 
   const handleSend = () => {
-    console.log("111111111")
-    console.log("selectedUser?.id ")
-    console.log(selectedUser?.id )
-    console.log("currentUserRef.current")
-    console.log(currentUserRef.current)
+
 
     if (!selectedUser?.id || !currentUserRef.current)
       return;
@@ -198,16 +205,10 @@ const ChatApp: FC = () => {
       setInputs((prev) => ({ ...prev, [selectedUser.id]: value }));
   };
 
-  const getCurrentBlockUser = () => (selectedUser?.id ? inputs[selectedUser.id] || "" : "");
-
-  const setCurrentBlockUser = (value: string) => {
-    if (selectedUser?.id)
-      setInputs((prev) => ({ ...prev, [selectedUser.id]: value }));
-  };
-
   const handleUserSelect = (user: User) => {
     setSelectedUser(user);
-    if (isMobile) setShowContactList(false);
+    if (isMobile)
+      setShowContactList(false);
     setUnreadCounts((prev) => ({ ...prev, [user.id]: 0 }));
   };
 

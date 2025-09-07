@@ -20,9 +20,11 @@ import { Message } from "../types/Message";
 import socket from "../services/socket";
 import { User } from "../types/User";
 // import { User } from "lucide-react";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface ConversationProps {
-  user: { username: string,id: number ,  image_url: string, online: boolean };
+  user: { username: string, id: number, image_url: string, online: boolean };
   messages: Message[];
   history: Message[]
   input: string;
@@ -43,10 +45,10 @@ const Conversation: FC<ConversationProps> = ({
   loggedInUserId,
 }) => {
 
-  
+  console.log("User Data : ", user)
   const isMobile = typeof window !== "undefined" && window.outerWidth < 1024;
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
+
   const [inviteClicked, setInviteClicked] = useState<Record<string, boolean>>({});
   const [blockClicked, setBlockClicked] = useState<Record<string, boolean>>({});
   const [toast, setToast] = useState<{ type: "invite" | "block" | "debloked"; user: string } | null>(null);
@@ -61,8 +63,48 @@ const Conversation: FC<ConversationProps> = ({
   const [isInviteSent, setIsInviteSent] = useState<boolean>(false);
   const [allBlocked, setAllBlocked] = useState<User[]>([]);
 
-  console.log("--> : USER");
-  console.log(user)
+  const [page, setPage] = useState(1);
+  const pageSize = 15;
+  const [visibleMessages, setVisibleMessages] = useState<Message[]>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+
+
+
+  useEffect(() => {
+    const start = Math.max(messages.length - page * pageSize, 0);
+    const end = messages.length;
+    setVisibleMessages(messages.slice(start, end));
+  }, [messages, page]);
+
+  // const handleScroll = () => {
+  //   if (!containerRef.current)
+  //     return;
+  //   if (containerRef.current.scrollTop === 0 && page * pageSize < messages.length) {
+  //     setPage(prev => prev + 1);
+  //   }
+  // };
+
+  const handleScroll = () => {
+    if (!containerRef.current)
+      return;
+
+    if (containerRef.current.scrollTop === 0 && page * pageSize < messages.length) {
+      const oldScrollHeight = containerRef.current.scrollHeight;
+      setPage(prev => prev + 1);
+      setLoading(true)
+
+      setTimeout(() => {
+        if (containerRef.current) {
+          const newScrollHeight = containerRef.current.scrollHeight;
+          containerRef.current.scrollTop = newScrollHeight - oldScrollHeight;
+          setLoading(false)
+        }
+      }, 800);
+    }
+  };
+
 
   if (!user) {
 
@@ -73,53 +115,57 @@ const Conversation: FC<ConversationProps> = ({
     );
   }
 
-  useEffect ( () => {
+  useEffect(() => {
     const allBlocked_fct = async () => {
-      const res = await fetch("http://e3r10p18.1337.ma:3000/friends/blockReq", { credentials: "include" });
+      const res = await fetch("http://e3r1p1.1337.ma:3000/friends/blockReq", { credentials: "include" });
       const data = await res.json();
-      console.log("all blocked : ", data);
+      // console.log("all blocked : ", data);
       setAllBlocked(Array.isArray(data) ? data : []);
       // setIsBlocked(allBlocked.some(blockedUser => blockedUser.id === loggedInUserId))
     };
     allBlocked_fct();
   }, [])
-  
+
   const store = useStore()
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-  
+  }, [visibleMessages]);
+
+
+
   const addToInput = (emoji: { native: string }) => {
     setInput(input + emoji.native);
   };
   
   const OnlineStatusIcon: React.FC<{ isOnline: boolean; size?: number }> = ({ isOnline, size = 12 }) => {
+    console.log("======================is online======================", isOnline);
     return (
       <div className="relative">
-            <div 
-                className={`w-${size/4} h-${size/4} rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} border-2 border-[#222831]`}
-                style={{ width: size, height: size }}
-                title={isOnline ? 'Online' : 'Offline'}
-                />
-            {isOnline && (
-              <div 
-              className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"
-              style={{ width: size, height: size }}
-              />
-            )}
-        </div>
+        <div
+          className={`w-${size / 4} h-${size / 4} rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} border-2 border-[#222831]`}
+          style={{ width: size, height: size }}
+          title={isOnline ? 'Online' : 'Offline'}
+        />
+        {isOnline && (
+          <div
+            className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"
+            style={{ width: size, height: size }}
+          />
+        )}
+      </div>
     );
   };
-  
-  
-  
+
+
+
   let isBlocked = allBlocked.some(blockedUser => blockedUser.username === user.username);
-  console.log("isBlocked Value : ", isBlocked, "user.username",user.username)
-  console.log("allBlocked==> ", allBlocked)
+  // console.log("isBlocked Value : ", isBlocked, "user.username", user.username)
+  // console.log("allBlocked==> ", allBlocked)
 
   const handleBlockUser = () => {
     if (!user) return;
-  
+
     socket.emit("block:user", {
       blockerId: loggedInUserId,
       blockedId: user.id,
@@ -127,27 +173,30 @@ const Conversation: FC<ConversationProps> = ({
 
     setAllBlocked((prev) => [...prev, user as User]);
   };
-  
+
   const handleUnblockUser = () => {
     if (!user) return;
-  
+
     socket.emit("unblock:user", {
       blockerId: loggedInUserId,
       blockedId: user.id,
     });
-  
 
-    setAllBlocked((prev) => prev.filter((u) => {
-      console.log("u.id : ", u.id)
-      console.log("user.id : ", user.id)
-      u.id !== user.id
-    }));
-  
+
+    // setAllBlocked((prev) => prev.filter((u) => {
+    //   console.log("u.id : ", u.id)
+    //   console.log("user.id : ", user.id)
+    //   u.id !== user.id
+    // }));
+
+    setAllBlocked((prev) => prev.filter((u) => u.id !== user.id));
+
+
     setShowInvBlock(false);
   };
-  
-  
-  const  handleBlockClick = () => {
+
+
+  const handleBlockClick = () => {
     setShowInvBlockmenu(true);
     setShowInvBlock(false);
   }
@@ -156,12 +205,12 @@ const Conversation: FC<ConversationProps> = ({
     setShowMenu(showMenu === messageId ? null : messageId);
   };
 
-  const handleThreeDotsInvBlock = ( e: React.MouseEvent) => {
+  const handleThreeDotsInvBlock = (e: React.MouseEvent) => {
     setShowInvBlock(true);
   };
 
   const handleDeleteClick = (messageId: string | number) => {
-    console.log("=> : messageId", messageId)
+    // console.log("=> : messageId", messageId)
     setMessageToDelete(messageId);
     setShowDeleteModal(true);
     setShowMenu(null);
@@ -185,7 +234,7 @@ const Conversation: FC<ConversationProps> = ({
     setShowDeleteModal(false);
     setMessageToDelete(null);
   };
-  
+
   const confirmBlock = () => {
     handleBlockUser();
     setShowInvBlockmenu(false);
@@ -236,65 +285,84 @@ const Conversation: FC<ConversationProps> = ({
           </div>
 
           <div className="flex gap-x-6">
-              <button
+            <button
               onClick={(e) => handleThreeDotsInvBlock(e)}
               className={`group-hover:opacity-100 transition-opacity duration-200 text-gray-500 rounded-full `}>
               <HiEllipsisVertical className="size-6" />
-              </button>
-              {(showInvBlock) && (
-                  <div className={`absolute   right-20 `}>
-                    <div className="bg-[#393E46] rounded-lg shadow-lg border-1 border-gray-900 min-w-[120px]">
-                      {/* {allBlocked.some(blockedUser => blockedUser.id !== user.id) ? ( */}
-                      {!isBlocked ? (
-                        <button
-                            onClick={handleBlockClick}
-                            className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
-                          >
-                            <UserBlock02Icon />
-                            Block
-                          </button>
-                        ) : (
-                          <button
-                          onClick={handleUnblockUser}
-                          className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-gray-100 flex items-center gap-2"
-                          role="menuitem"
-                          >
-                          <IoBanOutline className="w-5 h-5" />
-                            Unblock User
-                          </button> 
-                        )
-                      }
-                      <button
-                        onClick={handleSendInvite}
-                        className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
-                      >
-                        <AddTeamIcon />
-                        Invite
-                      </button>
-                  </div>
+            </button>
+            {(showInvBlock) && (
+              <div className={`absolute   right-20 `}>
+                <div className="bg-[#393E46] rounded-lg shadow-lg border-1 border-gray-900 min-w-[120px]">
+                  {/* {allBlocked.some(blockedUser => blockedUser.id !== user.id) ? ( */}
+                  {!isBlocked ? (
+                    <button
+                      onClick={handleBlockClick}
+                      className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
+                    >
+                      <UserBlock02Icon />
+                      Block
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleUnblockUser}
+                      className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-gray-100 flex items-center gap-2"
+                      role="menuitem"
+                    >
+                      <IoBanOutline className="w-5 h-5" />
+                      Unblock User
+                    </button>
+                  )
+                  }
+                  <button
+                    onClick={handleSendInvite}
+                    className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
+                  >
+                    <AddTeamIcon />
+                    Invite
+                  </button>
                 </div>
-              )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Message list */}
-        <div  className="flex-grow overflow-y-auto pr-4 space-y-4 mt-4 custom-scroll overflow-x-hidden">
-          {messages.map((msg, index) => {
+        <div className="flex-grow overflow-y-auto pr-4 space-y-4 mt-4 custom-scroll overflow-x-hidden" ref={containerRef}
+          onScroll={handleScroll}
+        >
+          {loading && (
+            <div className="flex justify-center items-center py-2">
+              {/* <DotLottieReact
+                className="size-16 text-neutral-800"
+                src="https://lottie.host/70d416bc-2964-4c04-9c76-5b3e51452944/RbbhKqbPTa.lottie"
+                loop
+                autoplay
+              /> */}
+
+              <DotLottieReact
+                className="w-72 "
+                src="https://lottie.host/93ceb104-8e2e-44e3-9af2-713435818c5b/OGOprlL4O4.lottie"
+                loop
+                autoplay
+              />
+
+            </div>
+          )}
+
+          {visibleMessages.map((msg, index) => {
             const msgDate = new Date(msg.timestamp);
             const currentDateStr = msgDate.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
             const previousDateStr =
               index > 0
-                ? new Date(messages[index - 1].timestamp).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+                ? new Date(visibleMessages[index - 1].timestamp).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
                 : null;
             const time = msgDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
             const isMe = msg.senderId === loggedInUserId;
             const showDate = index === 0 || currentDateStr !== previousDateStr;
-            // console.log("===>loggedInUserId")
-            // console.log(loggedInUserId)
-            // console.log("===>msg.senderId")
-            // console.log(msg.senderId)
-            return (  
-                <div key={msg.id || index}>
+
+
+            return (
+              <div key={msg.id || index}>
                 {showDate && (
                   <div className="flex items-center justify-center my-4">
                     <span className="bg-[#2f3542] text-gray-400 text-xs px-3 py-1 rounded-md">
@@ -307,8 +375,8 @@ const Conversation: FC<ConversationProps> = ({
                     {/* Message bubble */}
                     <div
                       className={`rounded-xl p-2 whitespace-pre-wrap shadow-lg  ${isMe
-                          ? "bg-[#0077FF] text-white self-end"
-                          : "bg-[#393E46] text-white self-start"
+                        ? "bg-[#0077FF] text-white self-end"
+                        : "bg-[#393E46] text-white self-start"
                         }`}
                     >
                       {msg.text}
@@ -323,7 +391,7 @@ const Conversation: FC<ConversationProps> = ({
                     )}
 
                     {isMe && (showMenu === msg.id) && (
-                      <div className={`absolute top-0 z-50 ${isMe  ? 'right-20 transform translate-x-2' : 'left-20 transform -translate-x-2' }`}>
+                      <div className={`absolute top-0 z-50 ${isMe ? 'right-20 transform translate-x-2' : 'left-20 transform -translate-x-2'}`}>
                         <div className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[120px]">
                           <button
                             onClick={() => handleDeleteClick(msg.id)}
@@ -353,9 +421,9 @@ const Conversation: FC<ConversationProps> = ({
         </div>
 
         {showDeleteModal && (
-          <div  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4 ">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4 ">
             <div className="bg-white rounded-2xl max-w-sm w-full mx-4 overflow-hidden">
-              
+
               <div className="p-6 text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
                   <MdDelete className="size-10 text-red-700" />
@@ -434,18 +502,18 @@ const Conversation: FC<ConversationProps> = ({
                 <Picker data={data} onEmojiSelect={addToInput} />
               </div>
             )}
-              <>
-                <MdEmojiEmotions
-                  className="absolute top-1/2 -translate-y-1/2 right-16 text-gray-400 w-6 h-6  rounded-full cursor-pointer hover:text-[#0077FF] duration-500 "
-                  onClick={() => setShowEmojiPicker((prev) => !prev)}
-                />
-                <button
-                  onClick={onSend}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full  hover:bg-[#0077FF] duration-500"
-                >
-                  <VscSend className="text-white w-5 h-5" />
-                </button>
-              </>
+            <>
+              <MdEmojiEmotions
+                className="absolute top-1/2 -translate-y-1/2 right-16 text-gray-400 w-6 h-6  rounded-full cursor-pointer hover:text-[#0077FF] duration-500 "
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+              />
+              <button
+                onClick={onSend}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full  hover:bg-[#0077FF] duration-500"
+              >
+                <VscSend className="text-white w-5 h-5" />
+              </button>
+            </>
           </div>
         ) : (
           <div className="relative mt-4 opacity-30">
@@ -461,7 +529,7 @@ const Conversation: FC<ConversationProps> = ({
               className="w-full bg-[#393E46] h-14 text-center placeholder-white rounded-full py-3 px-5 pr-12 outline-none focus:ring-2 focus:ring-[#0077FF] transition"
               disabled={isBlocked}
             />
-            
+
           </div>
         )}
       </div>

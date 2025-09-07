@@ -14,6 +14,7 @@ import toast, { Toaster } from "react-hot-toast";
 interface HandleNotifsProps {
   setShowNotifs: React.Dispatch<React.SetStateAction<boolean>>;
   notifications: any[];
+  clearNotifs: () => void;
 }
 
 const isActive = (path: string) =>
@@ -22,7 +23,7 @@ const isActive = (path: string) =>
     : "";
 
 
-const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notifications }) => {
+const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notifications, clearNotifs }) => {
   return (
     <div className="absolute top-16 right-20 flex flex-col w-[20%] max-h-[400px] overflow-y-auto bg-white text-black p-4 rounded shadow-lg z-[99999]">
       <div className="flex justify-between items-center w-full mb-2">
@@ -33,24 +34,47 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notification
         >
           Close ✖
         </button>
+        <button
+          onClick={() => clearNotifs()}
+          className="text-sm text-blue-600"
+        >
+          Clear 
+        </button>
       </div>
 
       {notifications.length === 0 ? (
         <p className="text-gray-500 text-sm">No notifications yet</p>
       ) : (
+        // notifications.map((notif, i) => (
+        //   <div
+        //     key={i}
+        //     className="w-full p-3 mb-2 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200"
+        //   >
+        //     <p className="text-sm font-medium">New message</p>
+        //     <p className="text-gray-700 text-sm truncate">Message : {notif.data.text}</p>
+        //     <p className="text-gray-700 text-sm truncate">From : {notif.id_sender}</p>
+        //     <span className="text-xs text-gray-400">
+        //       {new Date(notif.timestamp).toLocaleTimeString()}
+        //     </span>
+        //   </div>
+        // ))
         notifications.map((notif, i) => (
-          <div
-            key={i}
-            className="w-full p-3 mb-2 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200"
-          >
-            <p className="text-sm font-medium">New message</p>
-            <p className="text-gray-700 text-sm truncate">Message : {notif.data.text}</p>
-            <p className="text-gray-700 text-sm truncate">From : {notif.id_sender}</p>
+          <div key={i} className="w-full p-3 mb-2 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200">
+            <p className="text-sm font-medium">
+              {notif.type === "friend_request" ? "friend_request_accepted" : "New message"}
+            </p>
+            <p className="text-gray-700 text-sm truncate">
+              Message : {notif.data?.text || notif.message || "No message"}
+            </p>
+            <p className="text-gray-700 text-sm truncate">
+              From : {notif.id_sender || notif.senderId}
+            </p>
             <span className="text-xs text-gray-400">
               {new Date(notif.timestamp).toLocaleTimeString()}
             </span>
           </div>
         ))
+        
       )}
     </div>
   );
@@ -82,48 +106,90 @@ const NavBar: React.FC = () => {
     }
   }, [currentUserRef.current]);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    const handleNotification = (notif: any) => {
-      const currentUserId = Number(currentUserRef.current);
-      const { senderId } = notif.messageData;
+  //   const handleNotification = (notif: any) => {
+  //     const currentUserId = Number(currentUserRef.current);
+  //     const { senderId } = notif.messageData;
       
-      console.log("Received notification:", notif);
+  //     console.log("Received notification:", notif);
 
-      if (senderId !== currentUserId) {
+  //     if (senderId !== currentUserId ) {
 
-        socket.emit("notification:insert", notif);
+  //       socket.emit("notification:insert", notif);
         
 
-        socket.emit("notification:get", currentUserId);
+  //       socket.emit("notification:get", currentUserId);
         
-
-        toast.success("New message received!", {
-          duration: 3000,
-          position: 'top-right',
-        });
-
-      }
-    };
+        
+  //       toast.success("New message received!", {
+  //         duration: 3000,
+  //         position: 'top-center',
+  //       });
+        
+  //     }
+  //   };
     
+  //   const handleNotificationList = (data: any[]) => {
+  //     console.log("Notifications list received:", data);
+  //     setNotifications(data);
+      
+  //     setUnreadCount((data.length));
+  //   };
+    
+    
+  //   socket.on("notification", handleNotification);
+  //   socket.on("notification:list", handleNotificationList);
+    
+  //   return () => {
+  //     socket.off("notification", handleNotification);
+  //     socket.off("notification:list", handleNotificationList);
+  //   };
+
+  // }, [currentUserRef.current]);
+
+  useEffect(() => {
+    const handleNotification = (notif: any) => {
+      console.log("Received notification:", notif);
+  
+      setNotifications(prev => [...prev, notif.messageData || notif]);
+      setUnreadCount(prev => prev + 1);
+  
+      toast.success("New notification!", {
+        duration: 3000,
+        position: 'top-center',
+      });
+    };
+  
     const handleNotificationList = (data: any[]) => {
       console.log("Notifications list received:", data);
       setNotifications(data);
-
-        setUnreadCount((data.length));
+      setUnreadCount(data.length);
     };
-
+  
     socket.on("notification", handleNotification);
     socket.on("notification:list", handleNotificationList);
-
+  
+    // récupérer les notifications au montage
+    if (currentUserRef.current) {
+      socket.emit("notification:get", Number(currentUserRef.current));
+    }
+  
     return () => {
       socket.off("notification", handleNotification);
       socket.off("notification:list", handleNotificationList);
     };
-
   }, [currentUserRef.current]);
   
-
+  
+  
+  const clearNotifs = () =>{
+    const currentUserId = Number(currentUserRef.current);
+    socket.emit("notificatio:clear", currentUserId);
+    setNotifications([]);  
+    setUnreadCount(0);  
+    // setShowNotifs(false)   
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -164,6 +230,8 @@ const NavBar: React.FC = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+
   
   return (
     <nav className="flex items-center justify-between text-white w-full h-14 px-4 max-lg:hidden mt-5 mb-4">
@@ -219,10 +287,11 @@ const NavBar: React.FC = () => {
         <HandleNotifs
           setShowNotifs={setShowNotifs}
           notifications={notifications}
+          clearNotifs={() => {clearNotifs();}}
         />
       )}
 
-      <Toaster position="top-right" />
+      <Toaster position="top-center" />
     </nav>
   );
 };

@@ -19,7 +19,7 @@ interface Message {
     blocked?: boolean;
 }
 
-const userSockets = new Map<number, string>(); 
+export const userSockets = new Map<number, string>(); 
 
 export default function handleChatEvents({ fastify, io, socket }: handleChatEventsProps) {
     const db = fastify.db;
@@ -135,7 +135,10 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
     );
   });
   
-
+socket.on("notificatio:clear", (userId:Number) => {
+  console.log("======> id : ", userId)
+  db.run('DELETE  FROM notification WHERE id_receiver = ?  ', [userId])
+})
 
     socket.on("chat:delete", ({ id, userId }: { id: number; userId: number }) => {
       console.log("id:=>", id)
@@ -169,8 +172,8 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
             (err, rows: Message[]) => {
                 if (err)
                   return;
-                console.log("Roows :")
-                console.log(rows)
+                // console.log("Roows :")
+                // console.log(rows)
                 socket.emit("chat:history", rows);
             }
         );

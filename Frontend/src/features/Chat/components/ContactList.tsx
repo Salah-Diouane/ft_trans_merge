@@ -36,6 +36,7 @@ const ContactList: FC<ContactListProps> = ({
   setSearchTerm,
   unreadCounts,
 }) => {
+  console.log("users in contact List : ", users)
   return (
     <div className="p-2 rounded-2xl w-[40%] h-full">
       <div className="h-full w-full bg-[#222831] rounded-xl custom-scroll overflow-y-auto">
@@ -59,8 +60,10 @@ const ContactList: FC<ContactListProps> = ({
             {users.length === 0 ? (
               <p className="text-gray-400 mt-4 text-center">No contacts found.</p>
             ) : (
-              users.map((user) => {
+              users.map((user, index) => {
+                // console.log("user.id, ", messages)
                 const userMessages = messages[user.id] || [];
+                // console.log("USER MESSAGE : ", userMessages)
                 const lastMessage = userMessages[userMessages.length - 1];
                 const hasUnread = unreadCounts[user.id];
                 const lastTime = lastMessage
@@ -75,7 +78,8 @@ const ContactList: FC<ContactListProps> = ({
 
                 return (
                   <div
-                    key={user.id}
+                  key={user.id ? `${user.id}-${user.username}` : `user-${index}`}
+                    // key={user.id}
                     onClick={() => setSelectedUser(user)}
                     className={`relative flex items-center justify-between rounded-xl p-4 h-16 my-2 cursor-pointer transition-all duration-100 ${isSelected ? "bg-[#2f3542] border-l-4  border-[#0077FF]" : "bg-[#222831] hover:bg-[#2f3542]"}`}
                   >
