@@ -25,12 +25,13 @@ const isActive = (path: string) =>
 
 
 const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notifications, clearNotifs }) => {
-  console.log("=====>notifs : ", notifications)
   function getType(notif:any) {
+
     // if (!notif || !notif.data)
     //   return "New message";
-  
-    switch (notif.data?.type) {
+    console.log("Notif Text : ", notif.text)
+    console.log("Notif Type : ", notif.type)
+    switch (notif.type) {
       case "friend_request":
         return "Friend Request";
       case "friend_request_accepted":
@@ -69,11 +70,6 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notification
           >
             <p className="text-sm font-medium">
               {
-                // notif.data?.type === "friend_request"
-                //   ? "Friend Request"
-                //   : notif.data?.type === "friend_request_accepted"
-                //   ? "Request Accepted"
-                //   : "New message"
                 getType(notif)
               }
             </p>
@@ -83,8 +79,7 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notification
             </p>
 
             <p className="text-gray-700 text-sm truncate">
-            {/* From: {notif.senderId || notif.sender || notif.data?.sender || "Unknown"} */}
-            From: {notif.sender || notif.data?.sender || "Unknown"}
+            From: {notif.sender || "Unknown"}
             </p>
 
             <span className="text-xs text-gray-400">
@@ -130,29 +125,14 @@ const NavBar: React.FC = () => {
 
     const handleNotification = (notif: any) => {
       console.log("Received notification:", notif);
-
+      socket.emit("notification:insert", notif)
       setNotifications(prev => [...prev, notif.messageData || notif]);
       setUnreadCount(prev => prev + 1);
-
-      // toast.success("New notification!", {
-      //   duration: 3000,
-      //   position: 'top-center',
-      // });
     };
 
-    // const handleNotificationList = (data: any[]) => {
-    //   console.log("Notifications list received:", data);
-    //   setNotifications(data);
-    //   // setUnreadCount(data.length);
-    //   setUnreadCount(0);
-    // };
     const handleNotificationList = (data: any[]) => {
       console.log("Notifications list received:", data);
-      const sorted = [...data].sort(
-        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
-      console.log("sorted notifs : ", sorted)
-      setNotifications(sorted);
+      setNotifications(data);
       setUnreadCount(0);
     };
     
@@ -169,8 +149,6 @@ const NavBar: React.FC = () => {
       socket.off("notification:list", handleNotificationList);
     };
   }, [currentUserRef.current]);
-
-
 
   const clearNotifs = () => {
     const currentUserId = Number(currentUserRef.current);

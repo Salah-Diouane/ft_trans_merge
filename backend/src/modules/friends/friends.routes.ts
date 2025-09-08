@@ -54,10 +54,18 @@ export const sendRequest: FastifyPluginCallback<SendRequestOptions> =  (fastify,
 		  };
   
 		  const data = JSON.stringify(notification);
-  
+		//   id INTEGER PRIMARY KEY AUTOINCREMENT,
+		//   id_sender INTEGER NOT NULL,
+		//   id_receiver INTEGER NOT NULL,
+		//   sender TEXT NOT NULL,
+		//   receiver TEXT NOT NULL,
+		//   type TEXT NOT NULL,
+		//   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 		  fastify.db.run(
-			"INSERT INTO notification (id_sender, id_receiver, data) VALUES (?, ?, ?)",
-			[decode.userid, id_receiver, data],
+			// "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type) VALUES (?, ?, ?, ?, ?)",
+			// [decode.userid, id_receiver, notification.sender, notification.receiver, notification.type],
+			"INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			[notification.senderId, notification.recipientId, notification.sender, notification.receiver, notification.type, notification.message, notification.timestamp],
 			(err: any) => {
 			  if (err) console.error("Notification insert error:", err);
 			}
@@ -100,29 +108,29 @@ export const acceptRequest:FastifyPluginCallback<AcceptRequestOptions> =  (fasti
 			const sender_name = await getNameById(fastify, decode.userid);
 			const received_name = await getNameById(fastify, id_receiver);
 			
-			const sender = sender_name[0];
-			const receiver = received_name[0];
+			const sender = sender_name[0].username;
+			const receiver = received_name[0].username;
 			
 			if (!sender || !receiver) {
 			  return reply.code(500).send({ message: "User data not found" });
 			}
 			console.log("SENDER : ", sender)
+			console.log("RECEIVER : ", receiver)
+
 			if (io) {
 				const notification = {
 				  type: "friend_request_accepted",
 				  senderId: decode.userid,  // who accepted
 				  recipientId: id_receiver, // sender
-				//   sender,
-				//   receiver,
+				  sender: sender,
+				  receiver: receiver,
 				  message: "Request Accepted",
 				  timestamp: new Date().toISOString(),
 				};
 			  
-
-				const data = JSON.stringify(notification);
 				fastify.db.run(
-				  "INSERT INTO notification (id_sender, id_receiver, data) VALUES (?, ?, ?)",
-				  [decode.userid, id_receiver, data]
+					"INSERT INTO notification (id_sender, id_receiver, sender, receiver, type) VALUES (?, ?, ?, ?, ?)",
+					[decode.userid, id_receiver, notification.sender, notification.receiver, notification.type],
 				);
 			  
 				const recipientSocketId = userSockets.get(id_receiver);

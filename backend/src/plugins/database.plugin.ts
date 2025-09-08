@@ -81,7 +81,7 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			sender TEXT NOT NULL,
 			receiver TEXT NOT NULL,
 			type TEXT NOT NULL,
-			data TEXT NOT NULL,
+			text TEXT NOT NULL,
 			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
 			FOREIGN KEY (id_receiver) REFERENCES user_authentication(id)
