@@ -107,7 +107,7 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
 				});
 
 				socket.emit("user:list", enrichedUsers);
-				console.log("============> enrichedUsers", enrichedUsers);
+				// console.log("============> enrichedUsers", enrichedUsers);
 
 				if (userData) {
 					db.all(
@@ -143,7 +143,7 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
 						online: onlineUsers.has(friend.id)
 					}));
 
-				console.log("all friends : ", enrichedFriends)
+				// console.log("all friends : ", enrichedFriends)
 				socket.emit("friends:list", enrichedFriends);
 			})
 	});

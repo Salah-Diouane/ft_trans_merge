@@ -14,15 +14,15 @@ export default function ProtectedRoute({ children }: Props) {
 	useEffect(() => {
 		const check = async () => {
 			try {
-					const response = await fetch("http://e3r1p1.1337.ma:3000/hello", {
+					const response = await fetch("http://e3r11p2.1337.ma:3000/hello", {
 						credentials: 'include',
 					}).then(res => res.json()) as { refreshtoken: boolean; accesstoken: boolean };
 					if (!response.accesstoken) {
-						const res = await fetch("http://e3r1p1.1337.ma:3000/login/refreshtoken", {
+						const res = await fetch("http://e3r11p2.1337.ma:3000/login/refreshtoken", {
 							credentials: 'include',
 						}).then(e => e.json()) as { refreshtoken: boolean };
 						if (!res.refreshtoken) {
-							await fetch("http://e3r1p1.1337.ma:3000/logout", {credentials: 'include'});
+							await fetch("http://e3r11p2.1337.ma:3000/logout", {credentials: 'include'});
 							navigate('/login/Signin');
 							return;
 						}
@@ -31,7 +31,7 @@ export default function ProtectedRoute({ children }: Props) {
 						await store.fetchUserInfo();
 					setIsAuthenticated(true);
 			} catch (err) {
-				await fetch("http://e3r1p1.1337.ma:3000/logout");
+				await fetch("http://e3r11p2.1337.ma:3000/logout");
 				navigate('/login/Signin');
 			}
 		};

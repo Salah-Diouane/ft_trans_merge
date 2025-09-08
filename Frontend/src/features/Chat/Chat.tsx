@@ -59,7 +59,7 @@ const ChatApp: FC = () => {
 
   
     // const myAllfriends = async () => {
-    //   const res = await fetch("http://e3r1p1.1337.ma:3000/friends/allfriends", { 
+    //   const res = await fetch("http://e3r11p2.1337.ma:3000/friends/allfriends", { 
     //     credentials: "include" 
     //   });
     //   const data = await res.json();

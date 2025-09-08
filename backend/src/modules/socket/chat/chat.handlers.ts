@@ -76,7 +76,7 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
 
                         if (senderSocketId) {
                           io.to(senderSocketId).emit("chat:message", messageData);
-                          io.to(senderSocketId).emit("notification", {messageData});
+                          // io.to(senderSocketId).emit("notification", {messageData});
                         }
                         if (recipientSocketId) {
                           io.to(recipientSocketId).emit("chat:message", messageData);
@@ -129,14 +129,14 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
           ...row,
           data: JSON.parse(row.data),
         }));
-        console.log("parseRows : ", parsedRows)
+        // console.log("parseRows : ", parsedRows)
         socket.emit("notification:list", parsedRows);
       }
     );
   });
   
 socket.on("notificatio:clear", (userId:Number) => {
-  console.log("======> id : ", userId)
+  // console.log("======> id : ", userId)
   db.run('DELETE  FROM notification WHERE id_receiver = ?  ', [userId])
 })
 
@@ -187,3 +187,47 @@ socket.on("notificatio:clear", (userId:Number) => {
         db.run("DELETE FROM blocked_users WHERE blocker = ? AND blocked = ?", [blockerId, blockedId]);
     });
 }
+
+
+
+// useEffect(() => {
+
+//   const handleNotification = (notif: any) => {
+//     const currentUserId = Number(currentUserRef.current);
+//     const { senderId } = notif.messageData;
+    
+//     console.log("Received notification:", notif);
+
+//     if (senderId !== currentUserId ) {
+
+//       socket.emit("notification:insert", notif);
+      
+
+//       socket.emit("notification:get", currentUserId);
+      
+      
+//       toast.success("New message received!", {
+//         duration: 3000,
+//         position: 'top-center',
+//       });
+      
+//     }
+//   };
+  
+//   const handleNotificationList = (data: any[]) => {
+//     console.log("Notifications list received:", data);
+//     setNotifications(data);
+    
+//     setUnreadCount((data.length));
+//   };
+  
+  
+//   socket.on("notification", handleNotification);
+//   socket.on("notification:list", handleNotificationList);
+  
+//   return () => {
+//     socket.off("notification", handleNotification);
+//     socket.off("notification:list", handleNotificationList);
+//   };
+
+// }, [currentUserRef.current]);

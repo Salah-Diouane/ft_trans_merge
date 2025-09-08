@@ -64,6 +64,27 @@ export function getSentFriendReqUsernames(fastify: FastifyInstance, id_sender: n
 	});
 }
 
+export function getNameById(fastify: FastifyInstance, id: number): Promise<User[]> {
+	return new Promise((resolve, reject) => {
+	  fastify.db.all(
+		`
+		SELECT username, first_name, family_name, image_url
+		FROM user_authentication
+		WHERE id = ?
+		`,
+		[id],
+		(err: Error | null, rows: User[]) => {
+		  if (err) {
+			reject(err);
+			return;
+		  }
+		  resolve(rows);
+		}
+	  );
+	});
+  }
+  
+
 export function getReceivedFriendRequests(fastify: FastifyInstance, id_receiver: number): Promise<User[]> {
 	return new Promise((resolve, reject) => {
 		fastify.db.all(

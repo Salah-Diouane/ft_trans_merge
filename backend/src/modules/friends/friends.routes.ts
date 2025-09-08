@@ -1,7 +1,7 @@
 import fastify, { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify';
 import { friend_request, delete_req } from './friends.schema'
 import { getuserid, } from '../../utils/userauth.utils';
-import { addNewFriendReq, setFriendReq, getFriends, getSentFriendReqUsernames, getReceivedFriendRequests, deleteFriendReq, getBlockUser, unblockUser_utils } from '../../utils/friends.utils';
+import { addNewFriendReq, setFriendReq, getFriends, getSentFriendReqUsernames, getReceivedFriendRequests, deleteFriendReq, getBlockUser, unblockUser_utils, getNameById } from '../../utils/friends.utils';
 import { Server as IOServer } from "socket.io";
 import { userSockets } from "../socket/chat/chat.handlers"
 
@@ -30,13 +30,26 @@ export const sendRequest: FastifyPluginCallback<SendRequestOptions> =  (fastify,
 		if (id_receiver === null) return reply.code(400).send({ message: "Receiver not found" });
   
 		await addNewFriendReq(fastify, decode.userid, id_receiver);
-  
+		const sender_name = await getNameById(fastify, decode.userid);
+		const received_name = await getNameById(fastify, id_receiver);
+		
+		const sender = sender_name[0].username;
+		const receiver = received_name[0].username;
+		
+		if (!sender || !receiver) {
+		  return reply.code(500).send({ message: "User data not found" });
+		}
+		
+		console.log("sender_name-> ", sender)
+		console.log("received_name-> ", receiver)
 		if (io) {
 		  const notification = {
 			type: "friend_request",
 			senderId: decode.userid,
 			recipientId: id_receiver,
-			message: "sent you a friend request",
+			sender, 
+			receiver,
+			message: "Friend Request",
 			timestamp: new Date().toISOString(),
 		  };
   
@@ -84,13 +97,24 @@ export const acceptRequest:FastifyPluginCallback<AcceptRequestOptions> =  (fasti
 			if (id_receiver === null)
 				return reply.code(400).send({ message: "Username of the receiver not found!" });
 			await setFriendReq(fastify, id_receiver, decode.userid, true);
-
+			const sender_name = await getNameById(fastify, decode.userid);
+			const received_name = await getNameById(fastify, id_receiver);
+			
+			const sender = sender_name[0];
+			const receiver = received_name[0];
+			
+			if (!sender || !receiver) {
+			  return reply.code(500).send({ message: "User data not found" });
+			}
+			console.log("SENDER : ", sender)
 			if (io) {
 				const notification = {
 				  type: "friend_request_accepted",
 				  senderId: decode.userid,  // who accepted
 				  recipientId: id_receiver, // sender
-				  message: "accepted your friend request",
+				//   sender,
+				//   receiver,
+				  message: "Request Accepted",
 				  timestamp: new Date().toISOString(),
 				};
 			  
