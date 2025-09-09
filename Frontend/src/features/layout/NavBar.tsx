@@ -6,10 +6,8 @@ import HandleSearch from "./handleSearch";
 import { useUsers } from "./useUsers";
 import { User } from "../Chat/types/User";
 import socket from "../Chat/services/socket";
-
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-
 
 interface HandleNotifsProps {
   setShowNotifs: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,13 +20,79 @@ const isActive = (path: string) =>
     ? "bg-[#0077FF] rounded-full size-10 flex items-center justify-center p-2"
     : "";
 
+// const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notifications, clearNotifs }) => {
+//   function getType(notif:any) {
+
+//     // if (!notif || !notif.data)
+//     //   return "New message";
+//     console.log("Notif Text : ", notif.text)
+//     console.log("Notif Type : ", notif.type)
+//     switch (notif.type) {
+//       case "friend_request":
+//         return "Friend Request";
+//       case "friend_request_accepted":
+//         return "Request Accepted";
+//       default:
+//         return "New message";
+//     }
+//   }
+  
+//   return (
+//     <div className="absolute top-16 right-20 flex flex-col w-[20%] max-h-[400px] overflow-y-auto bg-white text-black p-4 rounded shadow-lg z-[99999]">
+//       <div className="flex justify-between items-center w-full mb-2">
+//         <h2 className="text-lg font-semibold">Notifications</h2>
+//         <button
+//           onClick={() => setShowNotifs(false)}
+//           className="text-sm text-blue-600"
+//         >
+//           Close ✖
+//         </button>
+//         <button
+//           onClick={() => clearNotifs()}
+//           className="text-sm text-blue-600"
+//         >
+//           Clear
+//         </button>
+//       </div>
+
+//       {notifications.length === 0 ? (
+//         <p className="text-gray-500 text-sm">No notifications yet</p>
+//       ) : (
+
+//         notifications.map((notif, i) => (
+//           <div
+//           key={i}
+//           className="w-full p-3 mb-2 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200"
+//           >
+//             <p className="text-sm font-medium">
+//               {
+//                 getType(notif)
+//               }
+//             </p>
+
+//             <p className="text-gray-700 text-sm truncate">
+//               Data : {notif.text || notif.message || "No message"}
+//             </p>
+
+//             <p className="text-gray-700 text-sm truncate">
+//             From: {notif.sender || "Unknown"}
+//             </p>
+
+//             <span className="text-xs text-gray-400">
+//               {new Date(notif.timestamp).toLocaleTimeString()}
+//             </span>
+//           </div>
+//         ))
+
+
+//       )}
+//     </div>
+//   );
+// };
 
 
 const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notifications, clearNotifs }) => {
   function getType(notif:any) {
-
-    // if (!notif || !notif.data)
-    //   return "New message";
     console.log("Notif Text : ", notif.text)
     console.log("Notif Type : ", notif.type)
     switch (notif.type) {
@@ -40,60 +104,117 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notification
         return "New message";
     }
   }
+
+  function getNotificationColor(type: string) {
+    switch (type) {
+      case "friend_request":
+        return "border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50 to-blue-25";
+      case "friend_request_accepted":
+        return "border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-green-25";
+      case "New message":
+        return "border-l-4 border-l-purple-500 bg-gradient-to-r from-purple-50 to-purple-25";
+      default:
+        return "border-l-4 border-l-gray-400 bg-gradient-to-r from-gray-50 to-gray-25";
+    }
+  }
+
+  function formatTime(timestamp: string) {
+    const now = new Date();
+    const notifTime = new Date(timestamp);
+    const diffInMs = now.getTime() - notifTime.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    return notifTime.toLocaleDateString();
+  }
   
   return (
-    <div className="absolute top-16 right-20 flex flex-col w-[20%] max-h-[400px] overflow-y-auto bg-white text-black p-4 rounded shadow-lg z-[99999]">
-      <div className="flex justify-between items-center w-full mb-2">
-        <h2 className="text-lg font-semibold">Notifications</h2>
-        <button
-          onClick={() => setShowNotifs(false)}
-          className="text-sm text-blue-600"
-        >
-          Close ✖
-        </button>
-        <button
-          onClick={() => clearNotifs()}
-          className="text-sm text-blue-600"
-        >
-          Clear
-        </button>
+    <div className="absolute top-16 right-4 flex flex-col w-[380px] max-h-[500px] bg-white text-black rounded-2xl shadow-2xl border border-gray-200 z-[99999] overflow-hidden">
+      {/* Header */}
+      <div className="flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+        <div>
+          <h2 className="text-xl font-bold text-gray-800">Notifications</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {(notifications?.length || 0)} {(notifications?.length || 0) === 1 ? 'notification' : 'notifications'}
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => clearNotifs()}
+            className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+          >
+            Clear All
+          </button>
+          <button
+            onClick={() => setShowNotifs(false)}
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+          >
+            ✖
+          </button>
+        </div>
       </div>
 
-      {notifications.length === 0 ? (
-        <p className="text-gray-500 text-sm">No notifications yet</p>
-      ) : (
-
-        notifications.map((notif, i) => (
-          <div
-          key={i}
-          className="w-full p-3 mb-2 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200"
-          >
-            <p className="text-sm font-medium">
-              {
-                getType(notif)
-              }
-            </p>
-
-            <p className="text-gray-700 text-sm truncate">
-              {notif.text}
-            </p>
-
-            <p className="text-gray-700 text-sm truncate">
-            From: {notif.sender || "Unknown"}
-            </p>
-
-            <span className="text-xs text-gray-400">
-              {new Date(notif.timestamp).toLocaleTimeString()}
-            </span>
+      {/* Notifications List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {(notifications?.length || 0) === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <span className="text-2xl">🔔</span>
+            </div>
+            <h3 className="text-lg font-medium text-gray-600 mb-2">All caught up!</h3>
+            <p className="text-gray-500 text-sm">No new notifications right now.</p>
           </div>
-        ))
-
-
-      )}
+        ) : (
+          (notifications || []).map((notif, i) => (
+            <div
+              key={i}
+              className={`p-4 rounded-xl ${getNotificationColor(notif.type)} 
+                hover:shadow-md transition-all duration-300 cursor-pointer group
+                transform hover:-translate-y-0.5`}
+            >
+              <div className="flex items-start justify-between mb-2">
+                <h4 className="text-sm font-bold text-gray-800">
+                  {getType(notif)}
+                </h4>
+                <span className="text-xs text-gray-500 font-medium">
+                  {formatTime(notif.timestamp)}
+                </span>
+              </div>
+              
+              <p className="text-sm text-gray-700 mb-3 leading-relaxed">
+                {notif.text || notif.message || "No message"}
+              </p>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-white">
+                    {(notif.sender || "U")[0].toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-800">
+                    {notif.sender || "Unknown"}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {notif.type === "New message" ? "Sent you a message" : 
+                     notif.type === "friend_request" ? "Wants to be friends" : 
+                     "Accepted your request"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
-
 
 const NavBar: React.FC = () => {
   const [showSearch, setShowSearch] = useState(false);
@@ -125,8 +246,8 @@ const NavBar: React.FC = () => {
 
     const handleNotification = (notif: any) => {
       console.log("Received notification:", notif);
-      socket.emit("notification:insert", notif)
-      setNotifications(prev => [...prev, notif.messageData || notif]);
+      // setNotifications(prev => [...prev, notif.messageData || notif]);
+      setNotifications(prev => [notif.messageData || notif, ...prev]);
       setUnreadCount(prev => prev + 1);
     };
 

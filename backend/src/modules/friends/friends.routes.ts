@@ -128,11 +128,16 @@ export const acceptRequest:FastifyPluginCallback<AcceptRequestOptions> =  (fasti
 				  timestamp: new Date().toISOString(),
 				};
 			  
-				fastify.db.run(
-					"INSERT INTO notification (id_sender, id_receiver, sender, receiver, type) VALUES (?, ?, ?, ?, ?)",
-					[decode.userid, id_receiver, notification.sender, notification.receiver, notification.type],
-				);
+				// fastify.db.run(
+				// 	"INSERT INTO notification (id_sender, id_receiver, sender, receiver, type) VALUES (?, ?, ?, ?, ?)",
+				// 	[decode.userid, id_receiver, notification.sender, notification.receiver, notification.type],
+				// );
 			  
+				fastify.db.run(
+					"INSERT INTO notification (id_sender, id_receiver, sender, receiver, type , text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
+					[decode.userid, id_receiver, notification.sender, notification.receiver, notification.type, notification.message, notification.timestamp],
+				);
+				
 				const recipientSocketId = userSockets.get(id_receiver);
 				if (recipientSocketId) io.to(recipientSocketId).emit("notification", notification);
 			  }

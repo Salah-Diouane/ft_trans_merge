@@ -59,12 +59,76 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
     }
   });
 
+  // socket.on("chat:message", (data: Message) => {
+  //   const { senderId, recipientId, text } = data;
+
+  //   if (!senderId || !recipientId || !text)
+  //     return;
+
+  //   db.get(
+  //     "SELECT 1 FROM blocked_users WHERE (blocker = ? AND blocked = ?) OR (blocker = ? AND blocked = ?)",
+  //     [senderId, recipientId, recipientId, senderId],
+  //     (err, row) => {
+  //       if (err || row) {
+  //         console.log("row : ", row)
+  //         return;
+  //       }
+  //       console.log("before inserting : ", senderId, recipientId, text, new Date().toISOString())
+  //       db.run(
+  //         "INSERT INTO messages (id_sender, id_recipient, text, timestamp) VALUES (?, ?, ?, ?)",
+  //         [senderId, recipientId, text, new Date().toISOString()],
+  //         async function (err) {   //  this async
+  //           if (err) return;
+
+  //           const messageData: Message = {
+  //             id: this.lastID,
+  //             senderId,
+  //             recipientId,
+  //             text,
+  //             timestamp: new Date().toISOString(),
+  //           };
+
+
+  //           const senderRow: any = await getNameById(fastify, senderId);
+  //           const receiverRow: any = await getNameById(fastify, recipientId);
+
+  //           const sender = senderRow?.username;
+  //           const receiver = receiverRow?.username;
+
+  //           const notification = {
+  //             type: "New message",
+  //             senderId,
+  //             recipientId,
+  //             sender,
+  //             receiver,
+  //             message: text,
+  //             timestamp: new Date().toISOString(),
+  //           };
+
+  //           const senderSocketId = userSockets.get(senderId);
+  //           const recipientSocketId = userSockets.get(recipientId);
+
+  //           if (senderSocketId) {
+  //             io.to(senderSocketId).emit("chat:message", messageData);
+  //           }
+  //           if (recipientSocketId) {
+  //             io.to(recipientSocketId).emit("chat:message", messageData);
+  //             io.to(recipientSocketId).emit("notification", notification);
+  //           }
+  //         }
+  //       );
+
+  //     }
+  //   );
+
+  // });
+
   socket.on("chat:message", (data: Message) => {
     const { senderId, recipientId, text } = data;
-
+  
     if (!senderId || !recipientId || !text)
       return;
-
+  
     db.get(
       "SELECT 1 FROM blocked_users WHERE (blocker = ? AND blocked = ?) OR (blocker = ? AND blocked = ?)",
       [senderId, recipientId, recipientId, senderId],
@@ -77,9 +141,9 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
         db.run(
           "INSERT INTO messages (id_sender, id_recipient, text, timestamp) VALUES (?, ?, ?, ?)",
           [senderId, recipientId, text, new Date().toISOString()],
-          async function (err) {   //  this async
+          async function (err) {
             if (err) return;
-
+  
             const messageData: Message = {
               id: this.lastID,
               senderId,
@@ -87,14 +151,13 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
               text,
               timestamp: new Date().toISOString(),
             };
-
-
+  
             const senderRow: any = await getNameById(fastify, senderId);
             const receiverRow: any = await getNameById(fastify, recipientId);
-
+  
             const sender = senderRow?.username;
             const receiver = receiverRow?.username;
-
+  
             const notification = {
               type: "New message",
               senderId,
@@ -105,9 +168,21 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
               timestamp: new Date().toISOString(),
             };
 
+            db.run(
+              "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
+              [notification.senderId, notification.recipientId, notification.sender, notification.receiver, notification.type, notification.message, notification.timestamp],
+              (err) => {
+                if (err) {
+                  console.error("Error inserting message notification:", err.message);
+                  return;
+                }
+                console.log(" Message notification inserted successfully");
+              }
+            );
+  
             const senderSocketId = userSockets.get(senderId);
             const recipientSocketId = userSockets.get(recipientId);
-
+  
             if (senderSocketId) {
               io.to(senderSocketId).emit("chat:message", messageData);
             }
@@ -117,10 +192,8 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
             }
           }
         );
-
       }
     );
-
   });
 
 
@@ -153,18 +226,6 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
       }
     );
 
-    // db.run(
-    //   "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    //   [notif.senderId, notif.recipientId, notif.sender, notif.receiver, notif.type,  notif.message , notif.timestamp],
-    //   (err) => {
-    //     if (err) {
-    //       console.log("Err inserting notification:", err.message)
-    //       return;
-    //     }
-
-    //     console.log(" Notification inserted successsfully");
-    //   }
-    // );
   });
 
 
@@ -185,7 +246,7 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
     );
   });
 
-  socket.on("notificatio:clear", (userId: Number) => {
+  socket.on("notification:clear", (userId: Number) => {
     // console.log("======> id : ", userId)
     db.run('DELETE  FROM notification WHERE id_receiver = ?  ', [userId])
   })
