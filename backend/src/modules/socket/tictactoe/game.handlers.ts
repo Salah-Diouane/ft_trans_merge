@@ -1,9 +1,8 @@
-import { ExtendedError, Socket } from "socket.io";
+
+
 import { FastifyInstance } from "fastify";
-import { IncomingMessage } from "http";
-import { parse as parseCookie } from "cookie";
 import { Server as IOServer } from "socket.io";
-import {AuthenticatedSocket} from "../pong/interfaces"
+import { AuthenticatedSocket } from "../pong/interfaces";
 
 interface handleGameEventsProps {
   fastify: FastifyInstance;
@@ -61,16 +60,30 @@ function createGameSession(gameId: string): GameSession {
   };
 }
 
-function resetGameState(session: GameSession) {
-  session.gameState.squares = Array(9).fill(null);
-  session.gameState.xIsNext = true;
-  session.gameState.playerX = "";
-  session.gameState.playerO = "";
-  session.gameState.players = [];
-  session.gameState.gameEnded = false;
+function cleanupGameSession(gameId: string) {
+  const session = gameSessions.get(gameId);
+  if (session) {
+    session.moveTimers.forEach(timer => clearTimeout(timer));
+    session.playersInRoom.forEach((_, socketId) => {
+      playerToGameMap.delete(socketId);
+      waitingPlayers.delete(socketId);
+    });
+    gameSessions.delete(gameId);
+  }
+}
 
+function endGame(io: IOServer, session: GameSession, reason: "win" | "draw" | "timeout" | "disconnect", winner: string | null, loser: string | null) {
+  session.gameState.gameEnded = true;
   session.moveTimers.forEach(timer => clearTimeout(timer));
   session.moveTimers.clear();
+
+  io.to(session.gameState.gameId).emit("game:end", {
+    winner,
+    loser,
+    reason,
+  });
+
+  cleanupGameSession(session.gameState.gameId);
 }
 
 function startTurnTimer(io: IOServer, session: GameSession, currentPlayer: string) {
@@ -81,35 +94,19 @@ function startTurnTimer(io: IOServer, session: GameSession, currentPlayer: strin
 
   const timeout = setTimeout(() => {
     if (session.gameState.gameEnded) return;
-    
-    const loser = currentPlayer;
-    const winner = loser === session.gameState.playerX ? session.gameState.playerO : session.gameState.playerX;
 
-    session.gameState.gameEnded = true;
-    
-    io.to(session.gameState.gameId).emit("game:timeout", { loser, winner });
-    cleanupGameSession(session.gameState.gameId);
+    const loser = currentPlayer;
+    const winner = loser === session.gameState.playerX
+      ? session.gameState.playerO
+      : session.gameState.playerX;
+
+    endGame(io, session, "timeout", winner, loser);
   }, 10000);
 
   session.moveTimers.set(currentPlayer, timeout);
 }
 
-function cleanupGameSession(gameId: string) {
-  const session = gameSessions.get(gameId);
-  if (session) {
-    session.moveTimers.forEach(timer => clearTimeout(timer));
-
-    session.playersInRoom.forEach((username, socketId) => {
-      playerToGameMap.delete(socketId);
-      waitingPlayers.delete(socketId);
-    });
-
-    gameSessions.delete(gameId);
-  }
-}
-
 function findOrCreateGame(socketId: string, username: string): string {
-
   const existingGameId = playerToGameMap.get(socketId);
   if (existingGameId && gameSessions.has(existingGameId)) {
     return existingGameId;
@@ -124,7 +121,6 @@ function findOrCreateGame(socketId: string, username: string): string {
     }
   }
 
-
   const gameId = `game_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   gameSessions.set(gameId, createGameSession(gameId));
   return gameId;
@@ -137,12 +133,9 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     if (!userData?.username) return;
 
     waitingPlayers.delete(socket.id);
-
     const gameId = findOrCreateGame(socket.id, userData.username);
     const session = gameSessions.get(gameId);
-    
-    if (!session)
-      return;
+    if (!session) return;
 
     const existingUsernames = Array.from(session.playersInRoom.values());
     if (existingUsernames.includes(userData.username)) {
@@ -154,10 +147,7 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     session.playersInRoom.set(socket.id, userData.username);
     playerToGameMap.set(socket.id, gameId);
 
-    const numPlayers = session.playersInRoom.size;
-
-    if (numPlayers === 2) {
-
+    if (session.playersInRoom.size === 2) {
       const players = Array.from(session.playersInRoom.values());
       session.gameState.playerX = players[0];
       session.gameState.playerO = players[1];
@@ -173,7 +163,6 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
 
       startTurnTimer(io, session, session.gameState.playerX);
     } else {
-
       waitingPlayers.add(socket.id);
       socket.emit("game:waiting");
     }
@@ -197,9 +186,9 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
 
     const isPlayerX = player === session.gameState.playerX;
     const isPlayersTurn = (isPlayerX && session.gameState.xIsNext) || (!isPlayerX && !session.gameState.xIsNext);
-
     if (!isPlayersTurn) return;
-    if (calculateWinner(session.gameState.squares)) return;
+    if (calculateWinner(session.gameState.squares))
+      return;
 
     session.gameState.squares[index] = isPlayerX ? "X" : "O";
     session.gameState.xIsNext = !session.gameState.xIsNext;
@@ -211,11 +200,18 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
 
     const winner = calculateWinner(session.gameState.squares);
     const isDraw = session.gameState.squares.every(sq => sq !== null);
-    
+
     if (winner || isDraw) {
-      session.gameState.gameEnded = true;
-      session.moveTimers.forEach(timer => clearTimeout(timer));
-      session.moveTimers.clear();
+
+      if (winner) {
+        // the winner and loser 
+        const winnerName = winner === "X" ? session.gameState.playerX : session.gameState.playerO;
+        const loserName = winner === "X" ? session.gameState.playerO : session.gameState.playerX;
+        endGame(io, session, "win", winnerName, loserName);
+
+      } else if (isDraw) {
+        endGame(io, session, "draw", null, null);
+      }
       return;
     }
 
@@ -237,16 +233,12 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     session.gameState.xIsNext = true;
     session.gameState.gameEnded = false;
 
-    io.to(gameId).emit("game:restart");
+    io.to(gameId).emit("game:restart", {
+      playerX: session.gameState.playerX,
+      playerO: session.gameState.playerO,
+    });
+
     startTurnTimer(io, session, session.gameState.playerX);
-  });
-
-  socket.on("game:draw", () => {
-    const gameId = playerToGameMap.get(socket.id);
-    if (!gameId) return;
-
-    cleanupGameSession(gameId);
-    socket.leave(gameId);
   });
 
   socket.on("leave:game", () => {
@@ -256,37 +248,16 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     const session = gameSessions.get(gameId);
     if (!session || !session.playersInRoom.has(socket.id)) return;
 
-    const username = session.playersInRoom.get(socket.id);
+    const username = session.playersInRoom.get(socket.id)!;
     session.playersInRoom.delete(socket.id);
     playerToGameMap.delete(socket.id);
     waitingPlayers.delete(socket.id);
     socket.leave(gameId);
 
-    session.moveTimers.forEach((timer, player) => {
-      if (player === username) {
-        clearTimeout(timer);
-        session.moveTimers.delete(player);
-      }
-    });
-
     if (session.playersInRoom.size === 1) {
       const [remainingSocketId] = session.playersInRoom.keys();
-      const remainingUsername = session.playersInRoom.get(remainingSocketId);
-      
-      io.to(remainingSocketId).emit("game:win-by-disconnect", {
-        winner: remainingUsername,
-        message: `You win! ${username} left the game.`,
-      });
-
-      const remainingSocket = io.sockets.sockets.get(remainingSocketId);
-      if (remainingSocket) {
-        remainingSocket.leave(gameId);
-        playerToGameMap.delete(remainingSocketId);
-        waitingPlayers.delete(remainingSocketId);
-      }
-      
-      cleanupGameSession(gameId);
-
+      const remainingUsername = session.playersInRoom.get(remainingSocketId)!;
+      endGame(io, session, "disconnect", remainingUsername, username);
     } else if (session.playersInRoom.size === 0) {
       cleanupGameSession(gameId);
     }
@@ -294,48 +265,25 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
 
   socket.on("disconnect", () => {
     console.log("Player disconnected:", socket.id);
-    
+
     const gameId = playerToGameMap.get(socket.id);
     if (!gameId) return;
 
     const session = gameSessions.get(gameId);
     if (!session || !session.playersInRoom.has(socket.id)) return;
 
-    const username = session.playersInRoom.get(socket.id);
+    const username = session.playersInRoom.get(socket.id)!;
     session.playersInRoom.delete(socket.id);
     playerToGameMap.delete(socket.id);
     waitingPlayers.delete(socket.id);
     socket.leave(gameId);
 
-    session.moveTimers.forEach((timer, player) => {
-      if (player === username) {
-        clearTimeout(timer);
-        session.moveTimers.delete(player);
-      }
-    });
-
     if (session.playersInRoom.size === 1) {
-
       const [remainingSocketId] = session.playersInRoom.keys();
-      const remainingUsername = session.playersInRoom.get(remainingSocketId);
-      
-      io.to(remainingSocketId).emit("game:win-by-disconnect", {
-        winner: remainingUsername,
-        message: `You win! ${username} disconnected.`,
-      });
-
-      const remainingSocket = io.sockets.sockets.get(remainingSocketId);
-      if (remainingSocket) {
-        remainingSocket.leave(gameId);
-        playerToGameMap.delete(remainingSocketId);
-        waitingPlayers.delete(remainingSocketId);
-      }
-      
-      cleanupGameSession(gameId);
+      const remainingUsername = session.playersInRoom.get(remainingSocketId)!;
+      endGame(io, session, "disconnect", remainingUsername, username);
     } else if (session.playersInRoom.size === 0) {
-
       cleanupGameSession(gameId);
-
     }
   });
 }

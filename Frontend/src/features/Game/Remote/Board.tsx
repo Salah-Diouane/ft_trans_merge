@@ -1,29 +1,9 @@
+
+
+
 import { useEffect, useState } from "react";
-import Square from "./Square"
-import  triggerFireworks  from "./confetti"
+import Square from "./Square";
 import socket from "../../Chat/services/socket";
-import { p } from "react-router/dist/development/index-react-server-client-Bi_fx8qz";
-
-
-function calculateWinner(squares: (string | null)[]) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
-}
 
 type BoardProps = {
   xIsNext: boolean;
@@ -38,6 +18,12 @@ type BoardProps = {
   mySymbol: "X" | "O" | null;
 };
 
+type GameResult = {
+  winner: string | null;
+  loser: string | null;
+  reason: "win" | "draw" | "timeout" | "disconnect";
+};
+
 export default function Board({
   xIsNext,
   squares,
@@ -50,88 +36,73 @@ export default function Board({
   currentUser,
   mySymbol,
 }: BoardProps) {
-  const isMyTurn =
-    mySymbol && ((xIsNext && mySymbol === "X") || (!xIsNext && mySymbol === "O"));
+
+  const [gameResult, setGameResult] = useState<GameResult | null>(null);
+
+  const isMyTurn = mySymbol && ((xIsNext && mySymbol === "X") || (!xIsNext && mySymbol === "O"));
 
   function handleClick(i: number) {
-    if (!gameStarted || calculateWinner(squares) || squares[i] || !isMyTurn)
-      return;
+    if (!gameStarted || squares[i] || !isMyTurn || gameResult) return;
     onPlay(i);
   }
+  // io.to(session.gameState.gameId).emit("game:end", {
+  //   winner,
+  //   loser,
+  //   reason,
+  // });
 
-  const winner = calculateWinner(squares);
-  const isBoardFull = squares.every((square) => square !== null);
-  const gameOver = winner || isBoardFull;
+  useEffect(() => {
 
-  const [confettiTriggered, setConfettiTriggered] = useState(false);
+    socket.on("game:end", (data: GameResult) => {
+      setGameResult(data);
+      // winner and loser and reason
+    });
 
-  // function handleLeftGame(){
-  //   triggerFireworks();
-  //   <div className="flex gap-4">
-  //     <button
-  //       onClick={raplayGame}
-  //       className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
-  //     >
-  //       Play Again
-  //     </button>
-  //     <button
-  //       onClick={playagain}
-  //       className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
-  //     >
-  //       New Game
-  //     </button>
-  //   </div>
-  //   // raplayGame();
-  // }
-  
-  // useEffect(() => {
-  //   // if (winner && !confettiTriggered) {
-  //   //   triggerFireworks();
-  //   //   setConfettiTriggered(true);
-  //   // } else if (!winner) {
-  //   //   setConfettiTriggered(false);
-  //   // }
+    socket.on("game:restart", () => {
+      setGameResult(null);
+    });
 
-  // }, [winner, confettiTriggered]);
-
+    return () => {
+      socket.off("game:end");
+      socket.off("game:restart");
+    };
+  }, []);
+  console.log("")
   let boardAnimation = "";
   let statusAnimation = "";
 
-  if (winner) {
+  if (gameResult) {
     boardAnimation = "animate-pulse";
     statusAnimation = "animate-bounce";
-  } else if (isBoardFull) {
-    boardAnimation = "animate-pulse";
-    statusAnimation = "animate-pulse";
   }
 
   let status;
-  const winnerName = winner === "X" ? playerXName : playerOName;
-  // if (winner && currentUser !== winnerName) {
-  if (winner ) {
-
-    const currentPlayerName = xIsNext ? playerXName : playerOName;
-    const isCurrentPlayerMe = currentPlayerName === currentUser;
-
-    console.log("-->currentPlayerName")
-    console.log(currentPlayerName)
-    console.log("-->currentUser")
-    console.log(currentUser)
-    
-    status = currentUser !== winnerName && ( 
-        <div className={`text-center `}>
-          {/* <p className="text-[#00FF7F] font-bold text-2xl mb-2">Winner !!</p> */}
-          <p className="text-[#00FF7F] font-bold text-2xl mb-2">
-            {winnerName} ({winner}) wins!
-          </p>
-        </div>
-    );
-  } else if (isBoardFull ) {
-    status = (
-      <div className={`text-center ${statusAnimation}`}>
-        <p className="text-yellow-400 text-xl font-bold"> It's a draw!</p>
-      </div>
-    );
+  if (gameResult) {
+    if (gameResult.reason === "win") {
+      status = (
+        <p className="text-green-400 text-2xl font-bold text-center">
+          {gameResult.winner} wins! 🎉
+        </p>
+      );
+    } else if (gameResult.reason === "draw") {
+      status = (
+        <p className="text-yellow-400 text-2xl font-bold text-center">
+          It's a draw!
+        </p>
+      );
+    } else if (gameResult.reason === "timeout") {
+      status = (
+        <p className="text-red-400 text-2xl font-bold text-center">
+          {gameResult.loser} ran out of time ⏳ — {gameResult.winner} wins!
+        </p>
+      );
+    } else if (gameResult.reason === "disconnect") {
+      status = (
+        <p className="text-red-400 text-2xl font-bold text-center">
+          {gameResult.loser} left — {gameResult.winner} wins!
+        </p>
+      );
+    }
   } else if (gameStarted) {
     const currentPlayerName = xIsNext ? playerXName : playerOName;
     const isCurrentPlayerMe = currentPlayerName === currentUser;
@@ -149,14 +120,13 @@ export default function Board({
       </p>
     );
   }
-
+console.log("gameResult-------> : ",gameResult)
   return (
     <div className="flex flex-col items-center">
-      {/* <h1 className="text-5xl font-extrabold text-white mb-6">Tic Tac Toe</h1> */}
       <div className="mb-4">{status}</div>
       <div
         className={`bg-[#222831] p-6 rounded-2xl grid grid-cols-3 gap-4 w-72 sm:w-96 ${boardAnimation} ${
-          gameOver ? "scale-105 shadow-lg" : ""
+          gameResult ? "scale-105 shadow-lg" : ""
         }`}
       >
         {squares.map((square, i) => (
@@ -164,7 +134,7 @@ export default function Board({
             key={i}
             value={square}
             onSquareClick={() => handleClick(i)}
-            disabled={!isMyTurn || !!gameOver}
+            disabled={!isMyTurn || !!gameResult}
           />
         ))}
       </div>
