@@ -13,9 +13,12 @@ export default function Choose({ onChoose }: ChooseProps) {
       socket.emit('request:init');
       socket.emit('get-my-profile');
 
-      socket.on("profile-data", (socket_data: {user: string}) => {
-
-        setCurrentUser(socket_data.user);
+      socket.on("profile-data", (socket_data: {username: string, id:number, online:boolean}) => {
+        // user: userData.username,
+        // id: userData.userid,
+        // online: true,
+        console.log("-> currentUser : ", socket_data.username)
+        setCurrentUser(socket_data.username);
       })
 
       return () => {
@@ -23,6 +26,7 @@ export default function Choose({ onChoose }: ChooseProps) {
       }
   }, []);
 
+  console.log("-> currentUser : ", currentUser)
   return (
     <div className="bg-[#393E46] rounded-xl shadow-lg p-8 max-w-md w-full text-white">
       <h2 className="text-3xl font-bold text-center mb-6">Welcome!</h2>

@@ -74,6 +74,7 @@ const LocalGame: React.FC = () => {
             setGameStarted(true);
           }}
         />
+        
       ) : (
         <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
           <div className="bg-[#393E46] p-4 rounded-xl shadow-md w-full text-white flex justify-around">
