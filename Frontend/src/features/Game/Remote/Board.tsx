@@ -1,6 +1,3 @@
-
-
-
 import { useEffect, useState } from "react";
 import Square from "./Square";
 import socket from "../../Chat/services/socket";
