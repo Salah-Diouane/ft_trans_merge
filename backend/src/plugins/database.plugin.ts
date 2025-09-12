@@ -71,8 +71,6 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 		);
 	`;
 	
-
-
 	const createNotificationTable: string = `
 		CREATE TABLE IF NOT EXISTS notification (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,17 +1,27 @@
 import React, { useRef, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { data } from "react-router";
-
+import { Square_Costume } from "../Game/Local/Square"
 const Game = () => {
 	const canvasRef = useRef(null);
 
 	const [ballColor, setBallColor] = useState("");
 	const [paddleColor, setPaddleColor] = useState("");
 	const [tableColor, setTableColor] = useState("");
+	const [showTic, setShowTic] = useState<boolean>(false);
+	const [showPong, setShowPong] = useState<boolean>(true);
+
+	// Tic Tac Toe :
+	const [xColor, setXColor] = useState("#FF0000");
+	const [oColor, setOColor] = useState("#0000FF");
+	const [gridColor, setGridColor] = useState("#000000");
+	const [boardColor, setBoardColor] = useState("#FFFFFF");
+	const [squares, setSquares] = useState<(string | null)[]>(Array(9).fill(null));
+	const [xisNext, setXisNext] = useState<boolean>(true);
 
 	useEffect(() => {
 		const setgameinfo = async () => {
-			const response = await fetch("http://e3r10p18.1337.ma:3000/settings/gameinfo", {
+			const response = await fetch("http://e3r1p11.1337.ma:3000/settings/gameinfo", {
 				credentials: 'include'
 			});
 			if (response.ok) {
@@ -25,6 +35,7 @@ const Game = () => {
 	}, []);
 
 	useEffect(() => {
+		if (!showPong) return;
 		const canvas = canvasRef.current;
 		const ctx = canvas.getContext("2d");
 		const width = canvas.width;
@@ -139,7 +150,7 @@ const Game = () => {
 		};
 
 		loop();
-	}, [ballColor, paddleColor, tableColor]);
+	}, [ballColor, paddleColor, tableColor, showPong]);
 
 	const sendData = async (e: any) => {
 		e.preventDefault();
@@ -148,7 +159,7 @@ const Game = () => {
 			paddle_color: paddleColor,
 			table_color: tableColor,
 		};
-		const response = await fetch("http://e3r10p18.1337.ma:3000/settings/game", {
+		const response = await fetch("http://e3r1p11.1337.ma:3000/settings/game", {
 			method: 'PUT',
 			credentials: "include",
 			headers: { 'Content-type': 'application/json' },
@@ -167,48 +178,145 @@ const Game = () => {
 		setPaddleColor("#0000FF");
 		setTableColor("#EEEEEE");
 	}
-
+	
 	return (
 		<div className="flex flex-col space-y-8 font-russo text-base sm:text-lg px-4 sm:px-10">
-			<div className="flex justify-start">
-				<h1 className="text-white">Preview</h1>
-			</div>
-			<div className="flex justify-center">
-				<canvas ref={canvasRef} width={600} height={400} className="w-full max-w-[600px] h-auto border-white border-2" />
+
+			<div className="flex flex-row justify-center gap-4">
+				<button className="text-3xl" onClick={() => { setShowPong(true); setShowTic(false) }}>Ping Pong</button>
+				<button className="text-3xl" onClick={() => { setShowTic(true); setShowPong(false) }}>Tic Tac Toe</button>
 			</div>
 
-			<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
-				<div className="flex-1 sm:pl-10 text-white font-semibold">
-					<label>Ball Color</label>
-				</div>
-				<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
-					<input type="color" className="w-12 h-10 rounded-lg border-2 border-white cursor-pointer transition-transform hover:scale-110" value={ballColor} onChange={(e) => setBallColor(e.target.value)} />
-				</div>
-			</div>
-			<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
-				<div className="flex-1 sm:pl-10 text-white font-semibold">
-					<label>Paddle Color</label>
-				</div>
-				<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
-					<input type="color" className="w-12 h-10 rounded-lg border-2 border-white cursor-pointer transition-transform hover:scale-110" value={paddleColor} onChange={(e) => setPaddleColor(e.target.value)} />
-				</div>
-			</div>
-			<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
-				<div className="flex-1 sm:pl-10 text-white font-semibold">
-					<label>Table Color</label>
-				</div>
-				<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
-					<input type="color" className="w-12 h-10 rounded-lg border-2 border-white cursor-pointer transition-transform hover:scale-110" value={tableColor} onChange={(e) => setTableColor(e.target.value)} />
-				</div>
-			</div>
-			<div className="flex flex-col sm:flex-row justify-end sm:pr-10 pt-7 gap-4 text-white">
-				<button className="w-full sm:w-[201px] h-[41px] border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition" onClick={resetDefault}>
-					Reset Default
-				</button>
-				<button className="w-full sm:w-[133px] h-[41px] border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition" onClick={sendData}>
-					Save
-				</button>
-			</div>
+			{(showPong && (
+				<>
+					<div className="flex justify-start pl-12">
+						<h1 className="text-white">Preview</h1>
+					</div>
+					<div className="flex justify-center">
+						<canvas ref={canvasRef} width={600} height={400} className="w-full max-w-[600px] h-auto border-white border-2" />
+					</div>
+
+					<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
+						<div className="flex-1 sm:pl-10 text-white font-semibold">
+							<label>Ball Color</label>
+						</div>
+						<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
+							<input type="color" className="w-12 h-10 rounded-lg border-2 border-white cursor-pointer transition-transform hover:scale-110" value={ballColor} onChange={(e) => setBallColor(e.target.value)} />
+						</div>
+					</div>
+					<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
+						<div className="flex-1 sm:pl-10 text-white font-semibold">
+							<label>Paddle Color</label>
+						</div>
+						<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
+							<input type="color" className="w-12 h-10 rounded-lg border-2 border-white cursor-pointer transition-transform hover:scale-110" value={paddleColor} onChange={(e) => setPaddleColor(e.target.value)} />
+						</div>
+					</div>
+					<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
+						<div className="flex-1 sm:pl-10 text-white font-semibold">
+							<label>Table Color</label>
+						</div>
+						<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
+							<input type="color" className="w-12 h-10 rounded-lg border-2 border-white cursor-pointer transition-transform hover:scale-110" value={tableColor} onChange={(e) => setTableColor(e.target.value)} />
+						</div>
+					</div>
+					<div className="flex flex-col sm:flex-row justify-end sm:pr-10 pt-7 gap-4 text-white">
+						<button className="w-full sm:w-[201px] h-[41px] border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition" onClick={resetDefault}>
+							Reset Default
+						</button>
+						<button className="w-full sm:w-[133px] h-[41px] border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition" onClick={sendData}>
+							Save
+						</button>
+					</div>
+				</>
+			))}
+
+			{(showTic && (
+				<>
+					<div className="flex justify-start pl-12">
+						<h1 className="text-white">Preview</h1>
+					</div>
+					<div className="flex flex-col items-center">
+						<div className="mb-4">{status}</div>
+						{/* <div
+							className={`bg-[#222831] p-6 rounded-2xl grid grid-cols-3 gap-4 w-72 sm:w-96 animate-none `}>
+							{squares.map((square, i) => (
+								<Square_Costume value={square} />
+							))}
+						</div> */}
+						<div
+							className="p-6 rounded-2xl grid grid-cols-3 gap-4 w-72 sm:w-96"
+							style={{ backgroundColor: boardColor }}
+						>
+							{squares.map((square, i) => (
+								<Square_Costume
+									key={i}
+									value={square}
+									onClick={() => {
+										const newSquares = [...squares];
+										if (!newSquares[i]) {
+											newSquares[i] = xisNext ? "X" : "O";
+											setSquares(newSquares);
+											setXisNext(!xisNext);
+										}
+									}}
+									xColor={xColor}
+									oColor={oColor}
+									gridColor={gridColor}
+									boardColor={boardColor}
+								/>
+							))}
+						</div>
+
+					</div>
+
+					<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
+						<div className="flex-1 sm:pl-10 text-white font-semibold">
+							<label>X Color</label>
+						</div>
+						<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
+							<input type="color" value={xColor} onChange={e => setXColor(e.target.value)} />
+						</div>
+					</div>
+
+					<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
+						<div className="flex-1 sm:pl-10 text-white font-semibold">
+							<label>O Color</label>
+						</div>
+						<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
+							<input type="color" value={oColor} onChange={e => setOColor(e.target.value)} />
+						</div>
+					</div>
+
+					<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
+						<div className="flex-1 sm:pl-10 text-white font-semibold">
+							<label>Grid Color</label>
+						</div>
+						<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
+							<input type="color" value={gridColor} onChange={e => setGridColor(e.target.value)} />
+						</div>
+					</div>
+
+					<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
+						<div className="flex-1 sm:pl-10 text-white font-semibold">
+							<label>Board Color</label>
+						</div>
+						<div className="flex-1 sm:pr-10 flex justify-start sm:justify-end">
+							<input type="color" value={boardColor} onChange={e => setBoardColor(e.target.value)} />
+						</div>
+					</div>
+					<div className="flex flex-col sm:flex-row justify-center sm:pr-10 pt-7 gap-4 text-white">
+						<button className="w-full sm:w-[201px] h-[41px] border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition" onClick={resetDefault}>
+							Reset Default
+						</button>
+						<button className="w-full sm:w-[133px] h-[41px] border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition" onClick={sendData}>
+							Save
+						</button>
+					</div>
+
+				</>
+			))}
+
 		</div>
 
 	);

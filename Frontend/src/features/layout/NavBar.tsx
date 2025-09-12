@@ -273,7 +273,7 @@ const NavBar: React.FC = () => {
 
   const clearNotifs = () => {
     const currentUserId = Number(currentUserRef.current);
-    socket.emit("notificatio:clear", currentUserId);
+    socket.emit("notification:clear", currentUserId);
     setNotifications([]);
     setUnreadCount(0);
     // setShowNotifs(false)   

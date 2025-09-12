@@ -59,7 +59,7 @@ const ChatApp: FC = () => {
 
   
     // const myAllfriends = async () => {
-    //   const res = await fetch("http://e3r7p17.1337.ma:3000/friends/allfriends", { 
+    //   const res = await fetch("http://e3r2p17.1337.ma:3000/friends/allfriends", { 
     //     credentials: "include" 
     //   });
     //   const data = await res.json();
@@ -191,7 +191,7 @@ const ChatApp: FC = () => {
 
     socket.emit("chat:message", {
       senderId: currentUser?.id,
-      recipientId: selectedUser.id,
+      recipientId: selectedUser?.id,
       text,
     });
   

@@ -137,6 +137,7 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
           console.log("row : ", row)
           return;
         }
+
         console.log("before inserting : ", senderId, recipientId, text, new Date().toISOString())
         db.run(
           "INSERT INTO messages (id_sender, id_recipient, text, timestamp) VALUES (?, ?, ?, ?)",
@@ -190,6 +191,7 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
               io.to(recipientSocketId).emit("chat:message", messageData);
               io.to(recipientSocketId).emit("notification", notification);
             }
+
           }
         );
       }
@@ -252,6 +254,7 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
   })
 
   socket.on("chat:delete", ({ id, userId }: { id: number; userId: number }) => {
+    
     console.log("id:=>", id)
     console.log("userId:=>", userId)
     if (!id || !userId)

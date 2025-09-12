@@ -233,10 +233,12 @@ export const blockReq = async (fastify: FastifyInstance) => {
 
             const decode = fastify.jwt.decode(token) as { userid: number };
             const blockedUsers = await getBlockUser(fastify, decode.userid);
+			
             console.log("---------------> allblockreq");
             console.log(blockedUsers);
 
             return reply.send(blockedUsers);
+
         } catch (err) {
             reply.code(500).send({ error: (err as Error).message });
         }
