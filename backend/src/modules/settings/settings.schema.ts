@@ -25,6 +25,18 @@ export const game_setting = {
 	additionalProperties: false,
 };
 
+export const tictac_setting = {
+	type: 'object',
+	required: ['x_color', 'o_color', 'grid_color', 'board_color'],
+	properties: {
+		x_color: { type: 'string' },
+		o_color: { type: 'string' },
+		grid_color: { type: 'string' },
+		board_color: { type: 'string' }
+	},
+	additionalProperties: false,
+};
+
 export const security_settings = {
 	type: 'object',
 	properties: {

@@ -6,7 +6,7 @@ import type { User } from '../../utils/userauth.utils'
 import { handle_Signin, handel_verifytwofa, handle_googlesign } from './userauth.controller'
 import { generateAccessToken, generateRefreshToken } from './userauth.services'
 import { env } from "../../plugins/env.plugin";
-import { setdefaultgame } from "../../utils/settings.utils";
+import { setdefaultgame, setdefaultTictac } from "../../utils/settings.utils";
 
 export const SignUp = async (fastify: FastifyInstance) => {
 	fastify.post('/signup', {
@@ -21,6 +21,7 @@ export const SignUp = async (fastify: FastifyInstance) => {
 			else {
 				await addNewUser(fastify, user);
 				await setdefaultgame(fastify, user.username);
+				await setdefaultTictac(fastify, user.username);
 				return reply.code(201).send({ message: "the user is created ", singup: true });
 			}
 		} catch (err: unknown) {

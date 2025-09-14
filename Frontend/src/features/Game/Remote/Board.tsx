@@ -35,6 +35,7 @@ export default function Board({
 }: BoardProps) {
 
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
+  const [time, setTime] = useState(0);
 
   const isMyTurn = mySymbol && ((xIsNext && mySymbol === "X") || (!xIsNext && mySymbol === "O"));
 
@@ -120,6 +121,7 @@ export default function Board({
 console.log("gameResult-------> : ",gameResult)
   return (
     <div className="flex flex-col items-center">
+
       <div className="mb-4">{status}</div>
       <div
         className={`bg-[#222831] p-6 rounded-2xl grid grid-cols-3 gap-4 w-72 sm:w-96 ${boardAnimation} ${
@@ -138,3 +140,4 @@ console.log("gameResult-------> : ",gameResult)
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+
 import { FastifyInstance } from 'fastify';
 import type { User } from './userauth.utils';
 import { resolve } from 'path';
@@ -116,12 +117,13 @@ export async function getgameinfo(fastify: FastifyInstance, username: string): P
 			async (err: Error | null, rows: gameinfo) => {
 				if (err)
 					rejects(err);
-
+				
+				// If no record exists, create default one
 				if (!rows) {
 					console.log("No game settings found, creating default for user:", username);
 					await setdefaultgame(fastify, username);
-					
-					resolve({ // return default values
+					// Return default values
+					resolve({
 						ball_color: "#FF0000",
 						paddle_color: "#0000FF", 
 						table_color: "#EEEEEE"
@@ -142,9 +144,9 @@ export async function setdefaultgame(fastify: FastifyInstance, username: string)
 			VALUES (?, ?, ?, ?)`,
 			[
 				username,
-				"#FF0000",
-				"#0000FF",
-				"#EEEEEE" 
+				"#FF0000", // Default red ball
+				"#0000FF", // Default blue paddle
+				"#EEEEEE"  // Default light gray table
 			],
 			(err) => {
 				if (err) return reject(err);
@@ -154,7 +156,7 @@ export async function setdefaultgame(fastify: FastifyInstance, username: string)
 	});
 }
 
-//Tic Tac
+//Tic Tac - FIXED: Now inserts into correct table
 export async function setdefaultTictac(fastify: FastifyInstance, username: string): Promise<void> {
 	return new Promise((resolve, reject) => {
 		fastify.db.run(
@@ -162,10 +164,10 @@ export async function setdefaultTictac(fastify: FastifyInstance, username: strin
 			VALUES (?, ?, ?, ?, ?)`,
 			[
 				username,
-				"#FF0000",
-				"#0000FF", 
-				"#EEEEEE",
-				"#EEEEEE"
+				"#FF0000", // Default red X
+				"#0000FF", // Default blue O  
+				"#EEEEEE", // Default light gray grid
+				"#EEEEEE"  // Default light gray board
 			],
 			(err) => {
 				if (err) return reject(err);
@@ -185,12 +187,13 @@ export async function getTicTacinfo(fastify: FastifyInstance, username: string):
 					rejects(err);
 					return;
 				}
-
+				
+				// If no record exists, create default one
 				if (!rows) {
 					console.log("No tic-tac-toe settings found, creating default for user:", username);
 					await setdefaultTictac(fastify, username);
-
-					resolve({// return default values
+					// Return default values
+					resolve({
 						x_color: "#FF0000",
 						o_color: "#0000FF",
 						grid_color: "#EEEEEE", 

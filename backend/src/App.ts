@@ -51,6 +51,8 @@ app.register(auth02);
 
 app.register(cloudinaryPlugin);
 
+// app.register(settings);
+
 
 app.ready();
 

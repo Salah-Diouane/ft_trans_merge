@@ -9,7 +9,7 @@ import { io } from "socket.io-client";
 //     transports: ["websocket", "polling"],
 // });
 
-const socket = io('http://e3r2p17.1337.ma:3000', {
+const socket = io('http://e3r1p1.1337.ma:3000', {
     withCredentials: true,
     autoConnect: false,
 });
