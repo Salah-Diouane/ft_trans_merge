@@ -4,7 +4,7 @@ import { getuserid, } from '../../utils/userauth.utils';
 import { addNewFriendReq, setFriendReq, getFriends, getSentFriendReqUsernames, getReceivedFriendRequests, deleteFriendReq, getBlockUser, unblockUser_utils, getNameById } from '../../utils/friends.utils';
 import { Server as IOServer } from "socket.io";
 import { userSockets } from "../socket/chat/chat.handlers"
-
+import { onlineUsers } from "../socket/userdata/auth.middleware";
 
 
 interface SendRequestOptions{
@@ -191,7 +191,16 @@ export const allfriends = async (fastify: FastifyInstance) => {
 			const decode = fastify.jwt.decode(token) as { userid: number };
 			console.log(decode.userid);
 			const friends = await getFriends(fastify, decode.userid);
-			return reply.send(friends);
+
+			const friend_online_status = friends.map((user) => ({
+				...user,
+				online: user.id ? onlineUsers.has(user.id) : false
+				// online: onlineUsers.has(user?.id);
+			}))
+
+			console.log("friend_online_status : ", friend_online_status);
+
+			return reply.send(friend_online_status);
 		} catch (err) {
 			reply.code(500).send({ error: (err as Error).message });
 		}

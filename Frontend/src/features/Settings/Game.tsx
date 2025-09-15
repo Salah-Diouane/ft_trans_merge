@@ -24,7 +24,7 @@ const Game = () => {
 
 	useEffect(() => {
 		const setgameinfo = async () => {
-			const response = await fetch("http://e3r1p1.1337.ma:3000/settings/gameinfo", {
+			const response = await fetch("http://e3r7p17.1337.ma:3000/settings/gameinfo", {
 				credentials: 'include'
 			});
 			if (response.ok) {
@@ -35,7 +35,7 @@ const Game = () => {
 			}
 		}
 		const setTicTacInfo = async () => {
-			const response = await fetch("http://e3r1p1.1337.ma:3000/settings/tictacinfo", {
+			const response = await fetch("http://e3r7p17.1337.ma:3000/settings/tictacinfo", {
 				credentials: 'include'
 			});
 			if (response.ok) {
@@ -177,7 +177,7 @@ const Game = () => {
 			paddle_color: paddleColor,
 			table_color: tableColor,
 		};
-		const response = await fetch("http://e3r1p1.1337.ma:3000/settings/game", {
+		const response = await fetch("http://e3r7p17.1337.ma:3000/settings/game", {
 			method: 'PUT',
 			credentials: "include",
 			headers: { 'Content-type': 'application/json' },
@@ -200,7 +200,7 @@ const Game = () => {
 		};
 
 		console.log("body of tic tac in send data is  : ", body);
-		const response = await fetch("http://e3r1p1.1337.ma:3000/settings/tictac", {
+		const response = await fetch("http://e3r7p17.1337.ma:3000/settings/tictac", {
 			method: 'PUT',
 			credentials: "include",
 			headers: { 'Content-type': 'application/json' },

@@ -117,7 +117,7 @@ const Conversation: FC<ConversationProps> = ({
 
   useEffect(() => {
     const allBlocked_fct = async () => {
-      const res = await fetch("http://e3r1p1.1337.ma:3000/friends/blockReq", { credentials: "include" });
+      const res = await fetch("http://e3r7p17.1337.ma:3000/friends/blockReq", { credentials: "include" });
       const data = await res.json();
       // console.log("all blocked : ", data);
       setAllBlocked(Array.isArray(data) ? data : []);
@@ -145,14 +145,7 @@ const Conversation: FC<ConversationProps> = ({
         <div
           className={`w-${size / 4} h-${size / 4} rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} border-2 border-[#222831]`}
           style={{ width: size, height: size }}
-          title={isOnline ? 'Online' : 'Offline'}
         />
-        {isOnline && (
-          <div
-            className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"
-            style={{ width: size, height: size }}
-          />
-        )}
       </div>
     );
   };
@@ -279,7 +272,7 @@ const Conversation: FC<ConversationProps> = ({
               </strong>
               <strong className="text-gray-400 text-sm max-lg:text-xs flex items-center gap-x-2">
                 <OnlineStatusIcon isOnline={user.online} />
-                Online
+                {user.online ? 'Online' : 'Offline'}
               </strong>
             </div>
           </div>
@@ -290,6 +283,7 @@ const Conversation: FC<ConversationProps> = ({
               className={`group-hover:opacity-100 transition-opacity duration-200 text-gray-500 rounded-full `}>
               <HiEllipsisVertical className="size-6" />
             </button>
+
             {(showInvBlock) && (
               <div className={`absolute   right-20 `}>
                 <div className="bg-[#393E46] rounded-lg shadow-lg border-1 border-gray-900 min-w-[120px]">
@@ -323,6 +317,7 @@ const Conversation: FC<ConversationProps> = ({
                 </div>
               </div>
             )}
+
           </div>
         </div>
 
@@ -391,8 +386,9 @@ const Conversation: FC<ConversationProps> = ({
                     )}
 
                     {isMe && (showMenu === msg.id) && (
-                      <div className={`absolute top-0 z-50 ${isMe ? 'right-20 transform translate-x-2' : 'left-20 transform -translate-x-2'}`}>
-                        <div className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[120px]">
+                      <div className={`absolute top-0 z-50 right-full mr-2 mb-2`} >
+    
+                        <div className="bg-white rounded-lg shadow-lg pb-0 border border-gray-200 min-w-[120px]">
                           <button
                             onClick={() => handleDeleteClick(msg.id)}
                             className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors duration-150"
@@ -410,6 +406,28 @@ const Conversation: FC<ConversationProps> = ({
                         </div>
                       </div>
                     )}
+
+                       {/* {isMe && showMenu === msg.id && (
+                        <div className="absolute top-0 z-50 right-full mr-2 mb-2">
+                          <div className="bg-white rounded-lg shadow-lg pb-0 border border-gray-200 min-w-[120px]">
+                            <button
+                              onClick={() => handleDeleteClick(msg.id)}
+                              className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors duration-150"
+                            >
+                              <MdDelete />
+                              Delete
+                            </button>
+                            <button
+                              onClick={() => setShowMenu(null)}
+                              className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-150"
+                            >
+                              <MdCancel />
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )} */}
+                    
                     {/* Timestamp */}
                     <span className="text-xs text-gray-500 mt-1 block text-right">{time}</span>
                   </div>
