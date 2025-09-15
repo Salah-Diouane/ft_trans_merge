@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 // import {useStore} from "../../store/store"
 import { useStore } from '../../store/store';
 import meProfile from "../Assets/me.jpeg";
 import logo from "../Assets/logo.png";
 import { LiaUserFriendsSolid } from "react-icons/lia";
+import NavBar from "./NavBar";
 
 
 import {
@@ -16,16 +17,12 @@ import {
   Notification02Icon
 } from "hugeicons-react";
 
-import NavBar from "./NavBar";
 
 
 const Layout: React.FC = () => {
+  const [showNotifs, setShowNotifs] = useState(window.outerWidth < 1024);
   const location = useLocation();
-
-  // const isActive = (path: string) =>
-  //   location.pathname === path
-  //     ? "bg-[#0077FF] rounded-full size-10 flex items-center justify-center p-2"
-  //     : "";
+  const isMobile = window.outerWidth < 1024;
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
@@ -33,9 +30,16 @@ const Layout: React.FC = () => {
       : "";
 
   const store = useStore()
+
+  useEffect(() => {
+    const handleResize = () => setShowNotifs(window.outerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     // <div className="flex flex-col h-full">
-     <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen">
       {/* <NavBar /> */}
 
       <div className="flex flex-1 overflow-hidden max-lg:p-0 max-lg:m-0">
@@ -75,10 +79,12 @@ const Layout: React.FC = () => {
               <Link to="/settings/profile" className={isActive("/settings")}>
                 <Settings02Icon className="size-8 max-lg:size-6 cursor-pointer" />
               </Link>
+              {isMobile && (
 
-              {/* <Link to="/notification" className={isActive("/notification")}>
-                <Notification02Icon className="hidden max-lg:block size-8 max-lg:size-6 cursor-pointer" />
-              </Link> */}
+                <Link to="/notification" className={isActive("/notification")}>
+                  <Notification02Icon className="hidden max-lg:block size-8 max-lg:size-6 cursor-pointer" />
+                </Link>
+              )}
 
             </div>
 
@@ -89,7 +95,7 @@ const Layout: React.FC = () => {
           </aside>
         </div>
 
-        <div className="flex flex-col flex-1 min-h-0 max-lg:pb-[65px] pr-1 pl-1">  
+        <div className="flex flex-col flex-1 min-h-0 max-lg:pb-[65px] pr-1 pl-1">
           <NavBar />
           <main className="flex-1 overflow-auto min-h-0 max-lg:mb-4 sm:mb-4">
             <Outlet />

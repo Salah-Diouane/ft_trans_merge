@@ -4,6 +4,7 @@ import './styles/index.css';
 import { BrowserRouter } from 'react-router-dom';
 import { useRoutes } from 'react-router-dom';
 import { routes } from './routes/routes';
+// import { routes } from '../src/routes';
 import { Toaster } from 'react-hot-toast';
 import { useEffect } from 'react';
 import { useStore } from './store/store';

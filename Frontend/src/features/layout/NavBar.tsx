@@ -6,7 +6,7 @@ import HandleSearch from "./handleSearch";
 import { useUsers } from "./useUsers";
 import { User } from "../Chat/types/User";
 import socket from "../Chat/services/socket";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
 interface HandleNotifsProps {
@@ -20,79 +20,10 @@ const isActive = (path: string) =>
     ? "bg-[#0077FF] rounded-full size-10 flex items-center justify-center p-2"
     : "";
 
-// const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notifications, clearNotifs }) => {
-//   function getType(notif:any) {
-
-//     // if (!notif || !notif.data)
-//     //   return "New message";
-//     console.log("Notif Text : ", notif.text)
-//     console.log("Notif Type : ", notif.type)
-//     switch (notif.type) {
-//       case "friend_request":
-//         return "Friend Request";
-//       case "friend_request_accepted":
-//         return "Request Accepted";
-//       default:
-//         return "New message";
-//     }
-//   }
-  
-//   return (
-//     <div className="absolute top-16 right-20 flex flex-col w-[20%] max-h-[400px] overflow-y-auto bg-white text-black p-4 rounded shadow-lg z-[99999]">
-//       <div className="flex justify-between items-center w-full mb-2">
-//         <h2 className="text-lg font-semibold">Notifications</h2>
-//         <button
-//           onClick={() => setShowNotifs(false)}
-//           className="text-sm text-blue-600"
-//         >
-//           Close ✖
-//         </button>
-//         <button
-//           onClick={() => clearNotifs()}
-//           className="text-sm text-blue-600"
-//         >
-//           Clear
-//         </button>
-//       </div>
-
-//       {notifications.length === 0 ? (
-//         <p className="text-gray-500 text-sm">No notifications yet</p>
-//       ) : (
-
-//         notifications.map((notif, i) => (
-//           <div
-//           key={i}
-//           className="w-full p-3 mb-2 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200"
-//           >
-//             <p className="text-sm font-medium">
-//               {
-//                 getType(notif)
-//               }
-//             </p>
-
-//             <p className="text-gray-700 text-sm truncate">
-//               Data : {notif.text || notif.message || "No message"}
-//             </p>
-
-//             <p className="text-gray-700 text-sm truncate">
-//             From: {notif.sender || "Unknown"}
-//             </p>
-
-//             <span className="text-xs text-gray-400">
-//               {new Date(notif.timestamp).toLocaleTimeString()}
-//             </span>
-//           </div>
-//         ))
 
 
-//       )}
-//     </div>
-//   );
-// };
-
-
-const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notifications, clearNotifs }) => {
-  function getType(notif:any) {
+export const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notifications, clearNotifs }) => {
+  function getType(notif: any) {
     console.log("Notif Text : ", notif.text)
     console.log("Notif Type : ", notif.type)
     switch (notif.type) {
@@ -132,7 +63,7 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notification
     if (diffInDays < 7) return `${diffInDays}d ago`;
     return notifTime.toLocaleDateString();
   }
-  
+
   return (
     <div className="absolute top-16 right-4 flex flex-col w-[380px] max-h-[500px] bg-white text-black rounded-2xl shadow-2xl border border-gray-200 z-[99999] overflow-hidden">
       {/* Header */}
@@ -143,7 +74,7 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notification
             {(notifications?.length || 0)} {(notifications?.length || 0) === 1 ? 'notification' : 'notifications'}
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <button
             onClick={() => clearNotifs()}
@@ -186,11 +117,11 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notification
                   {formatTime(notif.timestamp)}
                 </span>
               </div>
-              
+
               <p className="text-sm text-gray-700 mb-3 leading-relaxed">
                 {notif.text || notif.message || "No message"}
               </p>
-              
+
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                   <span className="text-xs font-bold text-white">
@@ -202,9 +133,9 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notification
                     {notif.sender || "Unknown"}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {notif.type === "New message" ? "Sent you a message" : 
-                     notif.type === "friend_request" ? "Wants to be friends" : 
-                     "Accepted your request"}
+                    {notif.type === "New message" ? "Sent you a message" :
+                      notif.type === "friend_request" ? "Wants to be friends" :
+                        "Accepted your request"}
                   </p>
                 </div>
               </div>
@@ -225,7 +156,7 @@ const NavBar: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [notifClicked, setNotifClicked] = useState<boolean>(false)
-
+  const location = useLocation();
   const store = useStore();
   const { users, currentUser, currentUserRef } = useUsers();
   const navigate = useNavigate();
@@ -252,11 +183,10 @@ const NavBar: React.FC = () => {
     };
 
     const handleNotificationList = (data: any[]) => {
-      console.log("Notifications list received:", data);
       setNotifications(data);
       setUnreadCount(0);
     };
-    
+
     if (currentUserRef.current) {
       socket.emit("notification:get", Number(currentUserRef.current));
     }
@@ -318,69 +248,78 @@ const NavBar: React.FC = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
-
-
-
+  console.log("==> location.pathname : ", location.pathname)
+  let in_chat: boolean = false;;
+  if (location.pathname === "/chat")
+    in_chat = true;
+  console.log("in_chat :", in_chat)
   return (
-    <nav className="flex items-center justify-between text-white w-full h-14 px-4 max-lg:hidden mt-5 mb-4">
-      <div className="w-1/3" />
+    <>
+    {(!in_chat) && (
 
-      <div className="relative flex justify-center w-1/3 m-3 mt-6 mb-6" ref={searchRef}>
-        <div className="relative flex items-center bg-[#393E46] px-3 py-3 rounded-2xl w-[500px]">
-          <Search className="w-5 h-5 text-amber-50 mr-3" />
-          <input
-            type="text"
-            value={query}
-            placeholder="Search..."
-            className="flex-grow bg-transparent text-white placeholder-blue-200 outline-none h-7 max-sm:w-full"
-            onFocus={() => setShowSearch(true)}
-            onChange={(e) => setQuery(e.target.value)}
+      <nav className="flex items-center  justify-between text-white w-full h-14 px-4  mt-5 mb-4">
+        <div className="w-1/4 max-lg:1/4" />
+
+
+        <div className="relative flex justify-center w-1/3  m-3 mt-6 mb-6 max-lg:w-full" ref={searchRef}>
+          <div className="relative flex items-center bg-[#393E46] px-3 py-3 rounded-2xl w-full max-w-[500px]">
+            <Search className="w-5 h-5 text-amber-50 mr-3" />
+            <input
+              type="text"
+              value={query}
+              placeholder="Search..."
+              className="flex-grow bg-transparent text-white placeholder-blue-200 outline-none h-7 max-sm:w-full"
+              onFocus={() => setShowSearch(true)}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+
+          <HandleSearch
+            showSearch={showSearch}
+            setQuery={setQuery}
+            result={result}
+            currentUser={currentUser}
           />
         </div>
 
-        <HandleSearch
-          showSearch={showSearch}
-          setQuery={setQuery}
-          result={result}
-          currentUser={currentUser}
-        />
-      </div>
 
-      <div className="relative flex items-center gap-6 w-1/3 justify-end">
-        <div>
+        <div className="relative flex items-center gap-6 w-1/3 justify-end max-lg:hidden">
+          <div>
 
-          <Notification02Icon className="size-8 hover:text-[#00ADB5] cursor-pointer max-sm:hidden"
-            onClick={(e) => {
-              setShowNotifs(true)
-              setNotifClicked(false);
-              setUnreadCount(0)
-            }}
+            <Notification02Icon className="size-8 hover:text-[#00ADB5] cursor-pointer max-sm:hidden"
+              onClick={(e) => {
+                setShowNotifs(true)
+                setNotifClicked(false);
+                setUnreadCount(0)
+              }}
+            />
+
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </div>
+
+          <img
+            src={store.image_url}
+            className="size-12 rounded-full hover:text-[#00ADB5] cursor-pointer max-sm:hidden"
+            alt="Profile"
           />
-
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-              {unreadCount}
-            </span>
-          )}
         </div>
 
-        <img
-          src={store.image_url}
-          className="size-12 rounded-full hover:text-[#00ADB5] cursor-pointer max-sm:hidden"
-          alt="Profile"
-        />
-      </div>
+        {showNotifs && (
+          <HandleNotifs
+            setShowNotifs={setShowNotifs}
+            notifications={notifications}
+            clearNotifs={() => { clearNotifs(); }}
+          />
+        )}
 
-      {showNotifs && (
-        <HandleNotifs
-          setShowNotifs={setShowNotifs}
-          notifications={notifications}
-          clearNotifs={() => { clearNotifs(); }}
-        />
-      )}
-
-      <Toaster position="top-center" />
-    </nav>
+        <Toaster position="top-center" />
+      </nav>
+    )}
+    </>
   );
 };
 

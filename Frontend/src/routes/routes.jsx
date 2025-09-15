@@ -22,6 +22,11 @@ import GameSettings from '../features/Settings/Game';
 import ProfileSetting from '../features/Settings/Profile';
 import SecurtitySettings from '../features/Settings/Security';
 import Friends from "../features/Friends/Friends"
+// import Notification from "../features/Notification/Notification";
+import Notification from "../features/Notifications/Notification";
+
+
+
 export const routes  = [
   {
     path: '/login',
@@ -74,6 +79,7 @@ export const routes  = [
 				  { path: 'security', element: <SecurtitySettings /> },
 				]
 			},
+			{ path: 'notification', element: <Notification /> },
 			{ path: 'logout', element: <Logout /> },
 			{ path: 'profile', element: <Profile /> },
 		],
