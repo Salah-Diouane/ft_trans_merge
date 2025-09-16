@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { UserPlus, X } from "lucide-react";
 import { User } from "../Chat/types/User";
-
+import { UserIcon } from 'lucide-react';
 interface HandleSearchProps {
   showSearch: boolean;
   setQuery: React.Dispatch<React.SetStateAction<string>>;
@@ -14,7 +14,7 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
     
     const handleSendRequest = async (username: string) => {
         try {
-        const res = await fetch("http://e3r7p17.1337.ma:3000/friends/sendrequest", {
+        const res = await fetch("http://e3r1p1.1337.ma:3000/friends/sendrequest", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ frined_username: username }),
@@ -33,7 +33,7 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
 
   return (
     <div
-      className="absolute top-full mt-2 p-4 z-50 w-[500px] bg-[#222831] bg-opacity-85 rounded-xl flex flex-col items-center justify-center"
+      className="absolute top-full mt-2 p-4 z-50 w-[500px] bg-[#222831] bg-opacity-85 rounded-xl flex flex-col items-center justify-center max-lg:w-[100%]"
       onClick={(e) => e.stopPropagation()}
     >
       {result.length > 0 ? (
@@ -55,18 +55,19 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
 
             <div className="flex flex-1 items-center justify-end gap-4">
               <button
-                className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
+                className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
                 onClick={() => handleSendRequest(user.username)}
               >
-                {!sentRequests[user.username] ? (
+                <UserIcon className="size-8 max-lg:size-4"  /> View Profile
+                {/* {!sentRequests[user.username] ? (
                   <>
-                    <UserPlus size={16} /> Add Friend
+                  <UserPlus size={16} /> View Profile
                   </>
                 ) : (
                   <>
                     <X size={16} /> Request Sent
                   </>
-                )}
+                )} */}
               </button>
             </div>
           </div>

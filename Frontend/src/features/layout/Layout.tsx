@@ -22,7 +22,11 @@ import {
 const Layout: React.FC = () => {
   const [showNotifs, setShowNotifs] = useState(window.outerWidth < 1024);
   const location = useLocation();
-  const isMobile = window.outerWidth < 1024;
+
+  // const isMobile = window.outerWidth < 1024;
+const isMobile = window.innerWidth < 1024;
+  
+  console.log("-----------------> : isMobile : ", isMobile)
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
@@ -79,6 +83,7 @@ const Layout: React.FC = () => {
               <Link to="/settings/profile" className={isActive("/settings")}>
                 <Settings02Icon className="size-8 max-lg:size-6 cursor-pointer" />
               </Link>
+
               {isMobile && (
 
                 <Link to="/notification" className={isActive("/notification")}>

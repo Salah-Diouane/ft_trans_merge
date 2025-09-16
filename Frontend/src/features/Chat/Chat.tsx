@@ -1,15 +1,13 @@
 
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import socket from "./services/socket";
-
 import ContactList from "./components/ContactList";
 import ContactList_Mobile from "./components/ContactList_Mobile";
 import Conversation from "./components/Conversation";
-
 import Subtract from "../Assets/Subtract.svg";
 import gf from "./Assets/gf4.gif";
-
 import { User } from "./types/User";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface Message {
   id?: string | number;
@@ -35,16 +33,11 @@ const ChatApp: FC = () => {
   const selectedUserRef = useRef<User | null>(null);
   const requestedHistoryRef = useRef<Set<number>>(new Set());
   const isMobile = window.outerWidth < 1024;
+  // const isMobile = window.innerWidth < 1024;
 
-  // Keep refs in sync
-  useEffect(() => { selectedUserRef.current = selectedUser; }, [selectedUser]);
+  const navigate = useNavigate();
+  const { userId } = useParams<{ userId: string }>();
 
-  // Handle screen resize
-  useEffect(() => {
-    const handleResize = () => setShowContactList(window.outerWidth < 1024);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   // Connect socket
   useEffect(() => {
@@ -52,29 +45,34 @@ const ChatApp: FC = () => {
       socket.connect();
   }, []);
 
+  // Keep refs in sync
+  useEffect(() => { selectedUserRef.current = selectedUser; }, [selectedUser]);
+  
+  // Handle screen resize
+  useEffect(() => {
+    const handleResize = () => setShowContactList(window.outerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+
+    if (!userId)
+      return;
+
+    const targetUser = users.find((u) => u.id === Number(userId));
+    if (targetUser) {
+      setSelectedUser(targetUser);
+      setUnreadCounts((prev) => ({ ...prev, [targetUser.id]: 0 }));
+      if (isMobile)
+        setShowContactList(false);
+    }
+  }, [userId, users]);
+  
   // Socket events
   useEffect(() => {
     socket.emit("request:init");
     socket.emit("get-my-profile");
-
-  
-    // const myAllfriends = async () => {
-    //   const res = await fetch("http://e3r7p17.1337.ma:3000/friends/allfriends", { 
-    //     credentials: "include" 
-    //   });
-    //   const data = await res.json();
-    
-    //   console.log("all friends raw data : ", data);
-    
-    //   // Vérifier si chaque user a un id
-    //   data.forEach((user: any, index: number) => {
-    //     console.log(`User ${index}:`, user);
-    //     console.log(` -> id: ${user.id}, username: ${user.username}`);
-    //   });
-    
-    //   setUsers(data);
-    // };
-    // myAllfriends();
     
     socket.on("friends:list", (backendUsers: User[]) => {
       setUsers(backendUsers);
@@ -123,8 +121,6 @@ const ChatApp: FC = () => {
         timestamp: msg.timestamp,
       };
 
-
-      
       setMessages((prev) => ({
         ...prev,
         [otherUser.id]: [...(prev[otherUser.id] || []), newMsg],
@@ -205,12 +201,14 @@ const ChatApp: FC = () => {
       setInputs((prev) => ({ ...prev, [selectedUser.id]: value }));
   };
 
-  const handleUserSelect = (user: User) => {
-    setSelectedUser(user);
-    if (isMobile)
-      setShowContactList(false);
-    setUnreadCounts((prev) => ({ ...prev, [user.id]: 0 }));
-  };
+
+  
+    const handleUserSelect = (user: User) => {
+      setSelectedUser(user);
+      navigate(`/chat/${user.id}`);
+      if (isMobile) setShowContactList(false);
+      setUnreadCounts((prev) => ({ ...prev, [user.id]: 0 }));
+    };
 
   const filteredUsers = users.filter(
     (u) => u.username.toLowerCase().includes(searchTerm.toLowerCase())

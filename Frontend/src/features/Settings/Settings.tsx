@@ -1,9 +1,17 @@
 import { Link, Outlet } from 'react-router-dom';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
+import socket from "../Chat/services/socket"
 
 export default function Settings() {
 	const { t } = useTranslation();
+
+	useEffect(() => {
+		if (!socket.connected)
+		  socket.connect();
+	}, []);
+
 	return (
 		//Russo One
 		<div className='pt-20 flex justify-center px-4 sm:px-6'>

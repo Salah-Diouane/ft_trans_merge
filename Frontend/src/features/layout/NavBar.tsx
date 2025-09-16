@@ -8,6 +8,8 @@ import { User } from "../Chat/types/User";
 import socket from "../Chat/services/socket";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import Orb from './orb';
+
 
 interface HandleNotifsProps {
   setShowNotifs: React.Dispatch<React.SetStateAction<boolean>>;
@@ -15,17 +17,15 @@ interface HandleNotifsProps {
   clearNotifs: () => void;
 }
 
-const isActive = (path: string) =>
-  location.pathname === path || location.pathname.startsWith(path + "/")
-    ? "bg-[#0077FF] rounded-full size-10 flex items-center justify-center p-2"
-    : "";
 
+const HandleNotifs: React.FC<HandleNotifsProps> = ({
+  setShowNotifs,
+  notifications,
+  clearNotifs,
+}) => {
+  console.log("all notifs : ", notifications);
 
-
-export const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notifications, clearNotifs }) => {
-  function getType(notif: any) {
-    console.log("Notif Text : ", notif.text)
-    console.log("Notif Type : ", notif.type)
+  const getType = (notif: any) => {
     switch (notif.type) {
       case "friend_request":
         return "Friend Request";
@@ -34,22 +34,22 @@ export const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notif
       default:
         return "New message";
     }
-  }
+  };
 
-  function getNotificationColor(type: string) {
+  const getNotificationColor = (type: string) => {
     switch (type) {
       case "friend_request":
-        return "border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50 to-blue-25";
+        return "border-l-4 border-l-sky-400 bg-gray-800"; // New color: Sky blue
       case "friend_request_accepted":
-        return "border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-green-25";
+        return "border-l-4 border-l-emerald-500 bg-gray-800"; // New color: Emerald green
       case "New message":
-        return "border-l-4 border-l-purple-500 bg-gradient-to-r from-purple-50 to-purple-25";
+        return "border-l-4 border-l-indigo-500 bg-gray-800"; // New color: Indigo blue
       default:
-        return "border-l-4 border-l-gray-400 bg-gradient-to-r from-gray-50 to-gray-25";
+        return "border-l-4 border-l-gray-500 bg-gray-800"; // Default: Gray
     }
-  }
+  };
 
-  function formatTime(timestamp: string) {
+  const formatTime = (timestamp: string) => {
     const now = new Date();
     const notifTime = new Date(timestamp);
     const diffInMs = now.getTime() - notifTime.getTime();
@@ -62,80 +62,80 @@ export const HandleNotifs: React.FC<HandleNotifsProps> = ({ setShowNotifs, notif
     if (diffInHours < 24) return `${diffInHours}h ago`;
     if (diffInDays < 7) return `${diffInDays}d ago`;
     return notifTime.toLocaleDateString();
-  }
+  };
 
   return (
-    <div className="absolute top-16 right-4 flex flex-col w-[380px] max-h-[500px] bg-white text-black rounded-2xl shadow-2xl border border-gray-200 z-[99999] overflow-hidden">
+    <div className="absolute top-16 right-24 flex flex-col w-[380px] max-h-[500px] bg-[#222831] bg-opacity-90  text-black rounded-2xl shadow-2xl border border-gray-700 z-[99999] overflow-hidden">
       {/* Header */}
-      <div className="flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+      <div className="flex justify-between items-center px-6 py-4 bg-gray-800 border-b border-gray-700">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Notifications</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {(notifications?.length || 0)} {(notifications?.length || 0) === 1 ? 'notification' : 'notifications'}
+          <h2 className="text-2xl font-extrabold text-white">Notifications</h2>
+          <p className="text-sm font-light text-gray-400 mt-1">
+            {(notifications?.length || 0)}{" "}
+            {(notifications?.length || 0) === 1 ? "new alert" : "new alerts"}
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => clearNotifs()}
-            className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
-          >
-            Clear All
-          </button>
-          <button
+        <button
+          onClick={clearNotifs}
+          className="px-4 py-2 text-xs font-semibold text-gray-400 hover:text-white rounded-xl transition-all duration-300"
+        >
+          Clear All
+        </button>
+        <button
             onClick={() => setShowNotifs(false)}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+            className="p-2 text-xs font-semibold text-gray-400 hover:text-white rounded-xl transition-all duration-300"
           >
-            ✖
+            Close
           </button>
-        </div>
       </div>
 
       {/* Notifications List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto max-h-[70vh] p-4 space-y-3">
         {(notifications?.length || 0) === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <span className="text-2xl">🔔</span>
-            </div>
-            <h3 className="text-lg font-medium text-gray-600 mb-2">All caught up!</h3>
-            <p className="text-gray-500 text-sm">No new notifications right now.</p>
+          <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
+            <span className="text-4xl mb-4">🔔</span>
+            <h3 className="text-xl font-semibold text-gray-200 mb-2">
+              All caught up!
+            </h3>
+            <p className="text-sm text-gray-400">
+              You have no new notifications right now.
+            </p>
           </div>
         ) : (
           (notifications || []).map((notif, i) => (
             <div
               key={i}
-              className={`p-4 rounded-xl ${getNotificationColor(notif.type)} 
-                hover:shadow-md transition-all duration-300 cursor-pointer group
-                transform hover:-translate-y-0.5`}
+              className={`relative p-4 rounded-xl ${getNotificationColor(
+                notif.type
+              )} cursor-pointer transition-all duration-300 transform hover:scale-[1.01] hover:shadow-lg`}
             >
               <div className="flex items-start justify-between mb-2">
-                <h4 className="text-sm font-bold text-gray-800">
+                <h4 className="text-sm font-semibold text-gray-200">
                   {getType(notif)}
                 </h4>
                 <span className="text-xs text-gray-500 font-medium">
                   {formatTime(notif.timestamp)}
                 </span>
               </div>
-
-              <p className="text-sm text-gray-700 mb-3 leading-relaxed">
+              <p className="text-sm text-gray-400 mb-3 leading-relaxed">
                 {notif.text || notif.message || "No message"}
               </p>
-
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-bold text-white">
+                <div className="flex-shrink-0 w-9 h-9 bg-gray-700 rounded-full flex items-center justify-center">
+                  <span className="text-md font-bold text-gray-300">
                     {(notif.sender || "U")[0].toUpperCase()}
                   </span>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-800">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-200 truncate">
                     {notif.sender || "Unknown"}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {notif.type === "New message" ? "Sent you a message" :
-                      notif.type === "friend_request" ? "Wants to be friends" :
-                        "Accepted your request"}
+                  <p className="text-xs text-gray-400 truncate">
+                    {notif.type === "New message"
+                      ? "Sent you a message"
+                      : notif.type === "friend_request"
+                      ? "Wants to be friends"
+                      : "Accepted your request"}
                   </p>
                 </div>
               </div>
@@ -160,6 +160,7 @@ const NavBar: React.FC = () => {
   const store = useStore();
   const { users, currentUser, currentUserRef } = useUsers();
   const navigate = useNavigate();
+  const isMobile = window.outerWidth < 1024;
 
   useEffect(() => {
     if (!socket.connect())
@@ -247,22 +248,27 @@ const NavBar: React.FC = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+
   }, []);
+
   console.log("==> location.pathname : ", location.pathname)
   let in_chat: boolean = false;;
-  if (location.pathname === "/chat")
+
+  if (location.pathname === "/chat" && isMobile)
     in_chat = true;
+
   console.log("in_chat :", in_chat)
   return (
     <>
-    {(!in_chat) && (
+    {(!in_chat)  &&  (
 
       <nav className="flex items-center  justify-between text-white w-full h-14 px-4  mt-5 mb-4">
-        <div className="w-1/4 max-lg:1/4" />
+        <div className="w-1/4 max-lg:w-1 " />
 
 
-        <div className="relative flex justify-center w-1/3  m-3 mt-6 mb-6 max-lg:w-full" ref={searchRef}>
-          <div className="relative flex items-center bg-[#393E46] px-3 py-3 rounded-2xl w-full max-w-[500px]">
+        <div className="relative flex justify-center w-1/3  m-3 mt-6 mb-6 max-lg:w-full " ref={searchRef}>
+          {/* <div className="relative flex items-center bg-[#393E46] px-3 py-3 rounded-2xl w-full max-w-[500px]"> */}
+          <div className="relative flex items-center bg-[#393E46] px-3 py-3 rounded-2xl w-full max-w-auto">
             <Search className="w-5 h-5 text-amber-50 mr-3" />
             <input
               type="text"

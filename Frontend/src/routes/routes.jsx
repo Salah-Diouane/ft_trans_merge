@@ -57,6 +57,7 @@ export const routes  = [
 				// ]
 			},
 			{ path: 'chat', element: <ChatApp /> },
+			{ path: "/chat/:userId", element: <ChatApp /> },
 			{
 				path: 'game',
 				element: <Game />,

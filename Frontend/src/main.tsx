@@ -27,10 +27,17 @@ function App() {
 	);
 }
 
+
 createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </StrictMode>
 );
+
+// createRoot(document.getElementById('root') as HTMLElement).render(
+//   <StrictMode>
+//     <BrowserRouter>
+//       <App />
+//     </BrowserRouter>
+//   </StrictMode>
+// );

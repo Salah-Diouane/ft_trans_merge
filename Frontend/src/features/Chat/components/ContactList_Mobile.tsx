@@ -1,5 +1,3 @@
-
-
 import React, { FC } from "react";
 import { Search } from "lucide-react";
 import meProfile from "../Assets/me.jpeg";
