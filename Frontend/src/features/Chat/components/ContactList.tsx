@@ -36,7 +36,6 @@ const ContactList: FC<ContactListProps> = ({
   setSearchTerm,
   unreadCounts,
 }) => {
-  
   console.log("users in contact List : ", users)
   return (
     <div className="p-2 rounded-2xl w-[40%] h-full">

@@ -1,6 +1,6 @@
 
 
-import  { memo } from "react";
+
 import React, { FC, use, useEffect, useRef, useState } from "react";
 import { VscSend } from "react-icons/vsc";
 import { LuSendHorizontal } from "react-icons/lu";
@@ -44,10 +44,7 @@ const Conversation: FC<ConversationProps> = ({
   onBack,
   loggedInUserId,
 }) => {
-  useEffect(() => {
-    console.log("==============Conversation mounted once");
-  }, []);
-  
+
   console.log("User Data : ", user)
   const isMobile = typeof window !== "undefined" && window.outerWidth < 1024;
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -120,7 +117,7 @@ const Conversation: FC<ConversationProps> = ({
 
   useEffect(() => {
     const allBlocked_fct = async () => {
-      const res = await fetch("http://e3r1p1.1337.ma:3000/friends/blockReq", { credentials: "include" });
+      const res = await fetch("http://localhost:3000/friends/blockReq", { credentials: "include" });
       const data = await res.json();
       // console.log("all blocked : ", data);
       setAllBlocked(Array.isArray(data) ? data : []);

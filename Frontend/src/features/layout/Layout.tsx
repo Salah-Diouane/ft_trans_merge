@@ -22,11 +22,7 @@ import {
 const Layout: React.FC = () => {
   const [showNotifs, setShowNotifs] = useState(window.outerWidth < 1024);
   const location = useLocation();
-
-  // const isMobile = window.outerWidth < 1024;
-const isMobile = window.innerWidth < 1024;
-  
-  console.log("-----------------> : isMobile : ", isMobile)
+  const isMobile = window.outerWidth <= 1024;
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
@@ -46,7 +42,7 @@ const isMobile = window.innerWidth < 1024;
     <div className="flex flex-col h-screen">
       {/* <NavBar /> */}
 
-      <div className="flex flex-1 overflow-hidden max-lg:p-0 max-lg:m-0">
+      <div className="flex flex-1 overflow-hidden max-lg:pr-0 max-lg:mr-0">
 
         <div className="p-1 m-4 rounded-2xl w-[80px] max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:w-full max-lg:h-[70px] max-lg:m-0 max-lg:p-0.5">
 
@@ -83,7 +79,7 @@ const isMobile = window.innerWidth < 1024;
               <Link to="/settings/profile" className={isActive("/settings")}>
                 <Settings02Icon className="size-8 max-lg:size-6 cursor-pointer" />
               </Link>
-
+              
               {isMobile && (
 
                 <Link to="/notification" className={isActive("/notification")}>

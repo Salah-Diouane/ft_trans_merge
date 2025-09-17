@@ -65,9 +65,10 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
   };
 
   return (
+    // custom-scroll overflow-y-auto
     <div className="absolute top-16 right-24 flex flex-col w-[380px] max-h-[500px] bg-[#222831] bg-opacity-90  text-black rounded-2xl shadow-2xl border border-gray-700 z-[99999] overflow-hidden">
       {/* Header */}
-      <div className="flex justify-between items-center px-6 py-4 bg-gray-800 border-b border-gray-700">
+      <div className="flex justify-between items-center px-6 py-4 bg-gray-800 border-b border-gray-700 ">
         <div>
           <h2 className="text-2xl font-extrabold text-white">Notifications</h2>
           <p className="text-sm font-light text-gray-400 mt-1">
@@ -117,7 +118,7 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
                   {formatTime(notif.timestamp)}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 mb-3 leading-relaxed">
+              <p className="text-sm text-gray-400 mb-3 leading-relaxed truncate max-w-60"> 
                 {notif.text || notif.message || "No message"}
               </p>
               <div className="flex items-center gap-3">
@@ -254,8 +255,12 @@ const NavBar: React.FC = () => {
   console.log("==> location.pathname : ", location.pathname)
   let in_chat: boolean = false;;
 
-  if (location.pathname === "/chat" && isMobile)
+  // if ((location.pathname === "/chat" || location.pathname === "/chat/:userId") && isMobile)
+  //   in_chat = true;
+  if ((location.pathname === "/chat" || /^\/chat\/\d+$/.test(location.pathname)) && isMobile) {
     in_chat = true;
+}
+
 
   console.log("in_chat :", in_chat)
   return (

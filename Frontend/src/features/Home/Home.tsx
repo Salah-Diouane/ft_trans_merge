@@ -4,8 +4,7 @@ import '../../styles/index.css'
 import { useStore } from "../../store/store"
 import { FaPlay } from "react-icons/fa";
 import { FaCrown, FaMedal, FaTrophy, FaBolt, FaStar, FaGamepad, FaFire, FaChevronRight, } from "react-icons/fa";
-// import { useNavigate, useParams } from "react-router-dom";
-import { useNavigate } from 'react-router';
+
 interface User {
 	name: string;
 	level: string | number;
@@ -150,7 +149,6 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 
 const WelcomeCard: React.FC = () => {
 	const store = useStore();
-	const navigate = useNavigate();
 	return (
 
 		<div className='z-10 relative w-full h-[20%] bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-hidden '>
@@ -163,12 +161,10 @@ const WelcomeCard: React.FC = () => {
 				</div> */}
 				<div className=''>
 					<h1 className='font-russo text-2xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white animate-pulse'>Welcome Back!</h1>
-					<h2 className='font-russo text-1xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-purple-50 mt-1 animate-pulse'>{store.first_name}</h2>
+					<h2 className='font-russo text-1xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white mt-1 animate-pulse'>{store.username.toUpperCase()}</h2>
 				</div>
 
-				<button className=' w-fit px-8 py-3 h-[50%] rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600  text-white font-bold flex items-center justify-center space-x-2'
-					onClick={() => navigate(`/game`)}
-				>
+				<button className=' w-fit px-8 py-3 h-[50%] rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600  text-white font-bold flex items-center justify-center space-x-2'>
 					<FaPlay className='text-lg' />
 					<span>Play</span>
 				</button>
@@ -275,7 +271,7 @@ const Home: React.FC = () => {
 
 	return (
 		// <div className="w-full h-full flex flex-col 2xl:flex-row  max-sm:p-1  p-2 sm:p-4 md:p-6 lg:p-8 xl:p-10 2xl:p-12 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
-		<div className="w-full h-full flex flex-col 2xl:flex-row   p-5 gap-5  max-sm:p-1  max-[375px]:p-1 max-[390px]:w-[95%] max-[375px]:w-[90%] max-[360px]:w-[87%] max-[344px]:w-[84%]">
+		<div className="w-full h-full flex flex-col 2xl:flex-row   p-5 gap-5  max-sm:p-1  max-[375px]:p-1 max-[390px]:w-[95%] max-[375px]:w-[90%] max-[360px]:w-[87%] max-[344px]:w-[60%]">
 
 			<div className='w-full flex flex-col gap-4 2xl:w-[70%]'>
 				<WelcomeCard />
