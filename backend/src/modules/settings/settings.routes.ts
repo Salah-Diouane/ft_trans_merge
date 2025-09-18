@@ -12,6 +12,36 @@ import { getgameinfo, UpdateGame, UpdateTicTac, getTicTacinfo } from "../../util
 import type { gameinfo, securityinfo, ticTacinfo } from "../../utils/settings.utils";
 import { setpassword } from "../../utils/settings.utils"
 import { settwoFA } from "../../utils/settings.utils"
+import { generateAccessToken, generateRefreshToken } from "../userauth/userauth.services"
+
+// export const profile = async (fastify: FastifyInstance) => {
+// 	fastify.put('/profile', {
+// 		schema: {
+// 			body: profile_setting
+// 		}
+// 	}, async (request, reply) => {
+// 		console.log('PUT /profile route called');
+// 		try {
+// 			const token = request.cookies.accessToken;
+// 			if (!token) {
+// 				return reply.code(401).send({ userinfo: false, message: "No access token in cookies", accesstoken: false, refreshtoken: true });
+// 			}
+// 			const decodetoken = fastify.jwt.decode(token) as { username: string };
+// 			const newuser = request.body as User;
+// 			const user = await getuser(fastify, newuser.username);
+// 			if (user && user.username !== decodetoken.username) {
+// 				return reply.code(400).send({ message: 'this username already token !', type: 'username', login: false });
+// 			}
+// 			const oldurlCover = user?.cover_url?.substring(user?.cover_url?.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, '');
+// 			const oldurlProfile = user?.image_url?.substring(user?.image_url?.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, '');
+// 			await UpdateProfile(fastify, newuser, decodetoken.username);
+// 		} catch (err) {
+// 			console.log("the error : ", err);
+// 			reply.code(500).send({ error: (err as Error).message });
+// 		}
+// 	});
+// }
+
 
 export const profile = async (fastify: FastifyInstance) => {
 	fastify.put('/profile', {
@@ -31,16 +61,19 @@ export const profile = async (fastify: FastifyInstance) => {
 			if (user && user.username !== decodetoken.username) {
 				return reply.code(400).send({ message: 'this username already token !', type: 'username', login: false });
 			}
-			const oldurlCover = user?.cover_url?.substring(user?.cover_url?.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, '');
-			const oldurlProfile = user?.image_url?.substring(user?.image_url?.lastIndexOf('/') + 1).replace(/\.[^/.]+$/, '');
 			await UpdateProfile(fastify, newuser, decodetoken.username);
+			const userinfo = await getuser(fastify, newuser.username);
+			if (!userinfo)
+				return reply.code(400).send({ message: 'User not found!' });
+			await generateAccessToken(fastify, reply, userinfo);
+			await generateRefreshToken(fastify, reply, userinfo.username);
+			return reply.send({ message: "Your profile is updated successfully" });
 		} catch (err) {
 			console.log("the error : ", err);
 			reply.code(500).send({ error: (err as Error).message });
 		}
 	});
 }
-
 
 export const GetUrlimage = async (fastify: FastifyInstance) => {
 	fastify.post('/imageUrl', async (req, reply) => {

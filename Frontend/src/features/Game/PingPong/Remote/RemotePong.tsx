@@ -22,8 +22,8 @@ const RemotePong: React.FC = () => {
 
     const handleProfile = (user: any) => {
       console.log("---> : user : ", user);
-      const userName = user.id;
-      console.log("---> : username : ", userName);
+      const userName = user.username;
+
       if (userName) {
         setName(userName);
         userNameRef.current = userName;

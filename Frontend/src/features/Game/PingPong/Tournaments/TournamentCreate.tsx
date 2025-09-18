@@ -14,7 +14,8 @@ const TournamentCreate: React.FC = () => {
     socket.connect();
     socket.emit("get-my-profile");
     const onProfile = (user: any) => {
-      if (user?.user) setOwnerName(user.user);
+      if (user?.username)
+        setOwnerName(user.username);
     };
     socket.on("profile-data", onProfile);
     return () => {socket.off("profile-data", onProfile);}
@@ -22,13 +23,15 @@ const TournamentCreate: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return alert("Please enter a tournament name.");
-    if (!ownerName) return alert("User not loaded yet.");
+    if (!name.trim())
+      return alert("Please enter a tournament name.");
+    if (!ownerName)
+      return alert("User not loaded yet.");
 
     try {
       setLoading(true);
       console.log("Creating tournament:", { name, maxPlayers, ownerPlays, ownerName });
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournament`, {
+      const res = await fetch(`http://e3r10p10.1337.ma:3000/api/tournament`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

@@ -32,9 +32,10 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
   };
   // Fetch tournament data from backend
   const fetchTournament = () => {
-    if (!tournamentId) return;
+    if (!tournamentId)
+      return;
     setLoading(true);
-    fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${tournamentId}`, {
+    fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${tournamentId}`, {
       credentials: "include",
     })
       .then(async (res) => {
@@ -167,7 +168,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
   // Start Tournament Button
   const handleStartTournament = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${tournamentId}/start`, {
+      const response = await fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${tournamentId}/start`, {
         method: "POST",
         credentials: "include",
       });
@@ -191,7 +192,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${tournamentId}`, {
+      const response = await fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${tournamentId}`, {
         method: "DELETE",
         credentials: "include",
       });

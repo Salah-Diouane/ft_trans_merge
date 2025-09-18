@@ -15,7 +15,7 @@ export default function Square({ value, onSquareClick, disabled = false }: Squar
   useEffect(() => {
     const setTicTacInfo = async () => {
       try {
-        const response = await fetch("http://e3r11p10.1337.ma:3000/settings/tictacinfo", {
+        const response = await fetch("http://e3r10p10.1337.ma:3000/settings/tictacinfo", {
           credentials: "include",
         });
         if (response.ok) {
