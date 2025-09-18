@@ -38,7 +38,7 @@ interface Message {
 export default function handleUserEvents({ fastify, io, socket }: handleUserEventsProps) {
 	const db = fastify.db;
 	const userData = socket.user;
-	console.log("0===>socket  ")
+	console.log("userData : socket.user : ", userData)
 	console.log(userData.userid)
 	console.log(socket.user.userid)
 
@@ -81,8 +81,9 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
 	socket.on("get-my-profile", () => {
 		if (userData) {
 			// data: { id: number; username: string; online: boolean }
-			console.log(userData.userid)
-			console.log(userData.username)
+			console.log("----> : userData.userid : ", userData.userid)
+			console.log("----> : userData.username : ", userData.username)
+
 			socket.emit("profile-data", {
 				id: userData.userid,
 				username: userData.username,

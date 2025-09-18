@@ -1,3 +1,4 @@
+
 // routesConfig.ts
 import Layout from '../features/layout/Layout';
 import ChatApp from '../features/Chat/Chat';
@@ -24,7 +25,11 @@ import SecurtitySettings from '../features/Settings/Security';
 import Friends from "../features/Friends/Friends"
 // import Notification from "../features/Notification/Notification";
 import Notification from "../features/Notifications/Notification";
-
+import TournamentPong from '../features/Game/PingPong/Tournaments/TournamentPong';
+import TournamentCreate from '../features/Game/PingPong/Tournaments/TournamentCreate';
+import TournamentJoin from '../features/Game/PingPong/Tournaments/TournamentJoin';
+import TournamentBoard from '../features/Game/PingPong/Tournaments/TournamentBoard';
+import TournamentGameStart from '../features/Game/PingPong/Tournaments/TournamentGameStart';
 
 
 export const routes  = [
@@ -66,6 +71,11 @@ export const routes  = [
 					{ path: 'ping-pong', element: <PingPong /> },
 					{path: "ping-pong/local-game", element: <LocalPong />},
 					{path: "ping-pong/remote-game", element: <RemotePong />},
+					{ path: 'ping-pong/tournament-game', element: <TournamentPong /> },
+					{ path: 'ping-pong/tournament-game/tournament-create', element: <TournamentCreate /> },
+					{ path: 'ping-pong/tournament-game/tournament-join', element: <TournamentJoin /> },
+					{ path: 'ping-pong/tournament-game/tournament/:tournamentId/view', element: <TournamentBoard /> },
+					{ path: 'ping-pong/tournament-game/tournament/:tournamentId/game', element: <TournamentGameStart /> },
 					{ path: 'tic-tac-toe', element: <TicTacToe /> },
 					{path: "tic-tac-toe/local-game", element: <LocalGame />},
 					{path: "tic-tac-toe/remote-game", element: <RemoteGame />},

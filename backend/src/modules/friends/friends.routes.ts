@@ -157,6 +157,7 @@ export const allsendreq = async (fastify: FastifyInstance) => {
 			if (!token)
 				return reply.code(401).send({ message: "No access token in cookies", accesstoken: false, refreshtoken: true });
 			const decode = fastify.jwt.decode(token) as { userid: number };
+			console.log("decode : in friends : ", decode)
 			const allrequets = await getSentFriendReqUsernames(fastify, decode.userid);
 
 			return reply.send(allrequets);

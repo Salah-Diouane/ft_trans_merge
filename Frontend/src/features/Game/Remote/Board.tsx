@@ -103,6 +103,7 @@ export default function Board({
     }
   } else if (gameStarted) {
     const currentPlayerName = xIsNext ? playerXName : playerOName;
+    
     const isCurrentPlayerMe = currentPlayerName === currentUser;
     status = (
       <p className="text-[#0077FF] font-semibold text-xl text-center">
@@ -140,4 +141,3 @@ console.log("gameResult-------> : ",gameResult)
     </div>
   );
 }
-

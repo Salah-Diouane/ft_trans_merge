@@ -22,14 +22,12 @@ interface Message {
 
 export const userSockets = new Map<number, string>();
 
-
-
-export function getNameById(fastify: FastifyInstance, id: number): Promise<any> {
+export function getNameById(fastify: FastifyInstance, id: number): Promise<string> {
   return new Promise((resolve, reject) => {
     fastify.db.get(
       "SELECT username FROM user_authentication WHERE id = ?",
       [id],
-      (err, row) => {
+      (err, row: string) => {
         if (err)
           reject(err);
         else
@@ -38,8 +36,6 @@ export function getNameById(fastify: FastifyInstance, id: number): Promise<any> 
     );
   });
 }
-
-
 
 export default function handleChatEvents({ fastify, io, socket }: handleChatEventsProps) {
   const db = fastify.db;

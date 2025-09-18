@@ -268,7 +268,7 @@ const NavBar: React.FC = () => {
     {(!in_chat)  &&  (
 
       <nav className="flex items-center  justify-between text-white w-full h-14 px-4  mt-5 mb-4">
-        <div className="w-1/4 max-lg:w-1 " />
+        <div className="w-1/3 max-lg:w-1 " />
 
 
         <div className="relative flex justify-center w-1/3  m-3 mt-6 mb-6 max-lg:w-full " ref={searchRef}>

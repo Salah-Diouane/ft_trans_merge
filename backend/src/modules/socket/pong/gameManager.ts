@@ -24,11 +24,18 @@ interface PlayerSock {
   sockId: string;
 }
 
-interface Game {
+export interface Game {
+  roomId?: string;
   players: string[]; // player names
   playerNamesAndsockId: PlayerSock[];
+  gameType:string | null,
+  readyPlayers:string[],
   ready: boolean;
   state: GameState;
+  winner?: string;
+  loser?: string;
+  round?: number | null;
+  progress?: 'pending' | 'in_progress' | 'completed';
 }
 
 interface AddPlayerToGameProps {
@@ -61,8 +68,11 @@ export function createGame(roomId: string): void {
   games.set(roomId, {
     players: [],
     playerNamesAndsockId: [],
+    gameType:null,
+    readyPlayers:[],
     ready: false,
     state: initialState,
+    round: null,
   });
 }
 

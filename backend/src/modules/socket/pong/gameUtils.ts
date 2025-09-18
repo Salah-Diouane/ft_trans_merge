@@ -1,13 +1,24 @@
 import { resetBallProps, gameStateProps } from "./interfaces";
 
-export function resetBall(resetBallData:resetBallProps) {
-	resetBallData.leftScored = false;
-    resetBallData.state.ball = {
-      x: resetBallData.baseWidth / 2,
-      y: resetBallData.baseHeight / 2,
-      dx: resetBallData.leftScored ? -resetBallData.ballSpeed : resetBallData.ballSpeed,
-      dy: resetBallData.ballSpeed,
-    };
+export function resetBall({
+  state,
+  leftScored,
+  baseWidth,
+  baseHeight,
+  ballSpeed,
+}: {
+  state: any;
+  leftScored: boolean;
+  baseWidth: number;
+  baseHeight: number;
+  ballSpeed: number;
+}) {
+  state.ball = {
+    x: baseWidth / 2,
+    y: baseHeight / 2,
+    dx: leftScored ? ballSpeed : -ballSpeed, // Direction based on who scored
+    dy: 2 * (Math.random() > 0.5 ? 1 : -1), // Random vertical direction
+  };
 }
   
 // export function normalizeBallSpeed(ball, targetSpeed) {
@@ -16,4 +27,3 @@ export function resetBall(resetBallData:resetBallProps) {
 //     ball.dx *= scale;
 //     ball.dy *= scale;
 //   }
-  

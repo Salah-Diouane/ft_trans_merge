@@ -68,12 +68,14 @@ const ChatApp: FC = () => {
 
   // Socket events
   useEffect(() => {
+
+    
     socket.emit("request:init");
     socket.emit("get-my-profile");
 
   
     // const myAllfriends = async () => {
-    //   const res = await fetch("http://localhost:3000/friends/allfriends", { 
+    //   const res = await fetch("http://e3r11p10.1337.ma:3000/friends/allfriends", { 
     //     credentials: "include" 
     //   });
     //   const data = await res.json();
@@ -97,7 +99,8 @@ const ChatApp: FC = () => {
 
     socket.on("profile-data", (data: { id: number; username: string; online: boolean }) => {
       // console.log("-->data.id")
-      // console.log(data.id)
+      console.log("data in Chat : ")
+      console.log(data)
       currentUserRef.current = data.id;
       setCurrentUser({ id: data.id, username: data.username, online: data.online });
     });

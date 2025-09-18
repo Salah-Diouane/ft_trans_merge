@@ -13,6 +13,8 @@ import http from "http";
 import setupSocketIO from './plugins/socket.plugin';
 import { getuser } from "./utils/userauth.utils";
 import cloudinaryPlugin from "./plugins/cloudinary.plugin";
+import tournamentRoutes from "./modules/socket/pong/tournamentRoutes";
+
 
 const app = fastify({
     ajv: {
@@ -34,6 +36,8 @@ const io = new IOServer(server, {
     credentials: true,
   },
 });
+
+
 
 app.register(cors, {
     origin: true, // React app origin
@@ -134,7 +138,9 @@ app.setErrorHandler((error, request, reply) => {
     }
 });
 
+app.decorate('io', io);
 
+app.register(tournamentRoutes, { prefix: "/api" });
 
 app.ready().then( () => {
     setupSocketIO(app, io);

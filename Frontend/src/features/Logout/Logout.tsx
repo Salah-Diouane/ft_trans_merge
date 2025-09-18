@@ -10,7 +10,7 @@ const Logout: React.FC = () => {
 
   useEffect(() => {
 	const logout = async () => {
-		await fetch(`http://localhost:3000/logout`, {
+		await fetch(`http://e3r11p10.1337.ma:3000/logout`, {
 			method: 'GET',
 			credentials: 'include',
 		});

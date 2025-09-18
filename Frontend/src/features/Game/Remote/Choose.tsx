@@ -1,15 +1,15 @@
-
-
 import { useEffect, useRef, useState } from "react";
 import socket from "../../Chat/services/socket";
 import { FiUsers } from 'react-icons/fi';
 import { RiPingPongFill } from 'react-icons/ri';
+import {User} from "../../Chat/types/User"
 type ChooseProps = {
-    onChoose: (playerName: string) => void;
+    onChoose: (playerName: string | undefined) => void;
 };
 
 export default function Choose({ onChoose }: ChooseProps) {
-    const [currentUser, setCurrentUser] = useState<string>("Loading...");
+    // const [currentUser, setCurrentUser] = useState<string>("Loading...");
+    const [currentUser, setCurrentUser] = useState<Partial<User> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     // const currentUserRef = useRef<string>("");
 
@@ -17,13 +17,19 @@ export default function Choose({ onChoose }: ChooseProps) {
         socket.emit("request:init");
         socket.emit("get-my-profile");
 
-        socket.on("profile-data", (socket_data: { username: string }) => {
-            // currentUserRef.current = socket_data.user;
-            console.log("---> : socket_data")
-            console.log(socket_data.username)
-            setCurrentUser(socket_data.username);
-            // setIsLoading(false);
-        });
+        // socket.on("profile-data", (socket_data: { username: string }) => {
+        //     // currentUserRef.current = socket_data.user;
+        //     console.log("---> : socket_data")
+        //     console.log(socket_data.username)
+        //     setCurrentUser(socket_data.username);
+        //     // setIsLoading(false);
+        // });
+        socket.on("profile-data", (data: { id: number; username: string; online: boolean }) => {
+            // console.log("-->data.id")
+            console.log(data)
+            // currentUserRef.current = data.id;
+            setCurrentUser({ id: data.id, username: data.username, online: data.online });
+          });
 
         return () => {
             socket.off("profile-data");
@@ -32,7 +38,7 @@ export default function Choose({ onChoose }: ChooseProps) {
 
     const handleJoinGame = () => {
         if (currentUser) {
-            onChoose(currentUser);
+            onChoose(currentUser?.username);
         }
     };
 
@@ -44,7 +50,8 @@ export default function Choose({ onChoose }: ChooseProps) {
                 <p className="text-gray-300 mb-2">Player:</p>
                 <p className="text-xl font-semibold text-blue-400">
                     {/* {isLoading ? "Loading..." : currentUser} */}
-                    {currentUser}
+                    {currentUser?.username}
+                    {currentUser?.id}
                 </p>
             </div>
 
@@ -69,3 +76,4 @@ export default function Choose({ onChoose }: ChooseProps) {
         </div>
     );
 }
+

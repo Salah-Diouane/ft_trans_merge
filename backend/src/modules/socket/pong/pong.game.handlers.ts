@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import { Server as IOServer } from "socket.io";
 import { v4 as uuidv4 } from 'uuid';
 import { createGame, getGame, addPlayerToGame, games } from './gameManager';
+import { Tournament, tournaments } from "./tournamentStore";
 
 interface AuthenticatedSocket extends Socket {
   user?: any;
@@ -18,6 +19,7 @@ export const paddleDirections = new Map();
 
 export default function pongGameHandlers({ fastify, io, socket }: pongGameHandlersProps) {
   const userData = socket.user;
+
   socket.on('join', (playerName) => {
     let roomId: string | null = null;
     let isReconnecting = false;
@@ -81,6 +83,7 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
     socket.emit('roomId', roomId);
 
     if (game?.players.length === 2) {
+      game.gameType = "remote"
       const allConnected = game.playerNamesAndsockId.every(p =>
         io.sockets.sockets.get(p.sockId)
       );
@@ -132,30 +135,39 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
   socket.on('playerLeft', (playerName) => {
     console.log('playerLeft', playerName);
 
-    for (const [roomId, inputs] of paddleDirections.entries()) {
-      if (inputs.has(playerName)) {
-        inputs.delete(playerName);
-        if (inputs.size === 0) {
-          paddleDirections.delete(roomId);
-        }
-      }
-    }
-
     for (const [roomId, game] of games.entries()) {
       const idx = game.players.indexOf(playerName);
       if (idx !== -1) {
+        // Remove from active game state but keep in tournament.participants
         game.players.splice(idx, 1);
         game.playerNamesAndsockId = game.playerNamesAndsockId.filter(p => p.name !== playerName);
         game.ready = false;
 
         socket.to(roomId).emit('playerLeft', { id: playerName });
+        
+        if (game.gameType === "tournament") {
+          const tours: Tournament[] = Object.values(tournaments);
+          tours.map((tournament: Tournament) => {
+            if (tournament.winners.includes(playerName)) {
+              const index = tournament.winners.findIndex((player) => player === playerName);
+              if (index !== -1) {
+                tournament.winners.splice(index, 1);
+                tournament.losers.push(playerName);
+                // Don't remove from participants array
+              }
+            }
+          });
+          socket.to(roomId).emit("gameOverTournament", { 
+            roomId, 
+            winner: game.players[0] || 'left', 
+            loser: playerName 
+          });
+        }
 
+        // Clean up empty game rooms
         if (game.players.length === 0) {
           games.delete(roomId);
           paddleDirections.delete(roomId);
-          console.log(`Room ${roomId} deleted`);
-        } else {
-          io.to(roomId).emit('gameOver', { winner: game.players[0] });
         }
 
         break;
@@ -164,7 +176,7 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
   });
 
   socket.on('disconnect', () => {
-    console.log('-> User disconnected:', socket.id);
+    console.log('User disconnected:', socket.id);
 
     // Clean paddle input state
     for (const [roomId, inputs] of paddleDirections.entries()) {
@@ -192,6 +204,20 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
         io.to(roomId).emit('playerLeft', { id: playerName });
         io.to(roomId).emit('gameOver', { winner: game.players[0] });
 
+        if (game.gameType == "tournament") {
+          const tours: Tournament[] = Object.values(tournaments);
+          tours.map((tournament:Tournament) => {
+            if (tournament.winners.includes(playerName)) {
+              const index = tournament.winners.findIndex((player) => player === playerName);
+              if (index !== -1) {
+                tournament.winners.splice(index, 1);
+                tournament.losers.push(playerName);
+              }
+            }
+          });
+          socket.to(roomId).emit("gameOverTournament", { roomId, winner: game.players[0] || 'left', loser: playerName });
+        }
+
         if (game.players.length === 0) {
           games.delete(roomId);
           paddleDirections.delete(roomId);
@@ -201,5 +227,44 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
         break;
       }
     }
+  });
+
+  socket.on('game:over', (roomId) => {
+    const tournament = tournaments[roomId];
+    
+    if (tournament) {
+      // Check if tournament is completed
+      if (tournament.winners.length === 1) {
+        let completionCountdown = 60;
+        tournament.countdown = completionCountdown;
+        
+        const countdownInterval = setInterval(() => {
+          completionCountdown--;
+          tournament.countdown = completionCountdown;
+          
+          console.log("here", tournaments, roomId);
+          if (completionCountdown <= 0) {
+            clearInterval(countdownInterval);
+            tournament.status = 'completed';
+            tournament.countdown = null;
+            
+            // Add a delay before removing the tournament
+            setTimeout(() => {
+              // Remove the tournament
+              delete tournaments[tournament.id];
+                // Emit updated tournaments list to all clients
+                io.emit('tournaments_updated', Object.values(tournaments));
+              }, 2000); // 2 second delay after countdown ends
+              
+              io.to(`tournament:${tournament.id}`).emit('tournament:state', tournament);
+            } else {
+              io.to(`tournament:${tournament.id}`).emit('tournament:state', tournament);
+            }
+          }, 2000);
+        }
+
+        // Emit tournament update
+        // io.to(`tournament:${tournament.id}`).emit('tournament:state', tournament);
+      }
   });
 }
