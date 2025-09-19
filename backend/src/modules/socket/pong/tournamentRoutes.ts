@@ -179,6 +179,7 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     if (tournament.status !== "in_progress") {
       return res.status(400).send({ error: "Tournament cannot start until players are filled." });
     }
+    console.log("TOURNAMENT: -->", tournament);
   
     // Initialize participants array at tournament start
     tournament.participants = [...tournament.players];

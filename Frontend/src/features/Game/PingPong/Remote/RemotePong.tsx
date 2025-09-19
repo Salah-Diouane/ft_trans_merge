@@ -21,9 +21,8 @@ const RemotePong: React.FC = () => {
     socket.emit('get-my-profile');
 
     const handleProfile = (user: any) => {
-      console.log("---> : user : ", user);
-      const userName = user.username;
-
+      const userName = user.id;
+      console.log("USERNAME ---->: ", user.id);
       if (userName) {
         setName(userName);
         userNameRef.current = userName;
@@ -82,8 +81,8 @@ const RemotePong: React.FC = () => {
 
   // Handle browser refresh / tab close
   useEffect(() => {
-
     socket.on('playerLeft', () => {
+      console.log("here PlayerLeft");
       setPlayerLeft(true);
     })
 
@@ -120,7 +119,7 @@ const RemotePong: React.FC = () => {
 
   return (
     <div className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-72 w-full flex flex-col justify-center items-center h-full">
-      {playerLeft && countdown ? (
+      {playerLeft ? (
         <div className="flex flex-col items-center justify-center text-white">
           <h1 className="text-5xl font-extrabold text-blue-500 drop-shadow-lg mb-6 animate-pulse">
             The Player Left The Game!

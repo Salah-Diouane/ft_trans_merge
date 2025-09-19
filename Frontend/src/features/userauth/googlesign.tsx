@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 export default function GoogleSign() {
 	const {t} = useTranslation();
 	const sendData = async () => {
-		window.location.href = "http://e3r10p10.1337.ma:3000/login/google";
+		window.location.href = "http://e3r10p12.1337.ma:3000/login/google";
 	};
 
 	return (

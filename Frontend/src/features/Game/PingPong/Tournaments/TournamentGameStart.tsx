@@ -30,12 +30,9 @@ const TournamentGameStart: React.FC = () => {
   };
 
   const fetchTournament = () => {
-
-    if (!tournamentId)
-      return;
-
+    if (!tournamentId) return;
     setLoading(true);
-    fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${tournamentId}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${tournamentId}`, {
       credentials: "include",
     })
       .then(async (res) => {
@@ -65,9 +62,7 @@ const TournamentGameStart: React.FC = () => {
     socket.emit('get-my-profile');
 
     const handleProfile = (user: any) => {
-      
-      const userName = user.username;
-
+      const userName = user.id;
       if (userName) {
         setName(userName);
         userNameRef.current = userName;

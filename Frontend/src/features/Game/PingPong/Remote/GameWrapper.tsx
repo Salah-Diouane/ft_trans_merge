@@ -16,6 +16,7 @@ interface Score {
 
 interface GameWrapperProps {
   playerName: string;
+  onGameEnd?: (winner: string | null) => void;
 }
 
 interface playersDataProps {
@@ -23,7 +24,7 @@ interface playersDataProps {
   right: string;
 }
 
-const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
+const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [canvasSize, setCanvasSize] = useState({ width: baseWidth, height: baseHeight });
@@ -46,12 +47,86 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
   const [roomId, setRoomId] = useState<'' | null>(null);
   const [playersNames, setPlayersNames] = useState<playersDataProps | null>(null);
 
+  // Touch controls state
+  const [isMobile, setIsMobile] = useState(false);
+  const touchStateRef = useRef({
+    touching: false,
+    lastDirection: 0,
+  });
+
   const keysRef = useRef({
     w: false,
     s: false,
     up: false,
     down: false,
   });
+
+  // Detect if device supports touch
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Touch event handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (!playerSide || gameOver) return;
+    
+    touchStateRef.current.touching = true;
+    
+    const touch = e.touches[0];
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const touchY = touch.clientY - rect.top;
+    const canvasHeight = canvasSize.height;
+    const center = canvasHeight / 2;
+    
+    // Determine direction based on touch position relative to center
+    const direction = touchY < center ? -1 : 1;
+    touchStateRef.current.lastDirection = direction;
+    
+    // Send movement start to server
+    sendPaddleMovement(direction, 'start', playerName);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (!touchStateRef.current.touching || !playerSide || gameOver) return;
+
+    const touch = e.touches[0];
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const touchY = touch.clientY - rect.top;
+    const canvasHeight = canvasSize.height;
+    const center = canvasHeight / 2;
+    
+    // Determine new direction
+    const newDirection = touchY < center ? -1 : 1;
+    
+    // If direction changed, stop old movement and start new one
+    if (newDirection !== touchStateRef.current.lastDirection) {
+      sendPaddleMovement(touchStateRef.current.lastDirection, 'stop', playerName);
+      sendPaddleMovement(newDirection, 'start', playerName);
+      touchStateRef.current.lastDirection = newDirection;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (!touchStateRef.current.touching || !playerSide) return;
+    
+    touchStateRef.current.touching = false;
+    
+    // Stop current movement
+    sendPaddleMovement(touchStateRef.current.lastDirection, 'stop', playerName);
+  };
 
   // Resize handler: update canvas size and scaling
   const updateCanvasSize = () => {
@@ -146,50 +221,53 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
     socket.emit('paddleMove', { side: playerSide, direction, state, roomId, playerName });
   };
 
-
   const handleKeyDown = (e: KeyboardEvent) => {
+    // Don't process keyboard if touching
+    if (touchStateRef.current.touching) return;
 
-    if (playerSide === 'left') {
-      if (e.key === 'w' && !keysRef.current.w) {
-        keysRef.current.w = true;
-        sendPaddleMovement(-1, 'start', playerName);
-      }
-      if (e.key === 's' && !keysRef.current.s) {
-        keysRef.current.s = true;
-        sendPaddleMovement(1, 'start', playerName);
-      }
-    } else if (playerSide === 'right') {
-      if (e.key === 'ArrowUp' && !keysRef.current.up) {
-        keysRef.current.up = true;
-        sendPaddleMovement(-1, 'start', playerName);
-      }
-      if (e.key === 'ArrowDown' && !keysRef.current.down) {
-        keysRef.current.down = true;
-        sendPaddleMovement(1, 'start', playerName);
-      }
+    // W/S keys - always control the current player's paddle
+    if (e.key === 'w' && !keysRef.current.w) {
+      keysRef.current.w = true;
+      sendPaddleMovement(-1, 'start', playerName);
+    }
+    if (e.key === 's' && !keysRef.current.s) {
+      keysRef.current.s = true;
+      sendPaddleMovement(1, 'start', playerName);
+    }
+
+    // Arrow keys - always control the current player's paddle
+    if (e.key === 'ArrowUp' && !keysRef.current.up) {
+      keysRef.current.up = true;
+      sendPaddleMovement(-1, 'start', playerName);
+    }
+    if (e.key === 'ArrowDown' && !keysRef.current.down) {
+      keysRef.current.down = true;
+      sendPaddleMovement(1, 'start', playerName);
     }
   };
 
   const handleKeyUp = (e: KeyboardEvent) => {
+    // Don't process keyboard if touching
+    if (touchStateRef.current.touching) return;
 
-    if (playerSide === 'left') {
-      if (e.key === 'w' && keysRef.current.w) {
-        keysRef.current.w = false;
-        sendPaddleMovement(-1, 'stop', playerName);
-      }
-      if (e.key === 's' && keysRef.current.s) {
-        keysRef.current.s = false;
-        sendPaddleMovement(1, 'stop', playerName);
-      }
-    } else if (playerSide === 'right') {
-      if (e.key === 'ArrowUp' && keysRef.current.up) {
-        keysRef.current.up = false;
-        sendPaddleMovement(-1, 'stop', playerName);
-      }
-      if (e.key === 'ArrowDown' && keysRef.current.down) {
-        keysRef.current.down = false;
-        sendPaddleMovement(1, 'stop', playerName);
-      }
+    // W/S keys - always control the current player's paddle
+    if (e.key === 'w' && keysRef.current.w) {
+      keysRef.current.w = false;
+      sendPaddleMovement(-1, 'stop', playerName);
+    }
+    if (e.key === 's' && keysRef.current.s) {
+      keysRef.current.s = false;
+      sendPaddleMovement(1, 'stop', playerName);
+    }
+
+    // Arrow keys - always control the current player's paddle
+    if (e.key === 'ArrowUp' && keysRef.current.up) {
+      keysRef.current.up = false;
+      sendPaddleMovement(-1, 'stop', playerName);
+    }
+    if (e.key === 'ArrowDown' && keysRef.current.down) {
+      keysRef.current.down = false;
+      sendPaddleMovement(1, 'stop', playerName);
     }
   };
 
@@ -200,6 +278,7 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
   }, []);
 
   useEffect(() => {
+    console.log(playerName);
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     let animationFrameId: number;
@@ -255,7 +334,9 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
       console.log('Game Over winner:', playerWin);
       setWinner(playerWin.winner);
       setGameOver(true);
-      socket.disconnect();
+      if (onGameEnd)
+        onGameEnd(playerWin.winner);
+      // socket.disconnect();
     });
 
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -264,7 +345,7 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
       socket.off('init');
       socket.off('gameState');
       socket.off('gameOver');
-      socket.disconnect();
+      // socket.disconnect();
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -280,7 +361,7 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
       window.removeEventListener('unload', handleBeforeUnload);
       // socket.disconnect()
     };
-  }, [roomId]);
+  }, [roomId, onGameEnd]);
 
   return (
     <div className="flex flex-col items-center justify-center text-white">
@@ -293,7 +374,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
       <div className="mb-2 text-xl font-mono flex items-center">
         <span className="text-cyan-400 flex items-center gap-2">
           <div className="relative flex flex-col items-center group">
-
             <img src="/src/features/Assets/me.jpeg" alt="" className='rounded-full bg-cover w-12 h-12' />
             <div className="absolute top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
               <div className="w-3 h-3 -mb-2 rotate-45 bg-black"></div>
@@ -305,7 +385,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
         <span className="text-pink-400 flex items-center gap-2">
           {playersNames?.right === winner && score.right == 6 ? 7 : score.right}
           <div className="relative flex flex-col items-center group">
-
             <img src="/src/features/Assets/me.jpeg" alt="" className='rounded-full bg-cover w-12 h-12' />
             <div className="absolute top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
               <div className="w-3 h-3 -mb-2 rotate-45 bg-black"></div>
@@ -314,14 +393,34 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName }) => {
           </div>
         </span>
       </div>
-      <canvas
-        ref={canvasRef}
-        width={canvasSize.width}
-        height={canvasSize.height}
-        className="rounded-lg border-2 border-white shadow-xl cursor-none"
-        style={{ maxWidth: '100%', height: 'auto' }}
-      />
-      <p className="mt-4 text-sm text-gray-400 font-mono">W/S and ↑/↓ to move</p>
+      
+      <div className="relative">
+        <canvas
+          ref={canvasRef}
+          width={canvasSize.width}
+          height={canvasSize.height}
+          className="rounded-lg border-2 border-white shadow-xl cursor-none"
+          style={{ maxWidth: '100%', height: 'auto' }}
+        />
+
+        {/* Touch Controls for Mobile/Tablet - Only for current player */}
+        {isMobile && playerSide && (
+          <div
+            className="absolute top-0 left-0 w-full h-full"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{ touchAction: 'none' }}
+          />
+        )}
+      </div>
+
+      <p className="mt-4 text-sm text-gray-400 font-mono">
+        {isMobile 
+          ? 'Touch upper/lower screen to move or use W/S or ↑/↓'
+          : 'W/S or ↑/↓ to move'
+        }
+      </p>
     </div>
   );
 };

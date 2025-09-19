@@ -6,15 +6,16 @@ import { FaPlay, FaTrash } from "react-icons/fa";
 import { LuCrown, LuTarget, LuSwords } from "react-icons/lu";
 import { PiTimer, PiStarFourBold } from "react-icons/pi";
 import toast from "react-hot-toast";
-import socket from '../../../Chat/services/socket';
-import type { Tournament, Match } from "./types";
 
+import socket from "../../../Chat/services/socket";
+import type { Tournament, Match } from "./types";
 interface TournamentBoardProps {
   onStartNextRound?: () => void;
 }
 const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const [tournament, setTournament] = useState<Tournament | null>(null);
+  const tournamentRef = useRef<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -32,10 +33,9 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
   };
   // Fetch tournament data from backend
   const fetchTournament = () => {
-    if (!tournamentId)
-      return;
+    if (!tournamentId) return;
     setLoading(true);
-    fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${tournamentId}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${tournamentId}`, {
       credentials: "include",
     })
       .then(async (res) => {
@@ -52,6 +52,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       })
       .then((data: { tournament: Tournament }) => {
         setTournament(data.tournament);
+        tournamentRef.current = data.tournament;
         setCountdown(data.tournament.countdown || null);
         if (data.tournament.participants === null) {
           setPlayers([...data.tournament.players]);
@@ -81,9 +82,9 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
     socket.emit("get-my-profile");
     
     const onProfile = (user: any) => {
-      if (user?.user) {
-        setUserId(user.user);
-        userRef.current = user.user;
+      if (user?.id) {
+        setUserId(user.id);
+        userRef.current = user.id;
       }
     };
 
@@ -133,8 +134,11 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
     socket.on("tournament-deleted", handleTournamentDeleted); // Add this listener
 
     socket.on('readyToPlay', (payload) => {
-      socket.emit("addToRoom", userRef.current);
-      navigate(`/game/ping-pong/tournament-game/tournament/${payload.matchId}/game`);
+      console.log(tournamentRef.current?.winners.findIndex(winner => winner == userRef.current))
+      if (tournamentRef.current?.winners.findIndex(winner => winner == userRef.current) !== -1) {
+        socket.emit("addToRoom", userRef.current);
+        navigate(`/game/ping-pong/tournament-game/tournament/${payload.matchId}/game`);
+      }
     });
 
     return () => {
@@ -168,7 +172,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
   // Start Tournament Button
   const handleStartTournament = async () => {
     try {
-      const response = await fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${tournamentId}/start`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${tournamentId}/start`, {
         method: "POST",
         credentials: "include",
       });
@@ -192,7 +196,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${tournamentId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${tournamentId}`, {
         method: "DELETE",
         credentials: "include",
       });

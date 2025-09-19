@@ -137,6 +137,7 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
 
     for (const [roomId, game] of games.entries()) {
       const idx = game.players.indexOf(playerName);
+      console.log("Index, Game:", idx, game);
       if (idx !== -1) {
         // Remove from active game state but keep in tournament.participants
         game.players.splice(idx, 1);

@@ -9,6 +9,7 @@ export interface AuthenticatedSocket extends Socket {
 }
   
 
+
 export interface ballProps {
 	x: number,
 	y: number,

@@ -27,12 +27,30 @@ const GameWrapper: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const [gameInProgress, setGameInProgress] = useState(false);
 
+  // Touch controls state
+  const [isMobile, setIsMobile] = useState(false);
+  const touchStateRef = useRef({
+    leftTouching: false,
+    rightTouching: false,
+  });
+
   const keysRef = useRef({
     w: false,
     s: false,
     up: false,
     down: false,
   });
+
+  // Detect if device supports touch
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const updateCanvasSize = () => {
     const maxWidth = window.innerWidth * 0.9;
@@ -58,6 +76,47 @@ const GameWrapper: React.FC = () => {
 
     ballRef.current.x = newWidth / 2;
     ballRef.current.y = newHeight / 2;
+  };
+
+  // Touch event handlers
+  const handleTouchStart = (e: React.TouchEvent, side: 'left' | 'right') => {
+    e.preventDefault();
+    if (side === 'left') {
+      touchStateRef.current.leftTouching = true;
+    } else {
+      touchStateRef.current.rightTouching = true;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent, side: 'left' | 'right') => {
+    e.preventDefault();
+    if (!gameInProgress || gameOver) return;
+
+    const touch = e.touches[0];
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const touchY = touch.clientY - rect.top;
+    const paddleH = paddleHeightRef.current;
+    const canvasHeight = canvasSize.height;
+
+    // Calculate paddle position based on touch (center paddle on finger)
+    const paddleY = Math.max(0, Math.min(canvasHeight - paddleH, touchY - paddleH / 2));
+
+    if (side === 'left' && touchStateRef.current.leftTouching) {
+      leftPaddleRef.current.y = paddleY;
+    } else if (side === 'right' && touchStateRef.current.rightTouching) {
+      rightPaddleRef.current.y = paddleY;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent, side: 'left' | 'right') => {
+    e.preventDefault();
+    if (side === 'left') {
+      touchStateRef.current.leftTouching = false;
+    } else {
+      touchStateRef.current.rightTouching = false;
+    }
   };
 
   const draw = (ctx: CanvasRenderingContext2D) => {
@@ -109,7 +168,7 @@ const GameWrapper: React.FC = () => {
   };
 
   const update = () => {
-    if (!gameInProgress || gameOver) return; // Stop if game not started or over
+    if (!gameInProgress || gameOver) return;
   
     const ball = ballRef.current;
     const left = leftPaddleRef.current;
@@ -125,14 +184,18 @@ const GameWrapper: React.FC = () => {
     const maxBallSpeed = 20 * scaleRef.current;
     const paddleSpeed = 10 * scaleRef.current;
   
-    // Paddle movement
-    if (keys.w) left.y -= paddleSpeed;
-    if (keys.s) left.y += paddleSpeed;
-    if (keys.up) right.y -= paddleSpeed;
-    if (keys.down) right.y += paddleSpeed;
-  
-    left.y = Math.max(0, Math.min(ch - paddleH, left.y));
-    right.y = Math.max(0, Math.min(ch - paddleH, right.y));
+    // Paddle movement (only apply keyboard controls if not touching)
+    if (!touchStateRef.current.leftTouching) {
+      if (keys.w) left.y -= paddleSpeed;
+      if (keys.s) left.y += paddleSpeed;
+      left.y = Math.max(0, Math.min(ch - paddleH, left.y));
+    }
+
+    if (!touchStateRef.current.rightTouching) {
+      if (keys.up) right.y -= paddleSpeed;
+      if (keys.down) right.y += paddleSpeed;
+      right.y = Math.max(0, Math.min(ch - paddleH, right.y));
+    }
   
     const prevBallX = ball.x;
     const prevBallY = ball.y;
@@ -203,14 +266,17 @@ const GameWrapper: React.FC = () => {
       ball.dx = -Math.min(Math.abs(ball.dx) * 1.1, maxBallSpeed);
     }
   
-    // Vertical bounce on paddle edges (if paddle not moving)
+    // Vertical bounce on paddle edges (updated to include touch state)
+    const leftPaddleMoving = touchStateRef.current.leftTouching || keys.w || keys.s;
+    const rightPaddleMoving = touchStateRef.current.rightTouching || keys.up || keys.down;
+
     const hitLeftEdgeVertically =
       ball.x + ballR >= leftPaddleRect.left &&
       ball.x - ballR <= leftPaddleRect.right &&
       ((prevBallY + ballR <= leftPaddleRect.top && ball.y + ballR >= leftPaddleRect.top) ||
        (prevBallY - ballR >= leftPaddleRect.bottom && ball.y - ballR <= leftPaddleRect.bottom));
   
-    if (!keys.w && !keys.s && hitLeftEdgeVertically) {
+    if (!leftPaddleMoving && hitLeftEdgeVertically) {
       ball.dy *= -1;
       ball.y = ball.y < leftPaddleRect.top ? leftPaddleRect.top - ballR : leftPaddleRect.bottom + ballR;
     }
@@ -221,7 +287,7 @@ const GameWrapper: React.FC = () => {
       ((prevBallY + ballR <= rightPaddleRect.top && ball.y + ballR >= rightPaddleRect.top) ||
        (prevBallY - ballR >= rightPaddleRect.bottom && ball.y - ballR <= rightPaddleRect.bottom));
   
-    if (!keys.up && !keys.down && hitRightEdgeVertically) {
+    if (!rightPaddleMoving && hitRightEdgeVertically) {
       ball.dy *= -1;
       ball.y = ball.y < rightPaddleRect.top ? rightPaddleRect.top - ballR : rightPaddleRect.bottom + ballR;
     }
@@ -266,19 +332,17 @@ const GameWrapper: React.FC = () => {
       resetBall(-1);
     }
   };
-  
 
-const resetBall = (direction: number) => {
-  const cw = canvasSize.width;
-  const ch = canvasSize.height;
-  ballRef.current = {
-    x: cw / 2,
-    y: ch / 2,
-    dx: direction * initialBallSpeedRef.current,
-    dy: 2 * scaleRef.current * (Math.random() > 0.5 ? 1 : -1), // a bit more vertical speed like the example
+  const resetBall = (direction: number) => {
+    const cw = canvasSize.width;
+    const ch = canvasSize.height;
+    ballRef.current = {
+      x: cw / 2,
+      y: ch / 2,
+      dx: direction * initialBallSpeedRef.current,
+      dy: 2 * scaleRef.current * (Math.random() > 0.5 ? 1 : -1),
+    };
   };
-};
-
 
   const handleStart = () => {
     setGameOver(false);
@@ -356,15 +420,42 @@ const resetBall = (direction: number) => {
         <span className="text-pink-400">{score.right}</span>
       </div>
 
-      <canvas
-        ref={canvasRef}
-        width={canvasSize.width}
-        height={canvasSize.height}
-        className="rounded-lg border-2 border-white shadow-xl"
-        style={{ maxWidth: '100%', height: 'auto' }}
-      />
+      <div className="relative">
+        <canvas
+          ref={canvasRef}
+          width={canvasSize.width}
+          height={canvasSize.height}
+          className="rounded-lg border-2 border-white shadow-xl"
+          style={{ maxWidth: '100%', height: 'auto' }}
+        />
 
-      <p className="mt-4 text-sm text-gray-400 font-mono">W/S and ↑/↓ to move</p>
+        {/* Touch Controls for Mobile/Tablet */}
+        {isMobile && (
+          <>
+            {/* Left Player Touch Area */}
+            <div
+              className="absolute top-0 left-0 w-1/2 h-full"
+              onTouchStart={(e) => handleTouchStart(e, 'left')}
+              onTouchMove={(e) => handleTouchMove(e, 'left')}
+              onTouchEnd={(e) => handleTouchEnd(e, 'left')}
+              style={{ touchAction: 'none' }}
+            />
+
+            {/* Right Player Touch Area */}
+            <div
+              className="absolute top-0 right-0 w-1/2 h-full"
+              onTouchStart={(e) => handleTouchStart(e, 'right')}
+              onTouchMove={(e) => handleTouchMove(e, 'right')}
+              onTouchEnd={(e) => handleTouchEnd(e, 'right')}
+              style={{ touchAction: 'none' }}
+            />
+          </>
+        )}
+      </div>
+
+      <p className="mt-4 text-sm text-gray-400 font-mono">
+        {isMobile ? 'Touch left/right sides to move paddles or use W/S and ↑/↓' : 'W/S and ↑/↓ to move'}
+      </p>
 
       {!gameInProgress && !gameOver && (
         <button

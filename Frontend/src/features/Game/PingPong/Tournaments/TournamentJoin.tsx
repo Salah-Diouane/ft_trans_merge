@@ -1,7 +1,7 @@
 // src/features/Game/PingPong/Tournaments/TournamentJoin.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import socket from '../../../Chat/services/socket';
+import socket from "../../../Chat/services/socket";
 import type { Tournament, Game } from "./types";
 
 const TournamentJoin: React.FC = () => {
@@ -18,9 +18,9 @@ const TournamentJoin: React.FC = () => {
     socket.emit("get-my-profile");
 
     const onProfile = (user: any) => {
-      if (user?.user) {
+      if (user?.id) {
         setUserId(user.id);
-        userRef.current = user.user;
+        userRef.current = user.id;
         setIsProfileLoaded(true);
       }
     };
@@ -31,7 +31,7 @@ const TournamentJoin: React.FC = () => {
   // Fetch tournaments
   const fetchTournaments = async () => {
     try {
-      const res = await fetch(`http://e3r10p10.1337.ma:3000/api/tournaments`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments`, {
         credentials: "include",
       });
       const data: Tournament[] = await res.json();
@@ -101,7 +101,7 @@ const TournamentJoin: React.FC = () => {
     if (t.status !== "waiting") return alert("Tournament already started");
 
     try {
-      const res = await fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${t.id}/join`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${t.id}/join`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -127,7 +127,7 @@ const TournamentJoin: React.FC = () => {
     if (t.status !== "waiting") return alert("Tournament already started");
 
     try {
-      const res = await fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${t.id}/leave`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${t.id}/leave`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -152,7 +152,7 @@ const TournamentJoin: React.FC = () => {
     if (t.status !== "waiting") return alert("Tournament already started");
 
     try {
-      const res = await fetch(`http://e3r10p10.1337.ma:3000/api/tournaments/${t.id}/start`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${t.id}/start`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
