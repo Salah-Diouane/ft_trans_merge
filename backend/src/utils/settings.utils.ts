@@ -91,16 +91,16 @@ export async function UpdateProfile(fastify: FastifyInstance, user: User, userna
 	})
 }
 
-//Ping Pong
-export async function UpdateGame(fastify: FastifyInstance, gameinfo: gameinfo, username: string): Promise<void> {
+//Ping Pong 
+export async function UpdateGame(fastify: FastifyInstance, gameinfo: gameinfo, id: number): Promise<void> {
 	return new Promise((resolve, rejects) => {
 		fastify.db.run(
-			'UPDATE game_settings_table SET ball_color = ?, paddle_color = ? , table_color = ? WHERE username = ?',
+			'UPDATE game_settings_table SET ball_color = ?, paddle_color = ? , table_color = ? WHERE user_id = ?',
 			[
 				gameinfo.ball_color,
 				gameinfo.paddle_color,
 				gameinfo.table_color,
-				username
+				id
 			],
 			(err) => {
 				if (err) return rejects(err);
@@ -110,22 +110,22 @@ export async function UpdateGame(fastify: FastifyInstance, gameinfo: gameinfo, u
 	})
 }
 
-export async function getgameinfo(fastify: FastifyInstance, username: string): Promise<gameinfo | null> {
+export async function getgameinfo(fastify: FastifyInstance, id: number): Promise<gameinfo | null> {
 	return (new Promise((resolve, rejects) => {
-		fastify.db.get('SELECT * FROM game_settings_table where username = ? ', [username],
+		fastify.db.get('SELECT * FROM game_settings_table where id = ? ', [id],
 			async (err: Error | null, rows: gameinfo) => {
 				if (err)
 					rejects(err);
 
 				if (!rows) {
-					console.log("No game settings found, creating default for user:", username);
-					await setdefaultgame(fastify, username);
+					console.log("No game settings found, creating default for user:", id);
+					await setdefaultgame(fastify, id);
 					
-					resolve({ // return default values
-						ball_color: "#FF0000",
-						paddle_color: "#0000FF", 
-						table_color: "#EEEEEE"
-					});
+					// resolve({ // return default values
+					// 	ball_color: "#FF0000",
+					// 	paddle_color: "#0000FF", 
+					// 	table_color: "#EEEEEE"
+					// });
 				} else {
 					console.log("rows in ping pong : ", rows);
 					resolve(rows);
@@ -135,13 +135,13 @@ export async function getgameinfo(fastify: FastifyInstance, username: string): P
 	}))
 }
 
-export async function setdefaultgame(fastify: FastifyInstance, username: string): Promise<void> {
+export async function setdefaultgame(fastify: FastifyInstance, id: number): Promise<void> {
 	return new Promise((resolve, reject) => {
 		fastify.db.run(
-			`INSERT INTO game_settings_table (username, ball_color, paddle_color, table_color)
+			`INSERT INTO game_settings_table (id, ball_color, paddle_color, table_color)
 			VALUES (?, ?, ?, ?)`,
 			[
-				username,
+				id,
 				"#FF0000",
 				"#0000FF",
 				"#EEEEEE" 
@@ -154,31 +154,30 @@ export async function setdefaultgame(fastify: FastifyInstance, username: string)
 	});
 }
 
-//Tic Tac
-export async function setdefaultTictac(fastify: FastifyInstance, username: string): Promise<void> {
-	return new Promise((resolve, reject) => {
+//Tic Tac :
+export async function UpdateTicTac(fastify: FastifyInstance, ticTacinfo: ticTacinfo, id: number): Promise<void> {
+	return new Promise((resolve, rejects) => {
 		fastify.db.run(
-			`INSERT INTO ticTac_settings_table (username, x_color, o_color, grid_color, board_color)
-			VALUES (?, ?, ?, ?, ?)`,
+			'UPDATE ticTac_settings_table SET x_color = ?, o_color = ?, grid_color = ?, board_color = ? WHERE id = ?',
 			[
-				username,
-				"#FF0000",
-				"#0000FF", 
-				"#EEEEEE",
-				"#EEEEEE"
+				ticTacinfo.x_color,
+				ticTacinfo.o_color,
+				ticTacinfo.grid_color,
+				ticTacinfo.board_color,
+				id
 			],
 			(err) => {
-				if (err) return reject(err);
+				if (err) return rejects(err);
 				resolve();
 			}
-		);
-	});
+		)
+	})
 }
 
-export async function getTicTacinfo(fastify: FastifyInstance, username: string): Promise<ticTacinfo | null> {
+export async function getTicTacinfo(fastify: FastifyInstance, id: number): Promise<ticTacinfo | null> {
 	return (new Promise((resolve, rejects) => {
-		console.log("username : ", username)
-		fastify.db.get('SELECT * FROM ticTac_settings_table where username = ? ', [username],
+		console.log("username : ", id)
+		fastify.db.get('SELECT * FROM ticTac_settings_table where id = ? ', [id],
 			async (err: Error | null, rows: ticTacinfo) => {
 				if (err){
 					console.log("err in the getTicTacinfo !!!!!")
@@ -187,8 +186,8 @@ export async function getTicTacinfo(fastify: FastifyInstance, username: string):
 				}
 
 				if (!rows) {
-					console.log("No tic-tac-toe settings found, creating default for user:", username);
-					await setdefaultTictac(fastify, username);
+					console.log("No tic-tac-toe settings found, creating default for user:", id);
+					await setdefaultTictac(fastify, id);
 
 					resolve({// return default values
 						x_color: "#FF0000",
@@ -205,23 +204,24 @@ export async function getTicTacinfo(fastify: FastifyInstance, username: string):
 	}))
 }
 
-export async function UpdateTicTac(fastify: FastifyInstance, ticTacinfo: ticTacinfo, username: string): Promise<void> {
-	return new Promise((resolve, rejects) => {
+export async function setdefaultTictac(fastify: FastifyInstance, id: number): Promise<void> {
+	return new Promise((resolve, reject) => {
 		fastify.db.run(
-			'UPDATE ticTac_settings_table SET x_color = ?, o_color = ?, grid_color = ?, board_color = ? WHERE username = ?',
+			`INSERT INTO ticTac_settings_table (id, x_color, o_color, grid_color, board_color)
+			VALUES (?, ?, ?, ?, ?)`,
 			[
-				ticTacinfo.x_color,
-				ticTacinfo.o_color,
-				ticTacinfo.grid_color,
-				ticTacinfo.board_color,
-				username
+				id,
+				"#FF0000",
+				"#0000FF", 
+				"#EEEEEE",
+				"#EEEEEE"
 			],
 			(err) => {
-				if (err) return rejects(err);
+				if (err) return reject(err);
 				resolve();
 			}
-		)
-	})
+		);
+	});
 }
 
 export async function setpassword(fastify: FastifyInstance, username: string, newpassowrd: string): Promise<void> {

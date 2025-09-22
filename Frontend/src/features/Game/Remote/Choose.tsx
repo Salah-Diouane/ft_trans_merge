@@ -12,27 +12,28 @@ export default function Choose({ onChoose }: ChooseProps) {
     const [currentUser, setCurrentUser] = useState<Partial<User> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     // const currentUserRef = useRef<string>("");
+    useEffect( () => {
+        socket.disconnect();
+        socket.connect()
+    }, [])
 
     useEffect(() => {
         socket.emit("request:init");
         socket.emit("get-my-profile");
 
-        // socket.on("profile-data", (socket_data: { username: string }) => {
-        //     // currentUserRef.current = socket_data.user;
-        //     console.log("---> : socket_data")
-        //     console.log(socket_data.username)
-        //     setCurrentUser(socket_data.username);
-        //     // setIsLoading(false);
-        // });
         socket.on("profile-data", (data: { id: number; username: string; online: boolean }) => {
-            // console.log("-->data.id")
-            console.log(data)
+
             // currentUserRef.current = data.id;
             setCurrentUser({ id: data.id, username: data.username, online: data.online });
           });
+        //   socket.on("profile:updated", (data: { id: number; username: string; online: boolean }) => {
+        //     console.log("data =>>>>> : ", data)
+        //     setCurrentUser({ id: data.id, username: data.username, online: data.online });
+        // });
 
         return () => {
             socket.off("profile-data");
+            // socket.off("profile:updated");
         };
     }, []);
 

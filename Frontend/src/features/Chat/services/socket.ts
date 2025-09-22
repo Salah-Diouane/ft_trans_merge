@@ -9,10 +9,25 @@ import { io } from "socket.io-client";
 //     transports: ["websocket", "polling"],
 // });
 
-const socket = io('http://e3r10p12.1337.ma:3000', {
-    withCredentials: true,
-    autoConnect: false,
+
+// const socket = io('https://localhost', {
+//   path: "/socket.io/",
+//   transports: ["websocket", "polling"],
+//   withCredentials: true
+// });
+
+
+const socket = io("https://localhost", {
+  path: "/socket.io/",
+  withCredentials: true,
+  transports: ["websocket", "polling"]
 });
+
+
+// const socket = io('http://localhost:3000', {
+//     withCredentials: true,
+//     autoConnect: false,
+// });
 
 export function joinGame(name: string) {
     console.log("here", name);

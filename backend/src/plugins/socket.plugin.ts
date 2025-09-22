@@ -8,9 +8,8 @@ import pongGameHandlers from "../modules/socket/pong/pong.game.handlers";
 import tournamentHandlers from "../modules/socket/pong/tournamentHandlers";
 
 import { startGameLoop } from "../modules/socket/pong/gameLoop";
-interface AuthenticatedSocket extends Socket {
-    user?: any;
-}
+
+
 // const userSockets = new Map<string, string>();
 export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
     const db = fastify.db;

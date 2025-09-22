@@ -10,7 +10,6 @@ declare module 'fastify' {
   }
 }
 
-
 declare module 'fastify' {
   interface FastifyInstance {
     db: sqlite3.Database;

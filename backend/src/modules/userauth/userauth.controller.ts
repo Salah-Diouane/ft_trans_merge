@@ -1,6 +1,6 @@
 import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { sendemail, generateAccessToken, generateRefreshToken, generateusername } from './userauth.services'
-import { addNewUser, getuser, setTwofAcode, getuser_email } from "../../utils/userauth.utils";
+import { addNewUser, getuser, setTwofAcode, getuser_email, getuserid} from "../../utils/userauth.utils";
 import { updateImage } from '../../utils/settings.utils'
 import type { User } from '../../utils/userauth.utils';
 import { env } from '../../plugins/env.plugin';
@@ -54,7 +54,8 @@ export async function handle_googlesign(fastify: FastifyInstance, request: Fasti
 		const username = generateusername(userInfo.email);
 		const newuser: User = { username: username, email: userInfo.email, family_name: userInfo.family_name, first_name: userInfo.given_name }
 		await addNewUser(fastify, newuser);
-		await setdefaultgame(fastify, newuser.username);
+		const id = await getuserid(fastify, newuser.username) || 0;
+		await setdefaultgame(fastify, id);
 		await updateImage(fastify, username, userInfo.picture);
 		await generateRefreshToken(fastify, reply, username);
 		await generateAccessToken(fastify, reply, newuser);

@@ -30,7 +30,7 @@ export default function TwoFA() {
 			password: state.password
 		};
 		try {
-			const response = await fetch("http://e3r10p12.1337.ma:3000/login/verify2fa", {
+			const response = await fetch("https://localhost/api/login/verify2fa", {
 				method: "POST",
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),

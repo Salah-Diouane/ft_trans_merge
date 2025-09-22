@@ -73,24 +73,7 @@ const ChatApp: FC = () => {
     socket.emit("request:init");
     socket.emit("get-my-profile");
 
-  
-    // const myAllfriends = async () => {
-    //   const res = await fetch("http://e3r10p12.1337.ma:3000/friends/allfriends", { 
-    //     credentials: "include" 
-    //   });
-    //   const data = await res.json();
-    
-    //   console.log("all friends raw data : ", data);
-    
-    //   // Vérifier si chaque user a un id
-    //   data.forEach((user: any, index: number) => {
-    //     console.log(`User ${index}:`, user);
-    //     console.log(` -> id: ${user.id}, username: ${user.username}`);
-    //   });
-    
-    //   setUsers(data);
-    // };
-    // myAllfriends();
+
     
     socket.on("friends:list", (backendUsers: User[]) => {
       setUsers(backendUsers);

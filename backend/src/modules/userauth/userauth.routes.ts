@@ -1,12 +1,12 @@
 import fastify, { FastifyInstance } from "fastify";
 import { request } from "http";
 import { user_signup, user_signin, user_Verify2fa } from './userauth.schema'
-import { addNewUser, getuser } from '../../utils/userauth.utils'
+import { addNewUser, getuser , getuserid} from '../../utils/userauth.utils'
 import type { User } from '../../utils/userauth.utils'
 import { handle_Signin, handel_verifytwofa, handle_googlesign } from './userauth.controller'
 import { generateAccessToken, generateRefreshToken } from './userauth.services'
 import { env } from "../../plugins/env.plugin";
-import { setdefaultgame, setdefaultTictac } from "../../utils/settings.utils";
+import { setdefaultgame } from "../../utils/settings.utils";
 
 export const SignUp = async (fastify: FastifyInstance) => {
 	fastify.post('/signup', {
@@ -20,8 +20,8 @@ export const SignUp = async (fastify: FastifyInstance) => {
 				throw ({ message: 'the password  and confirm password are not the same !', type: "confirmpassword", singup: false });
 			else {
 				await addNewUser(fastify, user);
-				await setdefaultgame(fastify, user.username);
-				await setdefaultTictac(fastify, user.username);
+				const id = await getuserid(fastify, user.username) || 0;
+				await setdefaultgame(fastify, id);
 				return reply.code(201).send({ message: "the user is created ", singup: true });
 			}
 		} catch (err: unknown) {

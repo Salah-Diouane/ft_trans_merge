@@ -54,16 +54,9 @@ export const sendRequest: FastifyPluginCallback<SendRequestOptions> =  (fastify,
 		  };
   
 		  const data = JSON.stringify(notification);
-		//   id INTEGER PRIMARY KEY AUTOINCREMENT,
-		//   id_sender INTEGER NOT NULL,
-		//   id_receiver INTEGER NOT NULL,
-		//   sender TEXT NOT NULL,
-		//   receiver TEXT NOT NULL,
-		//   type TEXT NOT NULL,
-		//   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+
 		  fastify.db.run(
-			// "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type) VALUES (?, ?, ?, ?, ?)",
-			// [decode.userid, id_receiver, notification.sender, notification.receiver, notification.type],
+			
 			"INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
 			[notification.senderId, notification.recipientId, notification.sender, notification.receiver, notification.type, notification.message, notification.timestamp],
 			(err: any) => {
@@ -127,12 +120,7 @@ export const acceptRequest:FastifyPluginCallback<AcceptRequestOptions> =  (fasti
 				  message: "Request Accepted",
 				  timestamp: new Date().toISOString(),
 				};
-			  
-				// fastify.db.run(
-				// 	"INSERT INTO notification (id_sender, id_receiver, sender, receiver, type) VALUES (?, ?, ?, ?, ?)",
-				// 	[decode.userid, id_receiver, notification.sender, notification.receiver, notification.type],
-				// );
-			  
+
 				fastify.db.run(
 					"INSERT INTO notification (id_sender, id_receiver, sender, receiver, type , text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
 					[decode.userid, id_receiver, notification.sender, notification.receiver, notification.type, notification.message, notification.timestamp],
@@ -190,7 +178,8 @@ export const allfriends = async (fastify: FastifyInstance) => {
 			if (!token)
 				return reply.code(401).send({ message: "No access token in cookies", accesstoken: false, refreshtoken: true });
 			const decode = fastify.jwt.decode(token) as { userid: number };
-			console.log(decode.userid);
+			console.log("decode user : ", decode);
+			console.log("decode userid : ", decode.userid);
 			const friends = await getFriends(fastify, decode.userid);
 
 			const friend_online_status = friends.map((user) => ({

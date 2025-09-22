@@ -14,7 +14,7 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
     
     const handleSendRequest = async (username: string) => {
         try {
-        const res = await fetch("http://e3r10p12.1337.ma:3000/friends/sendrequest", {
+        const res = await fetch("https://localhost/api/friends/sendrequest", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ friend_username: username }),
@@ -22,6 +22,7 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
         });
 
         await res.json();
+        console.log(" res : ", res)
         setSentRequests((prev) => ({ ...prev, [username]: true }));
         } catch (err) {
         console.error("Error sending request:", err);
@@ -56,18 +57,9 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
             <div className="flex flex-1 items-center justify-end gap-4">
               <button
                 className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
-                onClick={() => handleSendRequest(user.username)}
+                // onClick={() => handleSendRequest(user.username)}
               >
                 <UserIcon className="size-8 max-lg:size-4"  /> View Profile
-                {/* {!sentRequests[user.username] ? (
-                  <>
-                  <UserPlus size={16} /> View Profile
-                  </>
-                ) : (
-                  <>
-                    <X size={16} /> Request Sent
-                  </>
-                )} */}
               </button>
             </div>
           </div>

@@ -4,6 +4,7 @@ import '../../styles/index.css'
 import { useStore } from "../../store/store"
 import { FaPlay } from "react-icons/fa";
 import { FaCrown, FaMedal, FaTrophy, FaBolt, FaStar, FaGamepad, FaFire, FaChevronRight, } from "react-icons/fa";
+import { useNavigate } from 'react-router';
 
 interface User {
 	name: string;
@@ -149,6 +150,7 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 
 const WelcomeCard: React.FC = () => {
 	const store = useStore();
+	const navigate = useNavigate();
 	return (
 
 		<div className='z-10 relative w-full h-[20%] bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-hidden '>
@@ -164,7 +166,9 @@ const WelcomeCard: React.FC = () => {
 					<h2 className='font-russo text-1xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white mt-1 animate-pulse'>{store.username.toUpperCase()}</h2>
 				</div>
 
-				<button className=' w-fit px-8 py-3 h-[50%] rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600  text-white font-bold flex items-center justify-center space-x-2'>
+				<button className=' w-fit px-8 py-3 h-[50%] rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600  text-white font-bold flex items-center justify-center space-x-2'
+					onClick={() => navigate(`/game`)}
+				>
 					<FaPlay className='text-lg' />
 					<span>Play</span>
 				</button>
