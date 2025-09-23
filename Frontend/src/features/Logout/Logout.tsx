@@ -10,7 +10,7 @@ const Logout: React.FC = () => {
 
   useEffect(() => {
 	const logout = async () => {
-		await fetch(`https://e3r5p2.1337.ma/api/logout`, {
+		await fetch(`https://e3r5p8.1337.ma/api/logout`, {
 			method: 'GET',
 			credentials: 'include',
 		});

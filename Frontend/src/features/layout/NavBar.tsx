@@ -223,6 +223,7 @@ const NavBar: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    
     if (query.trim() === "") {
       setResult([]);
     } else {

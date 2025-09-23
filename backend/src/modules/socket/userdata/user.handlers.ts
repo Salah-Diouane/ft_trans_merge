@@ -94,6 +94,7 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
 
 	socket.on("request:init", () => {
 		db.all("SELECT * FROM user_authentication ORDER BY id ASC", (err, user_authentication: User[]) => {
+
 			if (!err) {
 
 				const enrichedUsers = user_authentication.map((u) => {
@@ -105,6 +106,7 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
 						...u,
 						online: userSockets.length > 0,
 					};
+					
 				});
 
 				socket.emit("user:list", enrichedUsers);

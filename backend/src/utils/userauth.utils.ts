@@ -48,6 +48,21 @@ export async function getUserName(fastify: FastifyInstance, id: string) : Promis
 	})
 }
 
+export async function getUserImage(fastify: FastifyInstance, id: string) : Promise<string | null> {
+	return new Promise((resolve, rejects) => {
+		fastify.db.get(
+			`SELECT image_url from user_authentication WHERE id = ? `,
+			[
+				id
+			],
+			(err : Error, row: { image_url: string}) => {
+				if (err) rejects(err);
+				resolve(row.image_url);
+			}
+		);
+	})
+}
+
 export async function getuser(fastify: FastifyInstance, username: string): Promise<User | null> {
 	return (new Promise((resolve, rejects) => {
 		fastify.db.get('SELECT * FROM user_authentication WHERE username = ?', [username],

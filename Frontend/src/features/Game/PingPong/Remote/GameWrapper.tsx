@@ -29,6 +29,10 @@ interface displayNamesProps {
   left: string;
   right: string;
 }
+interface usersImagesProps {
+  id: string;
+  user_image: string;
+}
 
 const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName, onGameEnd }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -53,6 +57,10 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
   const [roomId, setRoomId] = useState<'' | null>(null);
   const [playersNames, setPlayersNames] = useState<playersDataProps | null>(null);
   const [playersDisplayNames, setPlayersDisplayNames] = useState<displayNamesProps | null>(null);
+  const [usersImages, setUserImages] = useState<usersImagesProps[] | null>(null);
+  const [leftPlayer, setLeftPlayer] = useState<string>("");
+  const [rightPlayer, setRightPlayer] = useState<string>("");
+  const [ids, setIds] = useState<string[] | null>(null);
 
   // Add refs to track if usernames have been fetched
   const playerNamesFetchedRef = useRef(false);
@@ -71,6 +79,32 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     up: false,
     down: false,
   });
+
+  const fetchUsersImages = async (ids: string[]) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user-image`, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch users");
+      }
+
+      const responseData = await response.json();
+      console.log(responseData);
+      setUserImages(responseData.users);
+      // setLeftPlayer(responseData[0].image_url);
+      // setRightPlayer(responseData[1].image_url);
+      
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
 
   // Optimized function to fetch usernames only once
   const fetchUsernamesOnce = async (playerIds: string[]): Promise<Record<string, string>> => {
@@ -334,6 +368,7 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
+    
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('keydown', handleKeyDown);
@@ -350,6 +385,8 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     socket.on('gameState', async (serverState) => {
       const data = { left: serverState.players[0], right: serverState.players[1] };
       setPlayersNames(data);
+      if (!usersImages)
+        fetchUsersImages(serverState.players || []);
 
       // Only fetch usernames once when players are first set
       if (!playerNamesFetchedRef.current && serverState.players[0] && serverState.players[1]) {
@@ -438,7 +475,8 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
       <div className="mb-2 text-xl font-mono flex items-center">
         <span className="text-cyan-400 flex items-center gap-2">
           <div className="relative flex flex-col items-center group">
-            <img src="/src/features/Assets/me.jpeg" alt="" className='rounded-full bg-cover w-12 h-12' />
+            <img src={usersImages && usersImages[0]?.user_image || ""}
+            alt="" className='rounded-full bg-cover w-12 h-12' />
             <div className="absolute top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
               <div className="w-3 h-3 -mb-2 rotate-45 bg-black"></div>
               <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">
@@ -452,7 +490,8 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
         <span className="text-pink-400 flex items-center gap-2">
           {winner === (playersDisplayNames?.right || playersNames?.right) && score.right === 6 ? 7 : score.right}
           <div className="relative flex flex-col items-center group">
-            <img src="/src/features/Assets/me.jpeg" alt="" className='rounded-full bg-cover w-12 h-12' />
+            <img src={(usersImages && (playersNames?.right === usersImages[1]?.id ? usersImages[1]?.user_image : usersImages[0]?.user_image) || "")}
+            alt="" className='rounded-full bg-cover w-12 h-12' />
             <div className="absolute top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
               <div className="w-3 h-3 -mb-2 rotate-45 bg-black"></div>
               <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">

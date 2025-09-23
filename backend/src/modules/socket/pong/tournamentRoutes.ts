@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { v4 as uuidv4 } from "uuid";
 import { tournaments, Tournament } from "./tournamentStore";
 import { games, createGame, addPlayerToGame, getGame, Game } from "./gameManager";
-import { getUserName } from "../../../utils/userauth.utils";
+import { getUserImage, getUserName } from "../../../utils/userauth.utils";
 
 interface CreateTournamentBody {
   name: string;
@@ -17,6 +17,11 @@ interface JoinTournamentParams {
 
 interface JoinTournamentBody {
   user: string;
+}
+
+interface userData {
+  id:string;
+  user_image:string;
 }
 
 export default async function tournamentRoutes(app: FastifyInstance) {
@@ -340,6 +345,22 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     console.log(`Tournament ${id} (${tournament.name}) deleted by owner ${tournament.owner}`);
   
     return res.status(200).send({ message: "Tournament deleted successfully." });
+  });
+
+  app.post('/user-image', async (
+    req: FastifyRequest<{ Body: { ids: string[] }}>,
+    res: FastifyReply
+  ) => {
+    const { ids } = req.body;
+    const users : userData[] = [];
+    for (const id of ids) {
+      const userImage = await getUserImage(app, id);
+      users.push({
+        id,
+        user_image:userImage || ""
+      });
+    }
+    return res.status(200).send({ users });
   });
 
 }

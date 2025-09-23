@@ -43,7 +43,7 @@ export const createUserSlice: StateCreator<userinfo> = (set) => ({
 	setTwoFA : (TwoFA) => set({twofa: TwoFA}),
 	fetchUserInfo: async () => {
 		try {
-			const respone = await fetch('https://e3r5p2.1337.ma/api/userinfo', {
+			const respone = await fetch('https://e3r5p8.1337.ma/api/userinfo', {
 				credentials: 'include',
 			}).then(e => e.json()) as { userinfo: boolean, data: userinfo };
 
