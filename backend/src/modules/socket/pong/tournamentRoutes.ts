@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { v4 as uuidv4 } from "uuid";
 import { tournaments, Tournament } from "./tournamentStore";
 import { games, createGame, addPlayerToGame, getGame, Game } from "./gameManager";
+import { getUserName } from "../../../utils/userauth.utils";
 
 interface CreateTournamentBody {
   name: string;
@@ -161,6 +162,17 @@ export default async function tournamentRoutes(app: FastifyInstance) {
   // 🔹 GET ALL TOURNAMENTS
   app.get('/tournaments', async (_req: FastifyRequest, res: FastifyReply) => {
     return res.status(200).send(Object.values(tournaments));
+  });
+  // GET ALL USERS BY IDS
+  app.post('/users', async (req: FastifyRequest<{ Body: { ids: string[] } }>, res: FastifyReply) => {
+    const { ids } = req.body;
+    
+    const users : string[] = [];
+    for (const id of ids) {
+      const userName = await getUserName(app, id);
+      users.push(userName || "");
+    }
+    return res.status(200).send({ users });
   });
 
   // 🔹 START TOURNAMENT WITH TIMER

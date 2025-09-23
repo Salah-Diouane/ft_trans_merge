@@ -16,6 +16,7 @@ interface Score {
 
 interface GameWrapperProps {
   playerName: string;
+  playerDisplayName?: string; // Add optional display name prop
   onGameEnd?: (winner: string | null) => void;
 }
 
@@ -24,7 +25,12 @@ interface playersDataProps {
   right: string;
 }
 
-const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
+interface displayNamesProps {
+  left: string;
+  right: string;
+}
+
+const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName, onGameEnd }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [canvasSize, setCanvasSize] = useState({ width: baseWidth, height: baseHeight });
@@ -43,9 +49,14 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
   const [gameOver, setGameOver] = useState(false);
   const [gameInProgress, setGameInProgress] = useState(false);
   const [playerSide, setPlayerSide] = useState<'left' | 'right' | null>(null);
-  const [winner, setWinner] = useState<'left' | 'right' | null>(null);
+  const [winner, setWinner] = useState<string | null>(null); // Changed to string for username
   const [roomId, setRoomId] = useState<'' | null>(null);
   const [playersNames, setPlayersNames] = useState<playersDataProps | null>(null);
+  const [playersDisplayNames, setPlayersDisplayNames] = useState<displayNamesProps | null>(null);
+
+  // Add refs to track if usernames have been fetched
+  const playerNamesFetchedRef = useRef(false);
+  const usernamesCacheRef = useRef<Record<string, string>>({});
 
   // Touch controls state
   const [isMobile, setIsMobile] = useState(false);
@@ -60,6 +71,52 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
     up: false,
     down: false,
   });
+
+  // Optimized function to fetch usernames only once
+  const fetchUsernamesOnce = async (playerIds: string[]): Promise<Record<string, string>> => {
+    // Check if we already have all usernames cached
+    const uncachedIds = playerIds.filter(id => !usernamesCacheRef.current[id]);
+    
+    if (uncachedIds.length === 0) {
+      return usernamesCacheRef.current;
+    }
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids: uncachedIds }),
+      });
+
+      if (!response.ok) {
+        // Fallback to IDs if fetch fails
+        uncachedIds.forEach(id => {
+          usernamesCacheRef.current[id] = id;
+        });
+        return usernamesCacheRef.current;
+      }
+
+      const responseData = await response.json();
+      const fetchedUsers: string[] = responseData.users;
+
+      // Cache the new usernames
+      uncachedIds.forEach((id, index) => {
+        usernamesCacheRef.current[id] = fetchedUsers[index] || id;
+      });
+
+      return usernamesCacheRef.current;
+    } catch (error) {
+      console.error("Error fetching usernames:", error);
+      // Fallback to IDs on error
+      uncachedIds.forEach(id => {
+        usernamesCacheRef.current[id] = id;
+      });
+      return usernamesCacheRef.current;
+    }
+  };
 
   // Detect if device supports touch
   useEffect(() => {
@@ -87,11 +144,9 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
     const canvasHeight = canvasSize.height;
     const center = canvasHeight / 2;
     
-    // Determine direction based on touch position relative to center
     const direction = touchY < center ? -1 : 1;
     touchStateRef.current.lastDirection = direction;
     
-    // Send movement start to server
     sendPaddleMovement(direction, 'start', playerName);
   };
 
@@ -107,10 +162,8 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
     const canvasHeight = canvasSize.height;
     const center = canvasHeight / 2;
     
-    // Determine new direction
     const newDirection = touchY < center ? -1 : 1;
     
-    // If direction changed, stop old movement and start new one
     if (newDirection !== touchStateRef.current.lastDirection) {
       sendPaddleMovement(touchStateRef.current.lastDirection, 'stop', playerName);
       sendPaddleMovement(newDirection, 'start', playerName);
@@ -123,12 +176,10 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
     if (!touchStateRef.current.touching || !playerSide) return;
     
     touchStateRef.current.touching = false;
-    
-    // Stop current movement
     sendPaddleMovement(touchStateRef.current.lastDirection, 'stop', playerName);
   };
 
-  // Resize handler: update canvas size and scaling
+  // Resize handler
   const updateCanvasSize = () => {
     const maxWidth = window.innerWidth * 0.9;
     const maxHeight = window.innerHeight * 0.7;
@@ -222,10 +273,8 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    // Don't process keyboard if touching
     if (touchStateRef.current.touching) return;
 
-    // W/S keys - always control the current player's paddle
     if (e.key === 'w' && !keysRef.current.w) {
       keysRef.current.w = true;
       sendPaddleMovement(-1, 'start', playerName);
@@ -234,8 +283,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
       keysRef.current.s = true;
       sendPaddleMovement(1, 'start', playerName);
     }
-
-    // Arrow keys - always control the current player's paddle
     if (e.key === 'ArrowUp' && !keysRef.current.up) {
       keysRef.current.up = true;
       sendPaddleMovement(-1, 'start', playerName);
@@ -247,10 +294,8 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
   };
 
   const handleKeyUp = (e: KeyboardEvent) => {
-    // Don't process keyboard if touching
     if (touchStateRef.current.touching) return;
 
-    // W/S keys - always control the current player's paddle
     if (e.key === 'w' && keysRef.current.w) {
       keysRef.current.w = false;
       sendPaddleMovement(-1, 'stop', playerName);
@@ -259,8 +304,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
       keysRef.current.s = false;
       sendPaddleMovement(1, 'stop', playerName);
     }
-
-    // Arrow keys - always control the current player's paddle
     if (e.key === 'ArrowUp' && keysRef.current.up) {
       keysRef.current.up = false;
       sendPaddleMovement(-1, 'stop', playerName);
@@ -278,7 +321,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
   }, []);
 
   useEffect(() => {
-    console.log(playerName);
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     let animationFrameId: number;
@@ -305,9 +347,22 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
       setPlayerSide(player === 0 ? 'left' : 'right');
     });
 
-    socket.on('gameState', (serverState) => {
+    socket.on('gameState', async (serverState) => {
       const data = { left: serverState.players[0], right: serverState.players[1] };
       setPlayersNames(data);
+
+      // Only fetch usernames once when players are first set
+      if (!playerNamesFetchedRef.current && serverState.players[0] && serverState.players[1]) {
+        playerNamesFetchedRef.current = true;
+        
+        const usernamesMap = await fetchUsernamesOnce([serverState.players[0], serverState.players[1]]);
+        
+        setPlayersDisplayNames({
+          left: usernamesMap[serverState.players[0]] || serverState.players[0],
+          right: usernamesMap[serverState.players[1]] || serverState.players[1]
+        });
+      }
+
       ballRef.current = {
         ...serverState.ball,
         x: serverState.ball.x * scaleRef.current,
@@ -317,7 +372,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
       leftPaddleRef.current.y = serverState.paddles.left * scaleRef.current;
       rightPaddleRef.current.y = serverState.paddles.right * scaleRef.current;
 
-      // Set playerSide if not set yet and playerName is known
       if (!playerSide && playerName) {
         if (serverState.players[0] === playerName) {
           setPlayerSide("left");
@@ -330,13 +384,21 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
       setRoomId(serverState.roomId);
     });
 
-    socket.on('gameOver', (playerWin) => {
+    socket.on('gameOver', async (playerWin) => {
       console.log('Game Over winner:', playerWin);
-      setWinner(playerWin.winner);
+      
+      // Get winner display name from cache or fetch if needed
+      let winnerDisplayName = usernamesCacheRef.current[playerWin.winner];
+      if (!winnerDisplayName) {
+        const usernamesMap = await fetchUsernamesOnce([playerWin.winner]);
+        winnerDisplayName = usernamesMap[playerWin.winner] || playerWin.winner;
+      }
+      
+      setWinner(winnerDisplayName);
       setGameOver(true);
+      
       if (onGameEnd)
-        onGameEnd(playerWin.winner);
-      // socket.disconnect();
+        onGameEnd(winnerDisplayName);
     });
 
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -345,7 +407,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
       socket.off('init');
       socket.off('gameState');
       socket.off('gameOver');
-      // socket.disconnect();
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -359,16 +420,19 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
       socket.off('gameOver');
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('unload', handleBeforeUnload);
-      // socket.disconnect()
+      
+      // Reset the fetch flag when component unmounts
+      playerNamesFetchedRef.current = false;
+      usernamesCacheRef.current = {};
     };
-  }, [roomId, onGameEnd]);
+  }, [roomId, onGameEnd, playerName, playerSide]);
 
   return (
     <div className="flex flex-col items-center justify-center text-white">
       <h1 className="text-3xl mb-4 font-bold font-mono tracking-wide">Pong</h1>
       {gameOver && (
         <div className="text-2xl font-bold text-yellow-400 mb-4">
-          Game Over! {`${winner}  Wins!`}
+          Game Over! {winner} Wins!
         </div>
       )}
       <div className="mb-2 text-xl font-mono flex items-center">
@@ -377,18 +441,23 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
             <img src="/src/features/Assets/me.jpeg" alt="" className='rounded-full bg-cover w-12 h-12' />
             <div className="absolute top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
               <div className="w-3 h-3 -mb-2 rotate-45 bg-black"></div>
-              <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">{playersNames?.left}</span>
+              <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">
+                {playersDisplayNames?.left || playersNames?.left}
+              </span>
             </div>
           </div>
-          {playersNames?.left === winner && score.left == 6 ? 7 : score.left}</span>
+          {winner === (playersDisplayNames?.left || playersNames?.left) && score.left === 6 ? 7 : score.left}
+        </span>
         <span className="mx-4 text-gray-500">|</span>
         <span className="text-pink-400 flex items-center gap-2">
-          {playersNames?.right === winner && score.right == 6 ? 7 : score.right}
+          {winner === (playersDisplayNames?.right || playersNames?.right) && score.right === 6 ? 7 : score.right}
           <div className="relative flex flex-col items-center group">
             <img src="/src/features/Assets/me.jpeg" alt="" className='rounded-full bg-cover w-12 h-12' />
             <div className="absolute top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
               <div className="w-3 h-3 -mb-2 rotate-45 bg-black"></div>
-              <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">{playersNames?.right}</span>
+              <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">
+                {playersDisplayNames?.right || playersNames?.right}
+              </span>
             </div>
           </div>
         </span>
@@ -403,7 +472,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, onGameEnd }) => {
           style={{ maxWidth: '100%', height: 'auto' }}
         />
 
-        {/* Touch Controls for Mobile/Tablet - Only for current player */}
         {isMobile && playerSide && (
           <div
             className="absolute top-0 left-0 w-full h-full"

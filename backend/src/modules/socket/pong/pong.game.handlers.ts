@@ -268,4 +268,86 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
         // io.to(`tournament:${tournament.id}`).emit('tournament:state', tournament);
       }
   });
+
+  socket.on('invite-game', ({ opponent, playerName }) => {
+    let roomId = uuidv4();
+    createGame(roomId);
+    
+    addPlayerToGame({
+      roomId,
+      playerName: opponent,
+      socketId: '',
+    });
+
+    const success = addPlayerToGame({
+        roomId,
+        playerName,
+        socketId: socket.id,
+      });
+    
+    if (!success) {
+      socket.emit('full');
+      return;
+    }
+    socket.join(roomId);
+    const game = getGame(roomId);
+    const playerIndex = game?.players.indexOf(playerName);
+    socket.emit('init', { player: playerIndex });
+    socket.emit('roomId', roomId);
+    
+    // Notify opponent if connected
+    // const opponentSocket = Array.from(io.sockets.sockets.values()).find(s => s.user && s.user.username === opponent);
+    // if (opponentSocket) {
+    //   opponentSocket.join(roomId);
+    //   opponentSocket.emit('invited', { roomId, from: playerName });
+    // }
+  });
+
+  socket.on('accept-invite', ({ roomId, playerName }) => {
+    const game = getGame(roomId);
+    if (!game) {
+      socket.emit('error', { message: 'Game not found' });
+      return;
+    }
+
+    const playerIndex = game.players.indexOf(playerName);
+    if (playerIndex === -1) {
+      socket.emit('error', { message: 'Player not in the game' });
+      return;
+    }
+
+    const player = game.playerNamesAndsockId.find(p => p.name === playerName);
+    if (player) {
+      player.sockId = socket.id;
+    }
+
+    socket.join(roomId);
+    const updatedPlayerIndex = game.players.indexOf(playerName);
+    socket.emit('init', { player: updatedPlayerIndex });
+    socket.emit('roomId', roomId);
+
+    if (game.players.length === 2) {
+      game.gameType = "remote"
+      const allConnected = game.playerNamesAndsockId.every(p =>
+        io.sockets.sockets.get(p.sockId)
+      );
+
+      if (allConnected) {
+        game.ready = false;
+        let countdown = 3;
+
+        const countdownInterval = setInterval(() => {
+          io.to(roomId!).emit('countdown', countdown);
+          countdown--;
+
+          if (countdown < 0) {
+            clearInterval(countdownInterval);
+            io.to(roomId!).emit('ready');
+            game.ready = true;
+          }
+        }, 1000);
+      }
+    }
+  });
+
 }

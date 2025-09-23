@@ -8,10 +8,12 @@ import { PiTimer, PiStarFourBold } from "react-icons/pi";
 import toast from "react-hot-toast";
 
 import socket from "../../../Chat/services/socket";
-import type { Tournament, Match } from "./types";
+import type { Tournament, Match, UserPlayer } from "./types";
+
 interface TournamentBoardProps {
   onStartNextRound?: () => void;
 }
+
 const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -19,18 +21,64 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const userRef = useRef<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const userRef = useRef<UserPlayer | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [timerStarted, setTimerStarted] = useState(false);
   const [players, setPlayers] = useState<string[]>([]);
   const [completionCountdown, setCompletionCountdown] = useState<number | null>(null);
+  // Add mapping for ID to username
+  const [idToUsernameMap, setIdToUsernameMap] = useState<Record<string, string>>({});
+  const [ownerName, setOwnerName] = useState<string>("");
+  const [winners, setWinners] = useState<string[]>([]);
+  const [losers, setLosers] = useState<string[]>([]);
   const navigate = useNavigate();
-  // Custom color palette styles (unchanged as per request)
+
+  // Custom color palette styles
   const customStyles = {
     primaryBg: { backgroundColor: '#007cf700' },
     secondaryBg: { backgroundColor: '#383e4500' },
     tertiaryBg: { backgroundColor: '#21283000' },
   };
+
+  // Helper function to get username from ID
+  const getUsernameFromId = (id: string): string => {
+    return idToUsernameMap[id] || id;
+  };
+
+  // Fetch users by IDs and create mapping
+  const fetchUsersData = async (ids: string[]) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch users");
+      }
+
+      const responseData = await response.json();
+      const fetchedUsers: string[] = responseData.users;
+
+      // Create mapping
+      const mapping: Record<string, string> = {};
+      ids.forEach((id, index) => {
+        mapping[id] = fetchedUsers[index] || id;
+      });
+
+      setIdToUsernameMap(mapping);
+      return mapping;
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      return {};
+    }
+  };
+
   // Fetch tournament data from backend
   const fetchTournament = () => {
     if (!tournamentId) return;
@@ -50,15 +98,38 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
         const data = JSON.parse(text);
         return data;
       })
-      .then((data: { tournament: Tournament }) => {
+      .then(async (data: { tournament: Tournament }) => {
         setTournament(data.tournament);
         tournamentRef.current = data.tournament;
         setCountdown(data.tournament.countdown || null);
-        if (data.tournament.participants === null) {
-          setPlayers([...data.tournament.players]);
-        } else {
-          setPlayers([...data.tournament.participants]);
-        }
+
+        // Safely handle arrays - ensure they exist and are arrays
+        const players = Array.isArray(data.tournament.players) ? data.tournament.players : [];
+        const participants = Array.isArray(data.tournament.participants) ? data.tournament.participants : [];
+        const winners = Array.isArray(data.tournament.winners) ? data.tournament.winners : [];
+        const losers = Array.isArray(data.tournament.losers) ? data.tournament.losers : [];
+        const owner = data.tournament.owner || '';
+
+        // Get all unique user IDs safely
+        const allUserIds = [
+          ...players,
+          ...participants,
+          ...winners,
+          ...losers,
+          ...(owner ? [owner] : []) // Only add owner if it exists
+        ].filter((id, index, arr) => arr.indexOf(id) === index && id); // Remove duplicates and empty values
+
+        // Fetch usernames for all IDs
+        const mapping = await fetchUsersData(allUserIds);
+
+        // Set display data using usernames - prefer participants over players
+        const displayPlayers = participants.length > 0 ? participants : players;
+        
+        setPlayers(displayPlayers.map(id => mapping[id] || id));
+        setOwnerName(owner ? (mapping[owner] || owner) : '');
+        setWinners(winners.map(id => mapping[id] || id));
+        setLosers(losers.map(id => mapping[id] || id));
+
         if (data.tournament?.status === 'completed' && data.tournament?.countdown === 0) {
           console.log("Tournament completed");
           socket.emit('game:over', data.tournament.id);
@@ -72,31 +143,60 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
         setLoading(false);
       });
   };
+
   // Fetch tournament data when component mounts or when tournamentId changes
   useEffect(() => {
     fetchTournament();
   }, [tournamentId]);
+
   // Fetch user profile and socket setup
   useEffect(() => {
     socket.connect();
     socket.emit("get-my-profile");
     
-    const onProfile = (user: any) => {
+    const onProfile = (user: UserPlayer) => {
       if (user?.id) {
         setUserId(user.id);
-        userRef.current = user.id;
+        setUserName(user.username || user.id);
+        userRef.current = user;
       }
     };
 
     socket.on("profile-data", onProfile);
 
-    const handleTournamentUpdated = (updatedTournament: Tournament) => {
+    const handleTournamentUpdated = async (updatedTournament: Tournament) => {
       if (updatedTournament.id === tournamentId) {
         setTournament(updatedTournament);
         setCountdown(updatedTournament.countdown || null);
         if (updatedTournament.countdown) {
           setTimerStarted(true);
         }
+
+        // Safely handle arrays
+        const players = Array.isArray(updatedTournament.players) ? updatedTournament.players : [];
+        const participants = Array.isArray(updatedTournament.participants) ? updatedTournament.participants : [];
+        const winners = Array.isArray(updatedTournament.winners) ? updatedTournament.winners : [];
+        const losers = Array.isArray(updatedTournament.losers) ? updatedTournament.losers : [];
+        const owner = updatedTournament.owner || '';
+
+        // Update usernames when tournament updates
+        const allUserIds = [
+          ...players,
+          ...participants,
+          ...winners,
+          ...losers,
+          ...(owner ? [owner] : [])
+        ].filter((id, index, arr) => arr.indexOf(id) === index && id);
+
+        const mapping = await fetchUsersData(allUserIds);
+        
+        const displayPlayers = participants.length > 0 ? participants : players;
+        
+        setPlayers(displayPlayers.map(id => mapping[id] || id));
+        setWinners(winners.map(id => mapping[id] || id));
+        setLosers(losers.map(id => mapping[id] || id));
+        setOwnerName(owner ? (mapping[owner] || owner) : '');
+
         if (updatedTournament?.status === 'completed' && updatedTournament?.countdown === 0) {
           console.log("Tournament completed");
           socket.emit('game:over', updatedTournament.id);
@@ -108,7 +208,6 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
     // Add tournament deletion listener
     const handleTournamentDeleted = (data: { message: string; tournamentId: string }) => {
       if (data.tournamentId === tournamentId) {
-        // Show toast notification
         toast.error(data.message || "Tournament has been deleted.", {
           duration: 3000,
           position: 'top-center',
@@ -122,21 +221,20 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
           icon: '🏆',
         });
         
-        // Short delay to let users see the notification, then navigate
         setTimeout(() => {
           navigate('/game/ping-pong/tournament-game/tournament-join');
-        }, 2000); // Much shorter - 2 seconds instead of 10
+        }, 2000);
       }
     };
 
     socket.emit("join-tournament-room", tournamentId);
     socket.on("tournament-updated", handleTournamentUpdated);
-    socket.on("tournament-deleted", handleTournamentDeleted); // Add this listener
+    socket.on("tournament-deleted", handleTournamentDeleted);
 
     socket.on('readyToPlay', (payload) => {
-      console.log(tournamentRef.current?.winners.findIndex(winner => winner == userRef.current))
-      if (tournamentRef.current?.winners.findIndex(winner => winner == userRef.current) !== -1) {
-        socket.emit("addToRoom", userRef.current);
+      console.log(tournamentRef.current?.winners.findIndex(winner => winner == userRef?.current?.id))
+      if (tournamentRef.current?.winners.findIndex(winner => winner == userRef?.current?.id) !== -1) {
+        socket.emit("addToRoom", userRef.current?.id);
         navigate(`/game/ping-pong/tournament-game/tournament/${payload.matchId}/game`);
       }
     });
@@ -144,11 +242,12 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
     return () => {
       socket.emit("leave-tournament-room", tournamentId);
       socket.off("tournament-updated", handleTournamentUpdated);
-      socket.off("tournament-deleted", handleTournamentDeleted); // Clean up listener
+      socket.off("tournament-deleted", handleTournamentDeleted);
       socket.off("profile-data", onProfile);
       socket.off("readyToPlay");
     };
   }, [tournamentId]);
+
   // Countdown handling from backend
   useEffect(() => {
     socket.on("tournament-starting", (countdownDuration: number) => {
@@ -169,6 +268,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       socket.off("tournament-started");
     };
   }, []);
+
   // Start Tournament Button
   const handleStartTournament = async () => {
     try {
@@ -184,14 +284,14 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       setCountdown(180);
       setTimerStarted(true);
       socket.emit("tournament-starting", 180);
-    } catch (error) {
+    } catch (error:any) {
       setError(error.message || "Unknown error");
     }
   };
 
   // Delete Tournament Button
   const handleDeleteTournament = async () => {
-    const confirmed = window.confirm(`Are you sure you want to delete the tournament "${tournament.name}"? This action cannot be undone.`);
+    const confirmed = window.confirm(`Are you sure you want to delete the tournament "${tournament?.name}"? This action cannot be undone.`);
     
     if (!confirmed) return;
 
@@ -206,27 +306,15 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
         throw new Error(data.message || "Failed to delete tournament");
       }
 
-      // Redirect to tournaments page after successful deletion
       navigate('/game/ping-pong/tournament-game/tournament-join');
-    } catch (error) {
+    } catch (error:any) {
       setError(error.message || "Unknown error");
     }
   };
 
   useEffect(() => {
-    if (tournament) {
-      // Use players array until tournament starts, then use participants
-      const displayPlayers = tournament.status === 'waiting' ? 
-        tournament.players : 
-        (tournament.participants || tournament.players);
-      setPlayers(displayPlayers);
-    }
-  }, [tournament]);
-
-  useEffect(() => {
     socket.on('tournaments_updated', (updatedTournaments) => {
-      // If current tournament is not in the updated list, redirect to tournaments page
-      if (!updatedTournaments.find(t => t.id === tournamentId)) {
+      if (!updatedTournaments.find((t:Tournament) => t.id === tournamentId)) {
         navigate('/game/ping-pong/tournament-game/tournament-join');
       }
     });
@@ -250,23 +338,28 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
   }, [tournamentId]);
 
   const matchesByRound = (tournament?.matches ?? []).reduce<Record<number, Match[]>>((acc, game) => {
-    // Use game.round instead of game.state?.round since round is on the game object
     const round = game.round ?? 1;
     if (!acc[round]) acc[round] = [];
+    
+    // Safely handle game.players array
+    const players = Array.isArray(game.players) ? game.players : [];
+    const player1 = players[0] || '';
+    const player2 = players[1] || '';
+    
     acc[round].push({
       id: game.roomId || '',
       round: round,
       players: [
-        // Use the original player names from tournament.players if available
-        tournament?.players.find(p => p === game.players[0]) || game.players[0] || 'TBD',
-        tournament?.players.find(p => p === game.players[1]) || game.players[1] || 'TBD',
+        // Convert player IDs to usernames safely
+        player1 ? (getUsernameFromId(player1) || 'TBD') : 'TBD',
+        player2 ? (getUsernameFromId(player2) || 'TBD') : 'TBD',
       ],
       status: game.progress === 'in_progress' ? 'playing' : game.progress === 'completed' ? 'finished' : 'pending',
-      winner: game.winner || null,
+      winner: game.winner ? getUsernameFromId(game.winner) : null,
       roomId: game.roomId,
       score: {
-        [game.players[0] || 'TBD']: game.state.score.left,
-        [game.players[1] || 'TBD']: game.state.score.right,
+        [player1 ? (getUsernameFromId(player1) || 'TBD') : 'TBD']: game.state?.score?.left || 0,
+        [player2 ? (getUsernameFromId(player2) || 'TBD') : 'TBD']: game.state?.score?.right || 0,
       },
     });
     return acc;
@@ -276,11 +369,9 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
     .map(Number)
     .sort((a, b) => a - b);
 
-  // Helper function to get round name based on tournament structure
   const getRoundName = (round: number, totalRounds: number, maxPlayers: number) => {
     const roundsFromEnd = totalRounds - round + 1;
     
-    // Calculate what this round represents based on max players
     if (roundsFromEnd === 1) return "Final";
     if (roundsFromEnd === 2) return "Semi-Final";
     if (roundsFromEnd === 3) return "Quarter-Final";
@@ -299,7 +390,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
   };
 
   const hasMatches = Array.isArray(tournament?.matches) && tournament.matches.length > 0;
-  const matchPreviews = !hasMatches ? generateMatchPreview(tournament?.players || []) : [];
+  const matchPreviews = !hasMatches ? generateMatchPreview(players) : [];
 
   if (loading) {
     return (
@@ -315,6 +406,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       </div>
     );
   }
+
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={customStyles.tertiaryBg}>
@@ -329,6 +421,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       </div>
     );
   }
+
   if (!tournament) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={customStyles.tertiaryBg}>
@@ -340,7 +433,9 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       </div>
     );
   }
-  const isOwner = userId === tournament.owner;
+
+  // Check if current user is owner by comparing usernames
+  const isOwner = userName === ownerName;
 
   return (
     <div className="relative w-full" style={customStyles.tertiaryBg}>
@@ -365,10 +460,11 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
           <div className="flex items-center justify-center gap-4 mt-6">
             <div className="flex items-center gap-2 text-white/80">
               <HiUsers className="w-5 h-5 text-blue-400" />
-              <span className="font-semibold">{tournament.players.length} / {tournament.maxPlayers} Players</span>
+              <span className="font-semibold">{players.length} / {tournament.maxPlayers} Players</span>
             </div>
           </div>
         </div>
+
         {/* Countdown & Owner Controls Section */}
         {timerStarted && countdown !== null && (
           <div className="mb-12 max-w-lg mx-auto p-8 rounded-3xl backdrop-blur-xl border border-white/20 text-center transition-all duration-500" style={customStyles.secondaryBg}>
@@ -382,7 +478,8 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
             <p className="text-white/70 mt-2">Prepare for glory!</p>
           </div>
         )}
-        {(tournament.status === "completed" && tournament.winners.length === 1) && (
+
+        {(tournament.status === "completed" && winners.length === 1) && (
           <div className="mb-12 max-w-lg mx-auto p-8 rounded-3xl backdrop-blur-xl border border-white/20 text-center transition-all duration-500" style={customStyles.secondaryBg}>
             <div className="flex items-center justify-center gap-3 mb-4">
               <BsAward className="w-8 h-8 text-yellow-400" />
@@ -390,10 +487,10 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
                 {tournament.status === "completed" ? "Tournament Concluded" : "Champion Crowned!"}
               </h3>
             </div>
-            {tournament.winners.length > 0 ? (
+            {winners.length > 0 ? (
               <div className="text-white/90">
                 <p className="text-lg">Champion:</p>
-                <h2 className="text-3xl font-bold">{tournament.winners[0]}</h2>
+                <h2 className="text-3xl font-bold">{winners[0]}</h2>
                 {completionCountdown !== null && tournament.status === "completed" && (
                   <p className="mt-4 text-white/60">
                     Tournament ending in: {completionCountdown}s
@@ -405,6 +502,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
             )}
           </div>
         )}
+
         {isOwner && tournament.status === "waiting" && (
           <div className="mb-12 max-w-lg mx-auto p-8 rounded-3xl backdrop-blur-xl border border-white/20 transition-all duration-500 text-center" style={customStyles.secondaryBg}>
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -412,7 +510,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
               <h3 className="text-2xl font-bold text-yellow-400">Tournament Master</h3>
             </div>
             <div className="space-y-4">
-              {tournament.players.length === tournament.maxPlayers ? (
+              {players.length === tournament.maxPlayers ? (
                 <button 
                   onClick={handleStartTournament} 
                   className="w-full relative overflow-hidden flex items-center justify-center gap-3 py-4 px-6 rounded-2xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-white font-semibold group hover:scale-[1.02] transition-transform duration-300"
@@ -423,7 +521,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
               ) : (
                 <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
                   <p className="text-yellow-400 text-sm">
-                    Waiting for {tournament.maxPlayers - tournament.players.length} more players to join
+                    Waiting for {tournament.maxPlayers - players.length} more players to join
                   </p>
                 </div>
               )}
@@ -438,7 +536,8 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
             </div>
           </div>
         )}
-        {isOwner && tournament.status === "in_progress" && tournament.winners.length !== 1 && !countdown && (
+
+        {isOwner && tournament.status === "in_progress" && winners.length !== 1 && !countdown && (
           <div className="mb-12 max-w-lg mx-auto p-8 rounded-3xl backdrop-blur-xl border border-white/20 transition-all duration-500 text-center" style={customStyles.secondaryBg}>
             <div className="flex items-center justify-center gap-3 mb-4">
               <LuCrown className="w-8 h-8 text-yellow-400" />
@@ -450,6 +549,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
             </button>
           </div>
         )}
+
         {/* Players Section */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold text-white mb-6 text-center">
@@ -464,9 +564,9 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
                     #{index + 1}
                   </div>
                   <span className="flex-1 text-white font-semibold truncate">{player}</span>
-                  {tournament.winners.includes(player) && <span className="text-green-400">Active</span>}
-                  {tournament.losers.includes(player) && <span className="text-red-400">Eliminated</span>}
-                  {player === userId && <PiStarFourBold className="w-4 h-4 text-yellow-400 animate-pulse" />}
+                  {winners.includes(player) && <span className="text-green-400">Active</span>}
+                  {losers.includes(player) && <span className="text-red-400">Eliminated</span>}
+                  {player === userName && <PiStarFourBold className="w-4 h-4 text-yellow-400 animate-pulse" />}
                 </div>
               </div>
             ))}
@@ -477,6 +577,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
             ))}
           </div>
         </div>
+
         {/* Matches/Bracket Section */}
         {rounds.length > 0 && (
           <div className="space-y-8">
@@ -520,10 +621,9 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
                             Winner: {match.winner}
                           </div>
                         )}
-                        {/* Show current score if game is in progress */}
                         {match.status === 'playing' && (
                           <div className="mt-2 text-xs text-center text-blue-400">
-                            Score: {match.score[match.players[0]]} - {match.score[match.players[1]]}
+                            Score: {(match.players[0] ? match.score?.[match.players[0]] ?? 0 : 0)} - {(match.players[1] ? match.score?.[match.players[1]] ?? 0 : 0)}
                           </div>
                         )}
                       </Link>
@@ -539,4 +639,5 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
     </div>
   );
 };
+
 export default TournamentBoard;

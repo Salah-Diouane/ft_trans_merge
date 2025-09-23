@@ -2,12 +2,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import socket from "../../../Chat/services/socket";
-import type { Tournament, Game } from "./types";
+import type { Tournament, Game, UserPlayer } from "./types";
 
 const TournamentJoin: React.FC = () => {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const userRef = useRef<string | null>(null);
+  const userRef = useRef<UserPlayer | null>(null);
   const [playerJoinedTournament, setPlayerJoinedTournament] = useState(false);
   const [isProfileLoaded, setIsProfileLoaded] = useState(false); 
   const navigate = useNavigate();
@@ -17,10 +17,10 @@ const TournamentJoin: React.FC = () => {
     socket.connect();
     socket.emit("get-my-profile");
 
-    const onProfile = (user: any) => {
+    const onProfile = (user: UserPlayer) => {
       if (user?.id) {
         setUserId(user.id);
-        userRef.current = user.id;
+        userRef.current = user;
         setIsProfileLoaded(true);
       }
     };
@@ -38,7 +38,7 @@ const TournamentJoin: React.FC = () => {
       if (playerJoinedTournament === false)
         data.some(t => {
           console.log(t, userRef.current);
-          if (userRef.current && t.players.includes(userRef.current)) {
+          if (userRef.current && t.players.includes(userRef.current.id)) {
             setPlayerJoinedTournament(true);
             console.log("User is in a tournament");
             return true;
@@ -56,11 +56,11 @@ const TournamentJoin: React.FC = () => {
 
     const onAdded = (t: Tournament) => {
       setTournaments((prev) => [...prev, t]);
-      setPlayerJoinedTournament(t.players.includes(userRef.current || "") || (t.owner === userRef.current));
+      setPlayerJoinedTournament(t.players.includes(userRef.current?.id || "") || (t.owner === userRef?.current?.id));
     }
     const onUpdated = (updated: Tournament) => {
       setTournaments((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-      setPlayerJoinedTournament(updated.players.includes(userRef.current || "") || (updated.owner === userRef.current));
+      setPlayerJoinedTournament(updated.players.includes(userRef?.current?.id || "") || (updated.owner === userRef?.current?.id));
     }
     const onStarted = (updated: Tournament) => 
       setTournaments((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));

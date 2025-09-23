@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../../../Chat/services/socket";
+import { UserPlayer } from "./types";
 
 const TournamentCreate: React.FC = () => {
   const [name, setName] = useState("");
@@ -13,7 +14,7 @@ const TournamentCreate: React.FC = () => {
   useEffect(() => {
     socket.connect();
     socket.emit("get-my-profile");
-    const onProfile = (user: any) => {
+    const onProfile = (user: UserPlayer) => {
       if (user?.id) setOwnerName(user.id);
     };
     socket.on("profile-data", onProfile);

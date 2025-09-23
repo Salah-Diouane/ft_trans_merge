@@ -1,4 +1,15 @@
 // src/features/Game/PingPong/Tournaments/types.ts
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_API_URL: string;
+  // Add other environment variables here if needed
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 export type MatchStatus = "pending" | "playing" | "finished";
 export type TournamentStatus = "waiting" | "in_progress" | "finished";
 
@@ -62,7 +73,7 @@ export interface Game {
   winner?: string;
   loser?: string;
   round?: number | null;
-  progress?: 'pending' | 'in_progress' | 'completed';;
+  progress?: 'pending' | 'in_progress' | 'completed';
 }
 
 export interface Tournament {
@@ -82,4 +93,10 @@ export interface Tournament {
   matches: Game[];
   roundes: number | null;
   status: 'waiting' | 'in_progress' | 'completed';
+}
+
+export interface UserPlayer {
+  id: string;
+  username: string;
+  online: boolean;
 }

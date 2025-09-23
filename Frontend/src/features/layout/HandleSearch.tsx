@@ -14,7 +14,7 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
     
     const handleSendRequest = async (username: string) => {
         try {
-        const res = await fetch("https://localhost/api/friends/sendrequest", {
+        const res = await fetch("https://e3r5p2.1337.ma/api/friends/sendrequest", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ friend_username: username }),

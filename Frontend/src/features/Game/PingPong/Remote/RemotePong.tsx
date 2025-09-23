@@ -8,10 +8,12 @@ import { useLocation } from 'react-router-dom';
 
 const RemotePong: React.FC = () => {
   const [name, setName] = useState('');
+  const [displayName, setDisplayName] = useState(''); // Add display name state
   const [joined, setJoined] = useState(false);
   const [ready, setReady] = useState(false);
   const [playerLeft, setPlayerLeft] = useState(false);
   const userNameRef = useRef<string | null>(null);
+  const userDisplayNameRef = useRef<string | null>(null); // Add display name ref
   const [countdown, setCountdown] = useState<number | null>(null);
   const location = useLocation();
 
@@ -21,15 +23,21 @@ const RemotePong: React.FC = () => {
     socket.emit('get-my-profile');
 
     const handleProfile = (user: any) => {
-      const userName = user.id;
-      console.log("USERNAME ---->: ", user.id);
-      if (userName) {
-        setName(userName);
-        userNameRef.current = userName;
+      const userId = user.id;
+      const username = user.username || user.id; // Use username for display, fallback to ID
+      
+      console.log("USER ID ---->: ", userId);
+      console.log("USERNAME ---->: ", username);
+      
+      if (userId) {
+        setName(userId); // Keep ID for internal logic
+        setDisplayName(username); // Set username for display
+        userNameRef.current = userId;
+        userDisplayNameRef.current = username;
 
         if (!joined) {
           setJoined(true);
-          joinGame(userName); // sends socket.emit('join', playerName)
+          joinGame(userId); // Still send ID for backend logic
         }
       }
     };
@@ -44,7 +52,7 @@ const RemotePong: React.FC = () => {
       console.log('player is ready')
       setCountdown(null);
       setReady(true);
-      console.log("Game ready for", userNameRef.current);
+      console.log("Game ready for", userDisplayNameRef.current);
     };
 
     socket.on('countdown', handleCountdown);
@@ -159,7 +167,7 @@ const RemotePong: React.FC = () => {
                 <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-2 border-2 border-blue-500">
                   <FiUsers className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-sm text-white font-medium">You</span>
+                <span className="text-sm text-white font-medium">{displayName || 'You'}</span>
               </div>
 
               <div className="flex-1 mx-2 sm:mx-4 relative">
@@ -201,7 +209,10 @@ const RemotePong: React.FC = () => {
           </div>
         </div>
       ) : (
-        <GameWrapper playerName={userNameRef.current || ''} />
+        <GameWrapper 
+          playerName={userNameRef.current || ''} 
+          playerDisplayName={userDisplayNameRef.current || ''}
+        />
       )}
     </div>
   );

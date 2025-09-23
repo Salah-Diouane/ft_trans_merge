@@ -33,6 +33,21 @@ export async function getuserid(fastify: FastifyInstance, username: string) : Pr
 	})
 }
 
+export async function getUserName(fastify: FastifyInstance, id: string) : Promise<string | null> {
+	return new Promise((resolve, rejects) => {
+		fastify.db.get(
+			`SELECT username from user_authentication WHERE id = ? `,
+			[
+				id
+			],
+			(err : Error, row: { username: string}) => {
+				if (err) rejects(err);
+				resolve(row.username);
+			}
+		);
+	})
+}
+
 export async function getuser(fastify: FastifyInstance, username: string): Promise<User | null> {
 	return (new Promise((resolve, rejects) => {
 		fastify.db.get('SELECT * FROM user_authentication WHERE username = ?', [username],

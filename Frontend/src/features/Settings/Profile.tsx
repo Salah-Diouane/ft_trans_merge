@@ -32,7 +32,7 @@ export default function Profile() {
 			const formData = new FormData();
 			formData.append('file', file);
 			try {
-				const res = await fetch('https://localhost/api/settings/imageUrl', {
+				const res = await fetch('https://e3r5p2.1337.ma/api/settings/imageUrl', {
 					method: 'POST',
 					body: formData,
 					credentials: 'include'
@@ -66,7 +66,7 @@ export default function Profile() {
 				image_url: Imgurl,
 				cover_url: Coverurl
 			};
-			const respone = await fetch("https://localhost/api/settings/profile", {
+			const respone = await fetch("https://e3r5p2.1337.ma/api/settings/profile", {
 				credentials: 'include',
 				method: "PUT",
 				headers: { 'Content-type': 'application/json' },

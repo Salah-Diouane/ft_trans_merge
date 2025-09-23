@@ -1,7 +1,7 @@
 // export default defineConfig({
   // plugins: [react()],
 //   server: {
-	// allowedHosts: ["localhost"],
+	// allowedHosts: ["e3r5p2.1337.ma"],
 //   }
 // })
 
@@ -10,7 +10,7 @@
 //   server: {
 //     hmr: {
 //       protocol: "wss",
-//       host: "localhost",
+//       host: "e3r5p2.1337.ma",
 //       port: 443,
 //     },
 //     watch: {
@@ -24,6 +24,9 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    allowedHosts: ["e3r5p2.1337.ma"],
+  }
 })
 
 

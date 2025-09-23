@@ -155,15 +155,14 @@ export default function tournamentHandlers({
 
   socket.on('addToRoom', (playerName) => {
     console.log('Socket ID in addToRoom event:', socket.id);
-
-        for (const [roomId, game] of games.entries()) {
-          if (game?.players.includes(playerName)) {
-            socket.join(roomId);
-            game.readyPlayers.push(playerName);
-            console.log(game);
-            break;
-          }
+      for (const [roomId, game] of games.entries()) {
+        if (game?.players.includes(playerName)) {
+          socket.join(roomId);
+          game.readyPlayers.push(playerName);
+          console.log(game);
+          break;
         }
+      }
   });
 
   socket.on('playerLeft', (playerName) => {
