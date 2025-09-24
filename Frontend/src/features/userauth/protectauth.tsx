@@ -14,15 +14,15 @@ export default function ProtectedRoute({ children }: Props) {
 	useEffect(() => {
 		const check = async () => {
 			try {
-					const response = await fetch("https://e3r4p2.1337.ma/api/hello", {
+					const response = await fetch(`${import.meta.env.VITE_API_URL}/api/hello`, {
 						credentials: 'include',
 					}).then(res => res.json()) as { refreshtoken: boolean; accesstoken: boolean };
 					if (!response.accesstoken) {
-						const res = await fetch("https://e3r4p2.1337.ma/api/login/refreshtoken", {
+						const res = await fetch(`${import.meta.env.VITE_API_URL}/api/login/refreshtoken`, {
 							credentials: 'include',
 						}).then(e => e.json()) as { refreshtoken: boolean };
 						if (!res.refreshtoken) {
-							await fetch("https://e3r4p2.1337.ma/api/logout", {credentials: 'include'});
+							await fetch(`${import.meta.env.VITE_API_URL}/api/logout`, {credentials: 'include'});
 							navigate('/login/Signin');
 							return;
 						}
@@ -31,7 +31,7 @@ export default function ProtectedRoute({ children }: Props) {
 						await store.fetchUserInfo();
 					setIsAuthenticated(true);
 			} catch (err) {
-				await fetch("https://e3r4p2.1337.ma/api/logout");
+				await fetch(`${import.meta.env.VITE_API_URL}/api/logout`);
 				navigate('/login/Signin');
 			}
 		};

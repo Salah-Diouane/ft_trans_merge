@@ -19,7 +19,7 @@ export default function Signin() {
 			password: password.current?.value || ''
 		};
 		try {
-			const response = await fetch('https://e3r4p2.1337.ma/api/login/signin' , {
+			const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login/signin` , {
 				method: 'POST',
 				headers: {'Content-type' : 'application/json'},
 				body: JSON.stringify(body), 
