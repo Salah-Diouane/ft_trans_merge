@@ -2,7 +2,6 @@
 
 import React, { FC } from "react";
 import { Search } from "lucide-react";
-import meProfile from "../Assets/me.jpeg";
 import { User } from "../types/User";
 
 interface Message {
@@ -78,7 +77,7 @@ const ContactList_Mobile: FC<ContactListMobileProps> = ({
 
                   <div className="flex items-center gap-x-3 ">
                     <img
-                      src={meProfile}
+                      src={user.image_url}
                       className="w-12 h-12 rounded-full border-2 border-gray-600"
                       alt={`${user.username}'s profile`}
                     />

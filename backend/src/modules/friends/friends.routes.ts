@@ -39,9 +39,7 @@ export const sendRequest: FastifyPluginCallback<SendRequestOptions> =  (fastify,
 		if (!sender || !receiver) {
 		  return reply.code(500).send({ message: "User data not found" });
 		}
-		
-		console.log("sender_name-> ", sender)
-		console.log("received_name-> ", receiver)
+
 		if (io) {
 		  const notification = {
 			type: "friend_request",
@@ -181,14 +179,23 @@ export const allfriends = async (fastify: FastifyInstance) => {
 			console.log("decode user : ", decode);
 			console.log("decode userid : ", decode.userid);
 			const friends = await getFriends(fastify, decode.userid);
+			console.log("--> : friends : ", friends);
+			// const friend_online_status = friends.map((user) => ({
+			// 	...user,
+			// 	online: user.id ? onlineUsers.has(user.id) : false
+			// 	// online: onlineUsers.has(user?.id);
+			// }))
 
-			const friend_online_status = friends.map((user) => ({
-				...user,
-				online: user.id ? onlineUsers.has(user.id) : false
-				// online: onlineUsers.has(user?.id);
-			}))
+			const friend_online_status = friends.map((user) => {
+				const online = user.id ? onlineUsers.has(user.id) : false;
+				console.log("online : ", online)
+				console.log(`-------------> id: ${user.id}`);
+				console.log(`-------------> Friend ${user.username} (id: ${user.id}) online?`, online);
+				return { ...user, online };
+			});
+			  
 
-			console.log("friend_online_status : ", friend_online_status);
+			console.log("--> : friend_online_status : ", friend_online_status);
 
 			return reply.send(friend_online_status);
 		} catch (err) {

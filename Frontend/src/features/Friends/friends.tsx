@@ -41,9 +41,9 @@ const FriendCard: React.FC<FriendCardProps> = ({
   unblockUser,
 }) => {
   const navigate = useNavigate();
-  console.log("name : ", name);
-  console.log("isOnline : ", isOnline);
-  console.log("status : ", status);
+  console.log("--> : name : ", name);
+  console.log("--> : isOnline : ", isOnline);
+  console.log("--> : status : ", status);
   return (
     <div className="flex items-center p-3 xs:p-4 bg-[#222831] m-2 h-16 rounded-3xl border border-[#393E46]/50 hover:border-[#0077FF]/50 transition-all duration-300 justify-between">
 
@@ -278,10 +278,10 @@ const Friends: React.FC = () => {
     { key: "request", label: "Requests", icon: <UserPlus size={15} /> },
     { key: "blocked", label: "Blocked", icon: <Shield size={15} /> },
   ] as const;
-  // useEffect(() => {
-  //   if (!socket.connected)
-  //     socket.connect();
-  // }, []);
+  useEffect(() => {
+      socket.disconnect()
+      socket.connect();
+  }, []);
   return (
     <div className="pt-10 flex justify-center">
       <div className="mx-auto h-full w-full 2xl:w-[70%] xl:w-[60%] lg:w-[80%] md:w-[90%] flex flex-col rounded-2xl p-2 bg-[#393E46]">

@@ -89,14 +89,14 @@ export function getFriends(fastify: FastifyInstance, user_id: number): Promise<U
 	return new Promise((resolve, reject) => {
 		fastify.db.all(
 			`
-				SELECT u.username, u.first_name, u.family_name, u.image_url
+				SELECT u.id, u.username, u.first_name, u.family_name, u.image_url
 				FROM friendship f
 				JOIN user_authentication u ON u.id = f.id_receiver
 				WHERE f.id_sender = ? AND f.accepted = 1
 
 				UNION
 
-				SELECT u.username, u.first_name, u.family_name, u.image_url
+				SELECT u.id, u.username, u.first_name, u.family_name, u.image_url
 				FROM friendship f
 				JOIN user_authentication u ON u.id = f.id_sender
 				WHERE f.id_receiver = ? AND f.accepted = 1

@@ -74,7 +74,7 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
 				online: false
 			});
 
-			console.log(`User ${userData.username} disconnected and set offline`);
+			console.log(`---> : User ${userData.username} disconnected and set offline`);
 		}
 	});
 
@@ -134,6 +134,7 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
 							FROM friendship f\
 							JOIN user_authentication u ON u.id = f.id_sender\
 							WHERE f.id_receiver = ? AND f.accepted = 1",
+							
 			[userData.userid, userData.userid], (err, friends: User[]) => {
 
 				if (err || !friends) {

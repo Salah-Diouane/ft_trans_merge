@@ -218,6 +218,19 @@ const ChatApp: FC = () => {
       && u.id !== currentUserRef.current
   );
 
+  // const filteredUsers = users
+  // .filter(
+  //   (u) =>
+  //     u.username.toLowerCase().includes(searchTerm.toLowerCase()) &&
+  //     u.id !== currentUserRef.current
+  // )
+  // .sort((a, b) => {
+  //   const timeA = lastMessages[a.id]?.timestamp || 0;
+  //   const timeB = lastMessages[b.id]?.timestamp || 0;
+  //   return timeB - timeA; // most recent first
+  // });
+
+
   const userMessages = selectedUser?.id ? messages[selectedUser.id] || [] : [];
 
   const EmptyState = () => (
