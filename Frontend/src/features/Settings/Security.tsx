@@ -37,7 +37,7 @@ export default function Security() {
 			store.setTwoFA(twofavalue);
 		}
 		if (body.oldpassowrd || body.password || body.confirmpassword || body.twoFA !== undefined) {
-			const response = await fetch("http://e3r5p8.1337.ma:3000/settings/security", {
+			const response = await fetch("http://e3r4p2.1337.ma:3000/settings/security", {
 				credentials : "include",
 				method : "PUT",
 				headers: { 'Content-type': 'application/json' },

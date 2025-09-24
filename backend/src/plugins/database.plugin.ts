@@ -63,10 +63,12 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 	const createMessageTable: string = `
 		CREATE TABLE IF NOT EXISTS messages (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			sender TEXT NOT NULL,
-			recipient TEXT NOT NULL,
+			id_sender INTEGER NOT NULL,
+			id_recipient INTEGER NOT NULL,
 			text TEXT NOT NULL,
-			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
+			FOREIGN KEY (id_recipient) REFERENCES user_authentication(id)
 		);
 	`;
 

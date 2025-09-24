@@ -1,33 +1,31 @@
-// export default defineConfig({
-  // plugins: [react()],
-//   server: {
-	// allowedHosts: ["e3r5p8.1337.ma"],
-//   }
-// })
+// import { defineConfig } from 'vite'
+// import react from '@vitejs/plugin-react'
 
 // export default defineConfig({
 //   plugins: [react()],
 //   server: {
-//     hmr: {
-//       protocol: "wss",
-//       host: "e3r5p8.1337.ma",
-//       port: 443,
-//     },
-//     watch: {
-//       usePolling: true,
-//     },
-//   },
-// });
+//     allowedHosts: ["e3r4p2.1337.ma"],
+//   }
+// })
 
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+
+
+// vite.config.ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
   server: {
-    allowedHosts: ["e3r5p8.1337.ma"],
-  }
-})
+    host: "0.0.0.0",   // allow access from outside localhost
+    port: 5173,
+    hmr: {
+      protocol: "wss",
+      host: "e3r4p2.1337.ma",
+      clientPort: 443, // because you're on HTTPS
+    },
+  },
+});
 
 
 

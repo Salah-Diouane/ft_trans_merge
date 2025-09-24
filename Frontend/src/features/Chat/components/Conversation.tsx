@@ -117,7 +117,7 @@ const Conversation: FC<ConversationProps> = ({
 
   useEffect(() => {
     const allBlocked_fct = async () => {
-      const res = await fetch("https://e3r5p8.1337.ma/api/friends/blockReq", { credentials: "include" });
+      const res = await fetch("https://e3r4p2.1337.ma/api/friends/blockReq", { credentials: "include" });
       const data = await res.json();
       // console.log("all blocked : ", data);
       setAllBlocked(Array.isArray(data) ? data : []);

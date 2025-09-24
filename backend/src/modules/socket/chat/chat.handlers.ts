@@ -55,76 +55,13 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
     }
   });
 
-  // socket.on("chat:message", (data: Message) => {
-  //   const { senderId, recipientId, text } = data;
-
-  //   if (!senderId || !recipientId || !text)
-  //     return;
-
-  //   db.get(
-  //     "SELECT 1 FROM blocked_users WHERE (blocker = ? AND blocked = ?) OR (blocker = ? AND blocked = ?)",
-  //     [senderId, recipientId, recipientId, senderId],
-  //     (err, row) => {
-  //       if (err || row) {
-  //         console.log("row : ", row)
-  //         return;
-  //       }
-  //       console.log("before inserting : ", senderId, recipientId, text, new Date().toISOString())
-  //       db.run(
-  //         "INSERT INTO messages (id_sender, id_recipient, text, timestamp) VALUES (?, ?, ?, ?)",
-  //         [senderId, recipientId, text, new Date().toISOString()],
-  //         async function (err) {   //  this async
-  //           if (err) return;
-
-  //           const messageData: Message = {
-  //             id: this.lastID,
-  //             senderId,
-  //             recipientId,
-  //             text,
-  //             timestamp: new Date().toISOString(),
-  //           };
-
-
-  //           const senderRow: any = await getNameById(fastify, senderId);
-  //           const receiverRow: any = await getNameById(fastify, recipientId);
-
-  //           const sender = senderRow?.username;
-  //           const receiver = receiverRow?.username;
-
-  //           const notification = {
-  //             type: "New message",
-  //             senderId,
-  //             recipientId,
-  //             sender,
-  //             receiver,
-  //             message: text,
-  //             timestamp: new Date().toISOString(),
-  //           };
-
-  //           const senderSocketId = userSockets.get(senderId);
-  //           const recipientSocketId = userSockets.get(recipientId);
-
-  //           if (senderSocketId) {
-  //             io.to(senderSocketId).emit("chat:message", messageData);
-  //           }
-  //           if (recipientSocketId) {
-  //             io.to(recipientSocketId).emit("chat:message", messageData);
-  //             io.to(recipientSocketId).emit("notification", notification);
-  //           }
-  //         }
-  //       );
-
-  //     }
-  //   );
-
-  // });
 
   socket.on("chat:message", (data: Message) => {
     const { senderId, recipientId, text } = data;
-  
+
     if (!senderId || !recipientId || !text)
       return;
-  
+
     db.get(
       "SELECT 1 FROM blocked_users WHERE (blocker = ? AND blocked = ?) OR (blocker = ? AND blocked = ?)",
       [senderId, recipientId, recipientId, senderId],
@@ -139,8 +76,11 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
           "INSERT INTO messages (id_sender, id_recipient, text, timestamp) VALUES (?, ?, ?, ?)",
           [senderId, recipientId, text, new Date().toISOString()],
           async function (err) {
-            if (err) return;
-  
+            if (err) {
+              console.log("error in the inserting of the messages, and the error is : ", err)
+              return;
+            }
+
             const messageData: Message = {
               id: this.lastID,
               senderId,
@@ -148,13 +88,13 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
               text,
               timestamp: new Date().toISOString(),
             };
-  
+
             const senderRow: any = await getNameById(fastify, senderId);
             const receiverRow: any = await getNameById(fastify, recipientId);
-  
+
             const sender = senderRow?.username;
             const receiver = receiverRow?.username;
-  
+
             const notification = {
               type: "New message",
               senderId,
@@ -176,10 +116,10 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
                 console.log(" Message notification inserted successfully");
               }
             );
-  
+
             const senderSocketId = userSockets.get(senderId);
             const recipientSocketId = userSockets.get(recipientId);
-  
+
             if (senderSocketId) {
               io.to(senderSocketId).emit("chat:message", messageData);
             }
@@ -250,7 +190,7 @@ export default function handleChatEvents({ fastify, io, socket }: handleChatEven
   })
 
   socket.on("chat:delete", ({ id, userId }: { id: number; userId: number }) => {
-    
+
     console.log("id:=>", id)
     console.log("userId:=>", userId)
     if (!id || !userId)

@@ -25,7 +25,7 @@ export default function Signup() {
 				first_name: first_name.current?.value || '',
 				family_name: family_name.current?.value || '',
 			};
-			const response = await fetch("https://e3r5p8.1337.ma/api/login/signup", {
+			const response = await fetch("https://e3r4p2.1337.ma/api/login/signup", {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(body),

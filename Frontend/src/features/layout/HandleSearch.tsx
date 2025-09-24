@@ -13,11 +13,13 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
   const [sentRequests, setSentRequests] = useState<Record<string, boolean>>({});
     
     const handleSendRequest = async (username: string) => {
+      console.log("---> : inside the handleSendRequest");
         try {
-        const res = await fetch("https://e3r5p8.1337.ma/api/friends/sendrequest", {
+        const res = await fetch("https://e3r4p2.1337.ma/api/friends/sendrequest", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ friend_username: username }),
+            // body: JSON.stringify({ friend_username: username }),
+            body: JSON.stringify({ frined_username: username }),
             credentials: "include",
         });
 
@@ -57,9 +59,18 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
             <div className="flex flex-1 items-center justify-end gap-4">
               <button
                 className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
-                // onClick={() => handleSendRequest(user.username)}
+                onClick={() => handleSendRequest(user.username)}
               >
-                <UserIcon className="size-8 max-lg:size-4"  /> View Profile
+                {/* <UserIcon className="size-8 max-lg:size-4"  /> View Profile */}
+                {!sentRequests[user.username] ? (
+                  <>
+                  <UserPlus size={16} /> Add friend
+                  </>
+                ) : (
+                  <>
+                    <X size={16} /> Request Sent
+                  </>
+                )}
               </button>
             </div>
           </div>

@@ -24,7 +24,7 @@ const Game = () => {
 
 	useEffect(() => {
 		const setgameinfo = async () => {
-			const response = await fetch("https://e3r5p8.1337.ma/api/settings/gameinfo", {
+			const response = await fetch("https://e3r4p2.1337.ma/api/settings/gameinfo", {
 				credentials: 'include'
 			});
 			if (response.ok) {
@@ -35,7 +35,7 @@ const Game = () => {
 			}
 		}
 		const setTicTacInfo = async () => {
-			const response = await fetch("https://e3r5p8.1337.ma/api/settings/tictacinfo", {
+			const response = await fetch("https://e3r4p2.1337.ma/api/settings/tictacinfo", {
 				credentials: 'include'
 			});
 			if (response.ok) {
@@ -177,7 +177,7 @@ const Game = () => {
 			paddle_color: paddleColor,
 			table_color: tableColor,
 		};
-		const response = await fetch("https://e3r5p8.1337.ma/api/settings/game", {
+		const response = await fetch("https://e3r4p2.1337.ma/api/settings/game", {
 			method: 'PUT',
 			credentials: "include",
 			headers: { 'Content-type': 'application/json' },
@@ -200,7 +200,7 @@ const Game = () => {
 		};
 
 		console.log("body of tic tac in send data is  : ", body);
-		const response = await fetch("https://e3r5p8.1337.ma/api/settings/tictac", {
+		const response = await fetch("https://e3r4p2.1337.ma/api/settings/tictac", {
 			method: 'PUT',
 			credentials: "include",
 			headers: { 'Content-type': 'application/json' },

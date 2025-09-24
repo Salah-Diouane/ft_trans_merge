@@ -181,14 +181,14 @@ const ChatApp: FC = () => {
 
   const handleSend = () => {
 
-
+    console.log("-> : in handle send :")
     if (!selectedUser?.id || !currentUserRef.current)
       return;
 
     const text = inputs[selectedUser.id] || "";
     if (!text.trim())
       return;
-
+    console.log("---> : message : ", text)
     socket.emit("chat:message", {
       senderId: currentUser?.id,
       recipientId: selectedUser?.id,
@@ -236,7 +236,9 @@ const ChatApp: FC = () => {
       </div>
     </div>
   );
-
+  console.log("---> : Messages : ", messages)
+  console.log("---> : userMessages : ", userMessages)
+  console.log("---> : filteredUsers : ", filteredUsers)
   // Render
   return (
     <div className="flex flex-row h-full w-full gap-4 p-0 overflow-hidden max-lg:p-0 bg-[#121418] rounded-lg max-lg:bg-[#121418] max-lg:pb-0">
