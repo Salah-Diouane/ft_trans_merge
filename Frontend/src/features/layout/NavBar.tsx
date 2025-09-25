@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, Search } from "lucide-react";
+import { Link, Search, UserCheck, UserX } from "lucide-react";
 import { Notification02Icon } from "hugeicons-react";
 import { useStore } from "../../store/store";
 import HandleSearch from "./handleSearch";
@@ -31,6 +31,8 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
         return "Friend Request";
       case "friend_request_accepted":
         return "Request Accepted";
+      case "Invite":
+        return "Invite";
       default:
         return "New message";
     }
@@ -43,6 +45,8 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
       case "friend_request_accepted":
         return "border-l-4 border-l-emerald-500 bg-gray-800"; // New color: Emerald green
       case "New message":
+        return "border-l-4 border-l-indigo-500 bg-gray-800"; // New color: Indigo blue
+      case "Invite":
         return "border-l-4 border-l-indigo-500 bg-gray-800"; // New color: Indigo blue
       default:
         return "border-l-4 border-l-gray-500 bg-gray-800"; // Default: Gray
@@ -118,28 +122,54 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
                   {formatTime(notif.timestamp)}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 mb-3 leading-relaxed truncate max-w-60"> 
-                {notif.text || notif.message || "No message"}
-              </p>
+              {notif.type !== "Invite" && (
+
+                <p className="text-sm text-gray-400 mb-3 leading-relaxed truncate max-w-60 "> 
+                  {notif.text || notif.message || "No message"}
+                </p>
+              )}
+
               <div className="flex items-center gap-3">
+
+                
                 <div className="flex-shrink-0 w-9 h-9 bg-gray-700 rounded-full flex items-center justify-center">
                   <span className="text-md font-bold text-gray-300">
                     {(notif.sender || "U")[0].toUpperCase()}
                   </span>
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 ">
                   <p className="text-sm font-medium text-gray-200 truncate">
                     {notif.sender || "Unknown"}
                   </p>
-                  <p className="text-xs text-gray-400 truncate">
+                  <p className="text-xs text-gray-400 truncate ">
                     {notif.type === "New message"
                       ? "Sent you a message"
                       : notif.type === "friend_request"
                       ? "Wants to be friends"
+                      : notif.type === "Invite"
+                      ? "Invite you to play "
                       : "Accepted your request"}
                   </p>
+                  {notif.type === "Invite" && (
+
+                    <div className="flex items-center justify-center gap-9 p-3">
+                      <button
+                        className="bg-[#0077FF] text-white p-2 rounded-full text-xs font-semibold flex items-center gap-2"
+                        onClick={() => console.log("heeey")}
+                      >
+                        <UserCheck size={20} /> Accept
+                      </button>
+                      <button
+                        className="bg-red-500 text-white p-2 rounded-full text-xs font-semibold flex items-center gap-2"
+                        onClick={() => console.log("heeey")}
+                      >
+                        <UserX size={20} /> Reject
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
+
             </div>
           ))
         )}
@@ -305,7 +335,7 @@ const NavBar: React.FC = () => {
                 setUnreadCount(0)
               }}
             />
-
+        
             {unreadCount > 0 && (
               <span className="absolute -top-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
                 {unreadCount}
@@ -328,7 +358,7 @@ const NavBar: React.FC = () => {
           />
         )}
 
-        <Toaster position="top-center" />
+        {/* <Toaster position="top-center" /> */}
       </nav>
     )}
     </>
