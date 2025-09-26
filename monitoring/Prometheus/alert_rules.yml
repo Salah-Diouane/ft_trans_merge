@@ -3,7 +3,7 @@ groups:
     rules:
       - alert: NodeDown
         expr: up{job="node-exporter"} == 0
-        for: 1m
+        for: 20s
         labels:
           severity: critical
         annotations:
@@ -14,7 +14,7 @@ groups:
     rules:
       - alert: NginxDown
         expr: up{job="nginx-exporter"} == 0
-        for: 1m
+        for: 20s
         labels:
           severity: critical
         annotations:
