@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { data } from "react-router";
-import { Square_Costume } from "../Game/Local/Square"
+import { Square_Costume } from "../Game/Tic-Tac/Local/Square"
 
 const Game = () => {
 	const canvasRef = useRef(null);

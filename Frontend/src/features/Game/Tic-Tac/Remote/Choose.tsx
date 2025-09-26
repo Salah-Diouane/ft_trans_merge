@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import socket from "../../Chat/services/socket";
+import socket from "../../../Chat/services/socket";
 import { FiUsers } from 'react-icons/fi';
 import { RiPingPongFill } from 'react-icons/ri';
-import {User} from "../../Chat/types/User"
+import {User} from "../../../Chat/types/User"
 type ChooseProps = {
     onChoose: (playerName: string | undefined) => void;
 };

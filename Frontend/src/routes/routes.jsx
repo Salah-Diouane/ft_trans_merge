@@ -40,8 +40,8 @@ import TwoFA from '../features/userauth/twofa';
 import Signin from '../features/userauth/signin';
 import Signup from '../features/userauth/signup';
 import ProtectedRoute from '../features/userauth/protectauth'
-import RemoteGame from "../features/Game/Remote/RemoteGame"
-import LocalGame from '../features/Game/Local/LocalGame';
+import RemoteGame from "../features/Game/Tic-Tac/Remote/RemoteGame"
+import LocalGame from '../features/Game/Tic-Tac/Local/LocalGame';
 import LocalPong from '../features/Game/PingPong/Local/LocalPong';
 import RemotePong from '../features/Game/PingPong/Remote/RemotePong';
 import GameSettings from '../features/Settings/Game';
