@@ -38,8 +38,6 @@ services:
     networks:
       - frontend_backend
 
-# ===== Monitoring Services =====
-
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -51,7 +49,6 @@ services:
     networks:
       - monitoring
       - frontend_backend
-
 
   grafana:
     image: grafana/grafana:latest
@@ -66,7 +63,7 @@ services:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
     networks:
       - monitoring
-  
+
   nginx_exporter:
     image: nginx/nginx-prometheus-exporter:latest
     container_name: nginx_exporter
@@ -76,24 +73,34 @@ services:
     depends_on:
       - nginx
     networks:
+      - monitoring
       - frontend_backend
+    ports:
+      - "9113:9113"
 
   node_exporter:
     image: prom/node-exporter:latest
     container_name: node_exporter
+    command:
+      - --web.listen-address=:9100
     networks:
       - monitoring
+    ports:
+      - "9100:9100"
 
   alertmanager:
     image: prom/alertmanager:latest
     container_name: alertmanager
     volumes:
-      - ./monitoring/Alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-    command: --web.external-url=http://e3r10p2.1337.ma:9093
+      - ./monitoring/Alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - '--web.external-url=http://localhost:9093'
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
     ports:
-      - "9093:9093" 
+      - "9093:9093"
     networks:
       - monitoring
+      - frontend_backend
 
 networks:
   monitoring:
@@ -102,3 +109,118 @@ networks:
 volumes:
   backend_node_modules:
   frontend_node_modules:
+
+
+
+
+
+
+
+# version: '3.8'
+
+# services:
+#   backend:
+#     build:
+#       context: ./backend
+#       dockerfile: Dockerfile
+#     volumes:
+#       - ./backend:/app
+#       - backend_node_modules:/app/node_modules
+#     environment:
+#       NODE_ENV: development
+#     networks:
+#       - frontend_backend
+
+#   frontend:
+#     build:
+#       context: ./Frontend
+#       dockerfile: Dockerfile
+#     volumes:
+#       - ./Frontend:/app
+#       - frontend_node_modules:/app/node_modules
+#     environment:
+#       CHOKIDAR_USEPOLLING: "true"
+#     networks:
+#       - frontend_backend
+
+#   nginx:
+#     build:
+#       context: ./Nginx
+#       dockerfile: Dockerfile
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     depends_on:
+#       - frontend
+#       - backend
+#     networks:
+#       - frontend_backend
+
+# # ===== Monitoring Services =====
+
+#   prometheus:
+#     image: prom/prometheus:latest
+#     container_name: prometheus
+#     volumes:
+#       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+#       - ./monitoring/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+#     ports:
+#       - "9090:9090"
+#     networks:
+#       - monitoring
+#       - frontend_backend
+
+
+#   grafana:
+#     image: grafana/grafana:latest
+#     container_name: grafana
+#     ports:
+#       - "3001:3000"
+#     environment:
+#       - GF_SECURITY_ADMIN_USER=admin
+#       - GF_SECURITY_ADMIN_PASSWORD=admin
+#     volumes:
+#       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+#       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+#     networks:
+#       - monitoring
+  
+#   nginx_exporter:
+#     image: nginx/nginx-prometheus-exporter:latest
+#     container_name: nginx_exporter
+#     command:
+#       - --nginx.scrape-uri=http://nginx/stub_status
+#       - --web.listen-address=:9113
+#     depends_on:
+#       - nginx
+#     networks:
+#       - monitoring
+#       - frontend_backend
+
+#   node_exporter:
+#     image: prom/node-exporter:latest
+#     container_name: node_exporter
+#     command:
+#       - --web.listen-address=:9100
+#     networks:
+#       - monitoring
+
+#   alertmanager:
+#     image: prom/alertmanager:latest
+#     container_name: alertmanager
+#     volumes:
+#       - ./monitoring/Alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+#     command: --web.external-url=http://e3r7p17.1337.ma:9093
+#     ports:
+#       - "9093:9093" 
+#     networks:
+#       - monitoring
+#       - frontend_backend
+
+# networks:
+#   monitoring:
+#   frontend_backend:
+
+# volumes:
+#   backend_node_modules:
+#   frontend_node_modules:
