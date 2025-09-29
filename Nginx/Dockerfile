@@ -7,7 +7,7 @@ RUN apk add --no-cache openssl
 RUN mkdir -p /etc/nginx/ssl
 
 RUN openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/ssl/server.key -out /etc/nginx/ssl/server.crt \
-    -days 365 -nodes -subj "/C=MO/ST=KH/L=KH/O=42/OU=42/CN=e3r7p17.1337.ma"
+    -days 365 -nodes -subj "/C=MO/ST=KH/L=KH/O=42/OU=42/CN=e3r10p2.1337.ma"
 
 COPY default.conf /etc/nginx/conf.d/default.conf
 

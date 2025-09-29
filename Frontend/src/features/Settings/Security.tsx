@@ -38,7 +38,7 @@ export default function Security() {
 		}
 		if (body.oldpassowrd || body.password || body.confirmpassword || body.twoFA !== undefined) {
 			const response = await fetch(`${import.meta.env.VITE_API_URL}/api/settings/security`, {
-			// const response = await fetch("http://e3r7p17.1337.ma:3000/settings/security", {
+			// const response = await fetch("http://e3r10p2.1337.ma:3000/settings/security", {
 				credentials : "include",
 				method : "PUT",
 				headers: { 'Content-type': 'application/json' },
