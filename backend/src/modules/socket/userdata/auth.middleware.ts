@@ -15,7 +15,7 @@ export default function createAuthMiddleware(fastify: FastifyInstance) {
       if (!cookiesHeader) {
         throw new Error("No cookie transmitted.");
       }
-       
+    
       const parsedCookies = parseCookie(cookiesHeader);
       const token = parsedCookies.accessToken;
        
@@ -24,7 +24,7 @@ export default function createAuthMiddleware(fastify: FastifyInstance) {
       }
       
       const decodedToken = await fastify.jwt.verify(token);
-      console.log("----> : decodedToken : ", decodedToken)
+      console.log("----> : decodedToken : ", decodedToken);
       socket.user = decodedToken;
       socket.online = true;
       onlineUsers.set(socket.user.userid, socket);

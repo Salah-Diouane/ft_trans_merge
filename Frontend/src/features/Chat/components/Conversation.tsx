@@ -7,7 +7,8 @@ import { LuSendHorizontal } from "react-icons/lu";
 import { IoBanOutline, IoGameControllerOutline } from "react-icons/io5";
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { AddTeamIcon, UserBlock02Icon, CircleArrowLeft01Icon } from "hugeicons-react";
+import { AddTeamIcon, UserBlock02Icon, Cancel01Icon } from "hugeicons-react";
+
 import { LuImagePlus } from "react-icons/lu";
 import { MdDelete, MdCancel, MdEmojiEmotions } from "react-icons/md";
 import { HiEllipsisVertical } from "react-icons/hi2";
@@ -15,6 +16,7 @@ import { IoIosArrowBack } from "react-icons/io";
 import { useStore } from '../../../store/store';
 import meProfile from "../Assets/me.jpeg";
 import Subtract from "../Assets/Subtract.svg";
+import PongInviteButton from "../../Game/PingPong/Invite/PongInviteBtn";
 
 import { Message } from "../types/Message";
 import socket from "../services/socket";
@@ -308,13 +310,20 @@ const Conversation: FC<ConversationProps> = ({
                     </button>
                   )
                   }
-                  <button
-                    onClick={handleSendInvite}
-                    className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
-                  >
-                    <AddTeamIcon />
-                    Invite
-                  </button>
+                  <PongInviteButton 
+                    recipientUsername={user.id}
+                    currentUserId={loggedInUserId}
+                    onInviteSent={() => console.log('Invite sent!')}
+                  />
+                   <button
+                      onClick={() => {
+                        setShowInvBlock(false)
+                      }}
+                      className="w-full px-4 py-2 text-left text-white-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
+                    >
+                      <Cancel01Icon />
+                      Close
+                    </button>
                 </div>
               </div>
             )}

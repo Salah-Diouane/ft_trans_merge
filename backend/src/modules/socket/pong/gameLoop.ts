@@ -1,6 +1,6 @@
 import { games } from './gameManager';
 import { paddleDirections } from './pong.game.handlers';
-import { resetBall } from './gameUtils';
+import { resetBall, handleScoring, clamp, checkPaddleCollision } from './gameUtils';
 import { pongGameEventProps } from './interfaces';
 import { tournaments } from './tournamentStore';
 
@@ -15,31 +15,11 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
   const maxBallSpeed = 20;
   const initialBallSpeed = 3;
 
-  const clamp = (value: number, min: number, max: number) =>
-    Math.max(min, Math.min(max, value));
 
-  function checkPaddleCollision(
-    prevX: number,
-    currX: number,
-    ballY: number,
-    ballR: number,
-    paddleRect: { top: number; bottom: number; left: number; right: number },
-    goingLeft: boolean
-  ) {
-    const passedFront = goingLeft
-      ? prevX - ballR >= paddleRect.right && currX - ballR <= paddleRect.right
-      : prevX + ballR <= paddleRect.left && currX + ballR >= paddleRect.left;
-
-    const withinY =
-      ballY + ballR >= paddleRect.top && ballY - ballR <= paddleRect.bottom;
-
-    return passedFront && withinY;
-  }
 
   setInterval(() => {
     for (const [roomId, game] of games.entries()) {
       if (game.players.length !== 2) continue;
-
       if (!game.ready) continue;
       
       const state = game.state;
@@ -48,6 +28,7 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
 
       const paddleMovement = { left: 0, right: 0 };
 
+      // Handle paddle movement
       for (const [, input] of inputs.entries()) {
         const dir = input.direction;
         const side = input.side;
@@ -72,14 +53,17 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
       const prevBallX = ball.x;
       const prevBallY = ball.y;
 
+      // Move ball
       ball.x += ball.dx;
       ball.y += ball.dy;
 
+      // Ball collision with top/bottom walls
       if (ball.y - ballR <= 0 || ball.y + ballR >= baseHeight) {
         ball.dy *= -1;
         ball.y = clamp(ball.y, ballR, baseHeight - ballR);
       }
 
+      // Paddle positions
       const paddleLeftX = paddleOffset;
       const paddleLeftY = state.paddles.left;
       const paddleRightX = baseWidth - paddleOffset - paddleW;
@@ -99,7 +83,7 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
         right: paddleRightX + paddleW,
       };
 
-      // Left paddle collision
+      // Paddle collisions
       if (
         ball.dx < 0 &&
         checkPaddleCollision(prevBallX, ball.x, ball.y, ballR, leftPaddleRect, true)
@@ -109,8 +93,6 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
         ball.dy = relativeIntersectY * 8;
         ball.dx = Math.min(Math.abs(ball.dx) * 1.1, maxBallSpeed);
       }
-
-      // Right paddle collision
       else if (
         ball.dx > 0 &&
         checkPaddleCollision(prevBallX, ball.x, ball.y, ballR, rightPaddleRect, false)
@@ -121,7 +103,7 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
         ball.dx = -Math.min(Math.abs(ball.dx) * 1.1, maxBallSpeed);
       }
 
-      // Left paddle top/bottom vertical bounce
+      // Vertical paddle collisions (top/bottom edges)
       const hitLeftEdgeVertically =
         ball.x + ballR >= leftPaddleRect.left &&
         ball.x - ballR <= leftPaddleRect.right &&
@@ -137,7 +119,6 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
           : leftPaddleRect.bottom + ballR;
       }
 
-      // Right paddle top/bottom vertical bounce
       const hitRightEdgeVertically =
         ball.x + ballR >= rightPaddleRect.left &&
         ball.x - ballR <= rightPaddleRect.right &&
@@ -153,7 +134,7 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
           : rightPaddleRect.bottom + ballR;
       }
 
-      // Fallback: Ball fully inside paddle (edge case protection)
+      // Fallback: Ball inside paddle protection
       const ballInsideLeft =
         ball.x + ballR > leftPaddleRect.left &&
         ball.x - ballR < leftPaddleRect.right &&
@@ -176,144 +157,23 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
         ball.x = rightPaddleRect.left - ballR;
       }
 
-      // Scoring
-      if (ball.x < 0) {
-        state.score.right++;
-        if (state.score.right === 7) {
-          console.log('Game Over. Right player wins.');
-          io.to(roomId).emit('gameOver', { winner: game.players[1] || 'right' });
-          if (game.gameType == "tournament") {
-            const gameOverTournamentEvent = { roomId, winner: game.players[1] || 'right', loser: game.players[0] || 'left' };
-            console.log("Handling gameOverTournament event for room:", roomId, gameOverTournamentEvent);
-            game.progress = 'completed';
-            // Handling the tournament games update
-            const tournament = Object.values(tournaments).find(t =>
-              t.matches.some(m => m.roomId === roomId)
-            );
-            if (tournament) {
-              const match = tournament.matches.find(m => m.roomId === roomId);
-              if (match) {
-              match.winner = gameOverTournamentEvent.winner;
-              match.loser = gameOverTournamentEvent.loser;
-              match.progress = 'completed';
-              }
-              if (tournament.winners.includes(match?.loser || '')) {
-                const index = tournament.winners.findIndex((player) => player === match?.loser);
-                if (index !== -1) {
-                  tournament.winners.splice(index, 1);
-                  tournament.losers.push(match?.loser || '');
-                }
-              }
-              if (!tournament.winners.includes(match?.winner || '')) {
-                tournament.winners.push(match?.winner || '');
-              }
-              io.to(`tournament:${tournament.id}`).emit('tournament-updated', tournament);
-              console.log(`Tournament ${tournament.id} updated with match result.`);
-              if (tournament.winners.length === 1)
-                tournament.status = 'completed';
-            }
-            game.winner = game.players[1] || 'left';
-            game.loser = game.players[0] || 'right';
-            const copy = JSON.parse(JSON.stringify(game));
-            // assign the copy to the same game on the tournament store
-            const tour = Object.values(tournaments).find(t =>
-              t.matches.some(m => m.roomId === roomId)
-            );
-            if (tour) {
-              const match = tour.matches.find(m => m.roomId === roomId);
-              if (match) {
-                match.winner = copy.winner;
-                match.loser = copy.loser;
-                match.progress = 'completed';
-              }
-              if (!tour.winners.includes(copy.winner)) {
-                tour.winners.push(copy.winner);
-              }
-              if (!tour.losers.includes(copy.loser)) {
-                tour.losers.push(copy.loser);
-              }
-          }
-        }
-          paddleDirections.delete(roomId);
-          games.delete(roomId);
-          continue;
-        }
-        resetBall({
-          state,
-          leftScored: false, // Right player scored, so ball goes toward left
-          baseWidth,
-          baseHeight,
-          ballSpeed: initialBallSpeed,
-        });
-      }
+      // Handle scoring with single function
+      const gameEnded = handleScoring(
+        ball,
+        state,
+        game,
+        roomId,
+        baseWidth,
+        baseHeight,
+        initialBallSpeed,
+        io,
+        tournaments,
+        games,
+        paddleDirections
+      );
 
-      if (ball.x > baseWidth) {
-        state.score.left++;
-        if (state.score.left === 7) {
-          io.to(roomId).emit('gameOver', { winner: game.players[0] || 'left' });
-          if (game.gameType == "tournament") {
-            const gameOverTournamentEvent = { roomId, winner: game.players[0] || 'left', loser: game.players[1] || 'right' };
-            console.log("Handling gameOverTournament event for room:", roomId, gameOverTournamentEvent);
-            game.progress = 'completed';
-            // Handling the tournament games update
-            const tournament = Object.values(tournaments).find(t =>
-              t.matches.some(m => m.roomId === roomId)
-            );
-            if (tournament) {
-              const match = tournament.matches.find(m => m.roomId === roomId);
-              if (match) {
-              match.winner = gameOverTournamentEvent.winner;
-              match.loser = gameOverTournamentEvent.loser;
-              match.progress = 'completed';
-              }
-              if (tournament.winners.includes(match?.loser || '')) {
-                const index = tournament.winners.findIndex((player) => player === match?.loser);
-                if (index !== -1) {
-                  tournament.winners.splice(index, 1);
-                  tournament.losers.push(match?.loser || '');
-                }
-              }
-              if (!tournament.winners.includes(match?.winner || '')) {
-                tournament.winners.push(match?.winner || '');
-              }
-              io.to(`tournament:${tournament.id}`).emit('tournament-updated', tournament);
-              console.log(`Tournament ${tournament.id} updated with match result.`);
-              if (tournament.winners.length === 1)
-                tournament.status = 'completed';
-            }
-            game.winner = game.players[0] || 'left';
-            game.loser = game.players[1] || 'right';
-            const copy = JSON.parse(JSON.stringify(game));
-            // assign the copy to the same game on the tournament store
-            const tour = Object.values(tournaments).find(t =>
-              t.matches.some(m => m.roomId === roomId)
-            );
-            if (tour) {
-              const match = tour.matches.find(m => m.roomId === roomId);
-              if (match) {
-                match.winner = copy.winner;
-                match.loser = copy.loser;
-                match.progress = 'completed';
-              }
-              if (!tour.winners.includes(copy.winner)) {
-                tour.winners.push(copy.winner);
-              }
-              if (!tour.losers.includes(copy.loser)) {
-                tour.losers.push(copy.loser);
-              }
-          }
-        }
-          games.delete(roomId);
-          paddleDirections.delete(roomId);
-          continue;
-        }
-        resetBall({
-          state,
-          leftScored: true, // Left player scored, so ball goes toward right
-          baseWidth,
-          baseHeight,
-          ballSpeed: initialBallSpeed,
-        });
+      if (gameEnded) {
+        continue;
       }
 
       io.to(roomId).emit('gameState', {

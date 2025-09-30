@@ -58,12 +58,9 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
   const [playersNames, setPlayersNames] = useState<playersDataProps | null>(null);
   const [playersDisplayNames, setPlayersDisplayNames] = useState<displayNamesProps | null>(null);
   const [usersImages, setUserImages] = useState<usersImagesProps[] | null>(null);
-  const [leftPlayer, setLeftPlayer] = useState<string>("");
-  const [rightPlayer, setRightPlayer] = useState<string>("");
-  const [ids, setIds] = useState<string[] | null>(null);
 
-  // Add refs to track if usernames have been fetched
-  const playerNamesFetchedRef = useRef(false);
+  // Add single ref to track if player data has been fetched
+  const playerDataFetchedRef = useRef(false);
   const usernamesCacheRef = useRef<Record<string, string>>({});
 
   // Touch controls state
@@ -80,79 +77,63 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     down: false,
   });
 
-  const fetchUsersImages = async (ids: string[]) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user-image`, {
-        credentials: "include",
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ids }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch users");
-      }
-
-      const responseData = await response.json();
-      console.log(responseData);
-      setUserImages(responseData.users);
-      // setLeftPlayer(responseData[0].image_url);
-      // setRightPlayer(responseData[1].image_url);
-      
-    } catch (error) {
-      console.error("Error fetching users:", error);
+  // REFACTORED: Single optimized function
+  const fetchPlayerData = async (playerIds: string[]) => {
+    if (playerDataFetchedRef.current) {
+      return;
     }
-  };
-
-  // Optimized function to fetch usernames only once
-  const fetchUsernamesOnce = async (playerIds: string[]): Promise<Record<string, string>> => {
-    // Check if we already have all usernames cached
-    const uncachedIds = playerIds.filter(id => !usernamesCacheRef.current[id]);
-    
-    if (uncachedIds.length === 0) {
-      return usernamesCacheRef.current;
-    }
-
+  
+    playerDataFetchedRef.current = true;
+  
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
-        credentials: "include",
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ids: uncachedIds }),
-      });
-
-      if (!response.ok) {
-        // Fallback to IDs if fetch fails
-        uncachedIds.forEach(id => {
-          usernamesCacheRef.current[id] = id;
+      // Make both calls simultaneously
+      const [usernamesResponse, imagesResponse] = await Promise.all([
+        fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
+          credentials: "include",
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: playerIds }),
+        }),
+        fetch(`${import.meta.env.VITE_API_URL}/api/user-image`, {
+          credentials: "include",
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: playerIds }),
+        })
+      ]);
+  
+      // Process responses
+      if (usernamesResponse.ok) {
+        const { users: fetchedUsers } = await usernamesResponse.json();
+        playerIds.forEach((id, index) => {
+          usernamesCacheRef.current[id] = fetchedUsers[index] || id;
         });
-        return usernamesCacheRef.current;
+  
+        setPlayersDisplayNames({
+          left: usernamesCacheRef.current[playerIds[0]] || playerIds[0],
+          right: usernamesCacheRef.current[playerIds[1]] || playerIds[1]
+        });
       }
-
-      const responseData = await response.json();
-      const fetchedUsers: string[] = responseData.users;
-
-      // Cache the new usernames
-      uncachedIds.forEach((id, index) => {
-        usernamesCacheRef.current[id] = fetchedUsers[index] || id;
-      });
-
-      return usernamesCacheRef.current;
+  
+      if (imagesResponse.ok) {
+        const { users: images } = await imagesResponse.json();
+        setUserImages(images);
+      }
+  
     } catch (error) {
-      console.error("Error fetching usernames:", error);
-      // Fallback to IDs on error
-      uncachedIds.forEach(id => {
-        usernamesCacheRef.current[id] = id;
-      });
-      return usernamesCacheRef.current;
+      console.error("Error fetching player data:", error);
+      playerDataFetchedRef.current = false;
+      
+      // Fallback
+      if (playerIds.length === 2) {
+        setPlayersDisplayNames({
+          left: playerIds[0],
+          right: playerIds[1]
+        });
+      }
     }
   };
 
-  // Detect if device supports touch
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -163,7 +144,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Touch event handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault();
     if (!playerSide || gameOver) return;
@@ -385,19 +365,9 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     socket.on('gameState', async (serverState) => {
       const data = { left: serverState.players[0], right: serverState.players[1] };
       setPlayersNames(data);
-      if (!usersImages)
-        fetchUsersImages(serverState.players || []);
-
-      // Only fetch usernames once when players are first set
-      if (!playerNamesFetchedRef.current && serverState.players[0] && serverState.players[1]) {
-        playerNamesFetchedRef.current = true;
-        
-        const usernamesMap = await fetchUsernamesOnce([serverState.players[0], serverState.players[1]]);
-        
-        setPlayersDisplayNames({
-          left: usernamesMap[serverState.players[0]] || serverState.players[0],
-          right: usernamesMap[serverState.players[1]] || serverState.players[1]
-        });
+      
+      if (!playerDataFetchedRef.current && serverState.players && serverState.players.length === 2) {
+        await fetchPlayerData(serverState.players);
       }
 
       ballRef.current = {
@@ -427,8 +397,8 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
       // Get winner display name from cache or fetch if needed
       let winnerDisplayName = usernamesCacheRef.current[playerWin.winner];
       if (!winnerDisplayName) {
-        const usernamesMap = await fetchUsernamesOnce([playerWin.winner]);
-        winnerDisplayName = usernamesMap[playerWin.winner] || playerWin.winner;
+        const usernamesMap = await fetchPlayerData([playerWin.winner]);
+        winnerDisplayName = usernamesCacheRef.current[playerWin.winner] || playerWin.winner;
       }
       
       setWinner(winnerDisplayName);
@@ -459,7 +429,7 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
       window.removeEventListener('unload', handleBeforeUnload);
       
       // Reset the fetch flag when component unmounts
-      playerNamesFetchedRef.current = false;
+      playerDataFetchedRef.current = false;
       usernamesCacheRef.current = {};
     };
   }, [roomId, onGameEnd, playerName, playerSide]);

@@ -16,9 +16,16 @@ interface pongGameHandlersProps {
 }
 
 export const paddleDirections = new Map();
+export const userSockets = new Map<number, string>();
 
 export default function pongGameHandlers({ fastify, io, socket }: pongGameHandlersProps) {
   const userData = socket.user;
+
+  // Add user to socket mapping when they connect
+  if (userData?.id) {
+    userSockets.set(userData.id, socket.id);
+    console.log('👤 User connected:', userData.id, 'Socket:', socket.id);
+  }
 
   socket.on('join', (playerName) => {
     let roomId: string | null = null;
@@ -158,11 +165,6 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
               }
             }
           });
-          socket.to(roomId).emit("gameOverTournament", { 
-            roomId, 
-            winner: game.players[0] || 'left', 
-            loser: playerName 
-          });
         }
 
         // Clean up empty game rooms
@@ -178,6 +180,11 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
+
+    // Remove from userSockets
+    if (userData?.id) {
+      userSockets.delete(userData.id);
+    }
 
     // Clean paddle input state
     for (const [roomId, inputs] of paddleDirections.entries()) {
@@ -216,7 +223,6 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
               }
             }
           });
-          socket.to(roomId).emit("gameOverTournament", { roomId, winner: game.players[0] || 'left', loser: playerName });
         }
 
         if (game.players.length === 0) {
@@ -270,84 +276,167 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
   });
 
   socket.on('invite-game', ({ opponent, playerName }) => {
+    console.log('🎮 Invite game received:', { opponent, playerName });
+
+    const opponentId = typeof opponent === 'string' ? parseInt(opponent) : opponent;
+    const senderId = typeof playerName === 'string' ? parseInt(playerName) : playerName;
+
+    // Create game room immediately
     let roomId = uuidv4();
     createGame(roomId);
     
+    // Add both players to the game
     addPlayerToGame({
       roomId,
-      playerName: opponent,
+      playerName: String(opponentId),
       socketId: '',
     });
 
-    const success = addPlayerToGame({
-        roomId,
-        playerName,
-        socketId: socket.id,
-      });
-    
-    if (!success) {
-      socket.emit('full');
-      return;
-    }
+    addPlayerToGame({
+      roomId,
+      playerName: String(senderId),
+      socketId: socket.id,
+    });
+
+    // Join the room immediately
     socket.join(roomId);
     const game = getGame(roomId);
-    const playerIndex = game?.players.indexOf(playerName);
+    const playerIndex = game?.players.indexOf(String(senderId));
     socket.emit('init', { player: playerIndex });
     socket.emit('roomId', roomId);
     
-    // Notify opponent if connected
-    // const opponentSocket = Array.from(io.sockets.sockets.values()).find(s => s.user && s.user.username === opponent);
-    // if (opponentSocket) {
-    //   opponentSocket.join(roomId);
-    //   opponentSocket.emit('invited', { roomId, from: playerName });
-    // }
+    // Get user info and send notification
+    fastify.db.get(
+      'SELECT id, username FROM user_authentication WHERE id = ?',
+      [opponentId],
+      (err: Error | null, opponentUser: { id: number, username: string }) => {
+        if (err || !opponentUser) {
+          console.log('❌ Opponent not found:', opponent);
+          socket.emit('error', { message: 'Opponent not found' });
+          games.delete(roomId);
+          return;
+        }
+
+        fastify.db.get(
+          'SELECT id, username FROM user_authentication WHERE id = ?',
+          [senderId],
+          (err: Error | null, senderUser: { id: number, username: string }) => {
+            if (err || !senderUser) {
+              console.log('❌ Sender not found:', playerName);
+              socket.emit('error', { message: 'Authentication required' });
+              games.delete(roomId);
+              return;
+            }
+
+            // Send only real-time notification (no database storage)
+            io.emit('pong-invite-notification', {
+              recipientId: opponentId,
+              senderId: senderId,
+              sender: senderUser.username,
+              receiver: opponentUser.username,
+              type: 'pong_invite',
+              text: `${roomId}:${senderUser.username}`,
+              timestamp: new Date().toISOString(),
+              gameRoomId: roomId
+            });
+
+            // Confirm to sender
+            socket.emit('invite-sent', { 
+              message: `Pong invite sent to ${opponentUser.username}`,
+              roomId 
+            });
+
+            // Set timeout to clean up expired game room
+            setTimeout(() => {
+              const currentGame = getGame(roomId);
+              if (currentGame?.ready === false) {
+                games.delete(roomId);
+                console.log(`🧹 Cleaned up expired game room: ${roomId}`);
+              }
+            }, 60000); // 60 seconds timeout
+          }
+        );
+      }
+    );
   });
 
   socket.on('accept-invite', ({ roomId, playerName }) => {
+    console.log('🎮 Accept invite received:', { roomId, playerName });
+    
+    const playerId = typeof playerName === 'string' ? parseInt(playerName) : playerName;
+    const playerIdString = String(playerId);
+    
     const game = getGame(roomId);
     if (!game) {
-      socket.emit('error', { message: 'Game not found' });
+      console.log('❌ Game not found for room:', roomId);
+      socket.emit('error', { message: 'Game room not found or expired' });
       return;
     }
 
-    const playerIndex = game.players.indexOf(playerName);
+    // Check if player is part of this game
+    const playerIndex = game.players.indexOf(playerIdString);
     if (playerIndex === -1) {
-      socket.emit('error', { message: 'Player not in the game' });
+      console.log('❌ Player not in game:', playerIdString);
+      socket.emit('error', { message: 'You are not part of this game' });
       return;
     }
 
-    const player = game.playerNamesAndsockId.find(p => p.name === playerName);
+    // Update socket ID for accepting player
+    const player = game.playerNamesAndsockId.find(p => p.name === playerIdString);
     if (player) {
       player.sockId = socket.id;
+      console.log('🔄 Updated socket ID for player:', playerIdString);
     }
 
+    // Join the room
     socket.join(roomId);
-    const updatedPlayerIndex = game.players.indexOf(playerName);
-    socket.emit('init', { player: updatedPlayerIndex });
+    socket.emit('init', { player: playerIndex });
     socket.emit('roomId', roomId);
 
-    if (game.players.length === 2) {
-      game.gameType = "remote"
-      const allConnected = game.playerNamesAndsockId.every(p =>
-        io.sockets.sockets.get(p.sockId)
-      );
+    // Check if both players are now connected
+    const connectedSockets = io.sockets.adapter.rooms.get(roomId);
+    console.log('🔌 Connected sockets in room:', connectedSockets?.size);
 
-      if (allConnected) {
+    if (connectedSockets && connectedSockets.size === 2) {
+      console.log('🚀 Both players connected! Starting game...');
+      
+      // Notify both players that the game is starting
+      io.to(roomId).emit('game-starting', {
+        message: 'Both players connected! Redirecting to game...',
+        roomId: roomId
+      });
+      
+      // Start countdown after a short delay to allow for navigation
+      setTimeout(() => {
+        game.gameType = "remote";
         game.ready = false;
         let countdown = 3;
 
         const countdownInterval = setInterval(() => {
-          io.to(roomId!).emit('countdown', countdown);
+          io.to(roomId).emit('countdown', countdown);
+          console.log(`⏰ Countdown: ${countdown} for room: ${roomId}`);
           countdown--;
 
           if (countdown < 0) {
             clearInterval(countdownInterval);
-            io.to(roomId!).emit('ready');
+            io.to(roomId).emit('ready');
             game.ready = true;
+            console.log('🎮 Game ready for room:', roomId);
           }
         }, 1000);
-      }
+      }, 2000); // 2 second delay for navigation
+      
+    } else {
+      console.log('⏳ Waiting for both players to connect...');
     }
   });
 
+  socket.on('refuse-invite', ({ roomId, playerName }) => {
+    const game = getGame(roomId);
+    if (game !== undefined && game.ready === false) {
+      games.delete(roomId);
+      io.emit('user-refused-game', playerName);
+      console.log("here", roomId, playerName);
+    }
+  });
 }

@@ -4,6 +4,7 @@ import { User } from "../Chat/types/User";
 import { useUsers } from "../layout/useUsers";
 import { useNavigate, useParams } from "react-router-dom";
 import socket from "../Chat/services/socket";
+import { RiNftLine } from "react-icons/ri";
 
 const OnlineStatusIcon: React.FC<{ isOnline: boolean; size?: number }> = ({ isOnline, size = 12 }) => {
   console.log("======================is online======================", isOnline);
@@ -123,6 +124,21 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
   const [allBlocked, setAllBlocked] = useState<User[]>([]);
   const [dataUpdate, setDataUpdate] = useState<boolean>(false);
 
+  useEffect( () => {
+
+    socket.on("user:status", ({ id, online }: { id: number; online: boolean }) => {
+      console.log("---> inside the user:status")
+      console.log("id : ", id)
+      console.log("online : ", online)
+      setAllUsers((prev) => prev.map((u) => (u.id === id ? { ...u, online } : u)));
+      console.log("All Users :  : ", allUsers)
+    });
+
+    return () => {
+      socket.off("user:status");
+    }
+  }, [])
+
   useEffect(() => {
     
     const fetchRequest = async () => {
@@ -220,6 +236,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({ status })
     setDataUpdate(true);
   }
 console.log("all user : ", allUsers);
+
   return (
     <div className="flex flex-col font-russo text-base sm:text-lg ">
       <div className="sticky top-12 z-20 px-14 pt-4 pb-4 bg-[#393E46]">
@@ -278,10 +295,12 @@ const Friends: React.FC = () => {
     { key: "request", label: "Requests", icon: <UserPlus size={15} /> },
     { key: "blocked", label: "Blocked", icon: <Shield size={15} /> },
   ] as const;
+
   useEffect(() => {
-      socket.disconnect()
+      // socket.disconnect()
       socket.connect();
   }, []);
+
   return (
     <div className="pt-10 flex justify-center">
       <div className="mx-auto h-full w-full 2xl:w-[70%] xl:w-[60%] lg:w-[80%] md:w-[90%] flex flex-col rounded-2xl p-2 bg-[#393E46]">

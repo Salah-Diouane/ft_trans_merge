@@ -67,6 +67,8 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
 
 		if (userData && socket.online) {
 			socket.online = false;
+			console.log("====> user is disconnecte : ", socket.user.username, socket.online)
+			console.log("====> his status  : ", socket.online)
 
 			io.emit("user:status", {
 				username: userData.username,

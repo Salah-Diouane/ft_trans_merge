@@ -180,7 +180,7 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     return res.status(200).send({ users });
   });
 
-  // 🔹 START TOURNAMENT WITH TIMER
+  // START TOURNAMENT WITH TIMER
 
   app.post('/tournaments/:id/start', async (
     req: FastifyRequest<{ Params: JoinTournamentParams }>,
@@ -202,53 +202,29 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     tournament.participants = [...tournament.players];
     const players = tournament.winners;
     
-    // Rest of your start logic...
   
     // Group players into pairs and create game rooms
     let playerPairs: string[][] = [];
-    // const players =  tournament.winners;
 
-    // if (tournament.roundes === null) {
-    //   tournament.roundes = 0;
-    //   let players = tournament.maxPlayers;
-    //   while (players % 2 == 0) {
-    //     tournament.roundes++;
-    //     players /= 2;
-    //   }
-    // } else {
-
-    // }
     if (!tournament.participants)
       tournament.participants = [...tournament.players];
-    // if (tournament.roundes)
-    //   tournament.roundes--;
-    // if (tournament.roundes) tournament.roundes++;
     tournament.roundes = (tournament.roundes || 0) + 1;
     // Ensure there's an even number of players, or handle the odd player case
     for (let i = 0; i < players.length; i += 2) {
       const pair = players.slice(i, i + 2);
-      if (pair.length === 2) {
         playerPairs.push(pair);
-      } else {
-        // Handle the odd player case, e.g., give them a bye
-        playerPairs.push([pair[0], "BYE"]);
-      }
     }
 
   
     // Create a game room for each pair
     playerPairs.forEach(pair => {
-      const roomId = uuidv4(); // Generate a unique room ID for each match
-  
-      // Create the game with initial state
+      const roomId = uuidv4();  
       createGame(roomId);
   
-      // Add players to the game
       pair.forEach(player => {
-        addPlayerToGame({ roomId, playerName: player, socketId: player }); // You may need to adjust how socketId is handled
+        addPlayerToGame({ roomId, playerName: player, socketId: player });
       });
 
-      
       // Emit tournament-starting event for each match, with a 3-minute countdown
       app.io.to(roomId).emit('game-starting', { countdown: 180, roomId });
       let game = getGame(roomId)
@@ -261,7 +237,7 @@ export default async function tournamentRoutes(app: FastifyInstance) {
       }
       
       // Countdown and start game
-      let countdown = 13; // 3 minutes in seconds
+      let countdown = 63; // 1 minutes in seconds
       const interval = setInterval(() => {
         if (countdown <= 0) {
           clearInterval(interval);
@@ -287,7 +263,7 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     console.log(tournament.matches, tournament.roundes);
   
     // Broadcast tournament countdown for overall tournament
-    let tournamentCountdown = 10; // 3 minutes in seconds
+    let tournamentCountdown = 63; // 1 minutes in seconds
     app.io.to(`tournament:${id}`).emit('tournament-starting', tournamentCountdown);
   
     const tournamentInterval = setInterval(() => {
@@ -321,10 +297,6 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     if (tournament.status !== "waiting") {
       return res.status(400).send({ error: "Tournament can only be deleted when in waiting state." });
     }
-  
-    // Get user profile to check if they're the owner
-    // You'll need to implement this based on your auth system
-    // For now, assuming you have access to user info from cookies/session
     
     // if (tournament.owner !== currentUser) {
     //   return res.status(403).send({ error: "Only the tournament owner can delete it." });
@@ -362,5 +334,15 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     }
     return res.status(200).send({ users });
   });
+  app.get("/invite/:gameid", async (
+    req: FastifyRequest<{ Params: { gameid: string }}>,
+    res: FastifyReply
+  ) => {
+    const { gameid } = req.params;
+    const game = getGame(gameid);
+    if (game === undefined)
+      return res.status(404).send({error: "Game not found."});
+    return res.status(200).send({game});
+  })
 
 }

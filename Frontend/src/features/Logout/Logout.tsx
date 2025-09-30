@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import socket from '../Chat/services/socket';
 const Logout: React.FC = () => {
   const navigate = useNavigate();
+  
   useEffect( () => {
     if (socket.connect())
       socket.disconnect()

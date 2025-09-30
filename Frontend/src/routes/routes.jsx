@@ -1,29 +1,3 @@
-// // routesConfig.ts
-// import Layout from '../features/layout/Layout';
-// import ChatApp from '../features/Chat/Chat';
-// import Home from '../features/Home/Home';
-// import Game from '../features/Game/Game';
-// import Settings from '../features/Settings/Settings';
-// import Logout from '../features/Logout/Logout';
-// import Profile from '../features/Profile/Profile';
-// import PingPong from '../features/Game/PingPong';
-// import TicTacToe from '../features/Game/TicTacToe';
-// import GameHome from '../features/Game/GameHome';
-// import Userauth from '../features/userauth/userauth';
-// import TwoFA from '../features/userauth/twofa';
-// import Signin from '../features/userauth/signin';
-// import Signup from '../features/userauth/signup';
-// import ProtectedRoute from '../features/userauth/protectauth'
-// import RemoteGame from "../features/Game/Remote/RemoteGame"
-// import LocalGame from '../features/Game/Local/LocalGame';
-// import LocalPong from '../features/Game/PingPong/Local/LocalPong';
-// import RemotePong from '../features/Game/PingPong/Remote/RemotePong';
-// import GameSettings from '../features/Settings/Game';
-// import ProfileSetting from '../features/Settings/Profile';
-// import SecurtitySettings from '../features/Settings/Security';
-// import Friends from "../features/Friends/Friends"
-
-
 // routesConfig.ts
 import Layout from '../features/layout/Layout';
 import ChatApp from '../features/Chat/Chat';
@@ -55,6 +29,7 @@ import TournamentCreate from '../features/Game/PingPong/Tournaments/TournamentCr
 import TournamentJoin from '../features/Game/PingPong/Tournaments/TournamentJoin';
 import TournamentBoard from '../features/Game/PingPong/Tournaments/TournamentBoard';
 import TournamentGameStart from '../features/Game/PingPong/Tournaments/TournamentGameStart';
+import InviteGame from '../features/Game/PingPong/Invite/InviteGame';
 
 
 export const routes  = [
@@ -101,6 +76,7 @@ export const routes  = [
 					{ path: 'ping-pong/tournament-game/tournament-join', element: <TournamentJoin /> },
 					{ path: 'ping-pong/tournament-game/tournament/:tournamentId/view', element: <TournamentBoard /> },
 					{ path: 'ping-pong/tournament-game/tournament/:tournamentId/game', element: <TournamentGameStart /> },
+					{ path: 'ping-pong/invite/:roomId', element:<InviteGame /> },
 					{ path: 'tic-tac-toe', element: <TicTacToe /> },
 					{path: "tic-tac-toe/local-game", element: <LocalGame />},
 					{path: "tic-tac-toe/remote-game", element: <RemoteGame />},
