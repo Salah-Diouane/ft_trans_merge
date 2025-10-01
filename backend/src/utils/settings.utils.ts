@@ -30,7 +30,7 @@ export async function getuserid(fastify: FastifyInstance, username: string) : Pr
 			[
 				username
 			],
-			(err : Error, row: { id: number}) => {
+			(err : Error | null, row: { id: number}) => {
 				if (err) rejects(err);
 				resolve(row.id);
 			}
@@ -112,24 +112,11 @@ export async function UpdateGame(fastify: FastifyInstance, gameinfo: gameinfo, i
 
 export async function getgameinfo(fastify: FastifyInstance, id: number): Promise<gameinfo | null> {
 	return (new Promise((resolve, rejects) => {
-		fastify.db.get('SELECT * FROM game_settings_table where id = ? ', [id],
-			async (err: Error | null, rows: gameinfo) => {
+		fastify.db.get('SELECT * FROM game_settings_table where user_id = ? ', [id],
+			(err: Error | null, rows: gameinfo) => {
 				if (err)
 					rejects(err);
-
-				if (!rows) {
-					console.log("No game settings found, creating default for user:", id);
-					await setdefaultgame(fastify, id);
-					
-					// resolve({ // return default values
-					// 	ball_color: "#FF0000",
-					// 	paddle_color: "#0000FF", 
-					// 	table_color: "#EEEEEE"
-					// });
-				} else {
-					console.log("rows in ping pong : ", rows);
-					resolve(rows);
-				}
+				resolve(rows);
 			}
 		)
 	}))
@@ -138,13 +125,10 @@ export async function getgameinfo(fastify: FastifyInstance, id: number): Promise
 export async function setdefaultgame(fastify: FastifyInstance, id: number): Promise<void> {
 	return new Promise((resolve, reject) => {
 		fastify.db.run(
-			`INSERT INTO game_settings_table (id, ball_color, paddle_color, table_color)
-			VALUES (?, ?, ?, ?)`,
+			`INSERT INTO game_settings_table (user_id)
+					 VALUES (?)`,
 			[
-				id,
-				"#FF0000",
-				"#0000FF",
-				"#EEEEEE" 
+				id
 			],
 			(err) => {
 				if (err) return reject(err);

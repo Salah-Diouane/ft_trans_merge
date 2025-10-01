@@ -6,7 +6,7 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 	const db = new sqlite.Database("./database.db", (err) => {
 		if (err) throw err;
 	});
-	
+
 	const user_authentication_table: string = `
 		CREATE TABLE IF NOT EXISTS user_authentication (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,13 +34,12 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 	  	);
 	`;
 
-
 	// const [xColor, setXColor] = useState("#FF0000");
 	// const [oColor, setOColor] = useState("#0000FF");
 	// const [gridColor, setGridColor] = useState("#000000");
 	// const [boardColor, setBoardColor] = useState("#FFFFFF");
-	
-	const ticTac_settings_table: string =`
+
+	const ticTac_settings_table: string = `
 	CREATE TABLE IF NOT EXISTS ticTac_settings_table (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		username VARCHAR(25),
@@ -63,12 +62,10 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 	const createMessageTable: string = `
 		CREATE TABLE IF NOT EXISTS messages (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			id_sender INTEGER NOT NULL,
-			id_recipient INTEGER NOT NULL,
+			sender TEXT NOT NULL,
+			recipient TEXT NOT NULL,
 			text TEXT NOT NULL,
-			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
-			FOREIGN KEY (id_recipient) REFERENCES user_authentication(id)
+			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 		);
 	`;
 
@@ -98,8 +95,43 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			FOREIGN KEY (id_sender) REFERENCES user_authentication(id),
 			FOREIGN KEY (id_receiver) REFERENCES user_authentication(id)
 		);
-`;
+	`;
+
+	const game_history = `
+		CREATE TABLE IF NOT EXISTS game_history (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			Winnerid INTEGER NOT NULL,
+			Loserid INTEGER NOT NULL,
+			draw BOOLEAN DEFAULT false,
+			Game TEXT CHECK (Game IN ('Pong', 'Tic-Tac')),
+			Score TEXT,
+			Date TEXT,
+			FOREIGN KEY (Winnerid) REFERENCES user_authentication(id),
+			FOREIGN KEY (Loserid) REFERENCES user_authentication(id)
+		);
+	`;
+
+	const player_state: string = `
+		CREATE TABLE IF NOT EXISTS player_state (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			userid INTEGER NOT NULL,
+			total_xp INTEGER DEFAULT 0,
+			level INTEGER GENERATED ALWAYS AS (total_xp / 200.0) STORED,
+			FOREIGN KEY (userid) REFERENCES user_authentication(id)
+		);
+	`;
+
 	await new Promise<void>((resolve, reject) => {
+
+		db.run(player_state, (err) => {
+			if (err) return reject(err);
+			resolve();
+		});
+
+		db.run(game_history, (err) => {
+			if (err) return reject(err);
+			resolve();
+		});
 
 		db.run(user_authentication_table, (err) => {
 			if (err) return reject(err);
