@@ -35,6 +35,7 @@ export default function Gamehistory({username} : {username: string}) {
 	};
 
 	return (
+
 		<motion.div className="w-full" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} transition={{ duration: 0.6, ease: "easeOut" }} >
 			<h1 className="text-xl sm:text-2xl font-bold mb-4 text-white">🎮 Match History</h1>
 			<div className="hidden md:block overflow-x-auto">

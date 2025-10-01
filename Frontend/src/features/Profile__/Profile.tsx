@@ -27,8 +27,10 @@ export default function Profile() {
 		image_url: "",
 		cover_url: ""
 	});
+
 	if (!user)
 		user = store.username;
+	console.log("===> : username in the profile : ", user)
 	useEffect(() => {
 		const getdata = async () => {
 			const targetUser = user || store.username;

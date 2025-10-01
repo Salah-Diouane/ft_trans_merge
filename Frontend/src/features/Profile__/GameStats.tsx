@@ -8,7 +8,9 @@ import {
     ChartData,
     ChartTypeRegistry
 } from 'chart.js';
+
 import { useEffect, useState } from 'react';
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 type game_state = {

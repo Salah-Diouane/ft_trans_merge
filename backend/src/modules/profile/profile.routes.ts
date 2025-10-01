@@ -30,33 +30,85 @@ export const UserGameStats = async (fastify: FastifyInstance) => {
 	});
 }
 
+// export const UserPlayerStats = async (fastify: FastifyInstance) => {
+// 	fastify.get('/UserPlayerStats/:username?', async (request: FastifyRequest<{ Params: { username?: string } }>, reply) => {
+// 		try {
+// 			const { username } = request.params;
+// 			let userid: number | null = null;
+// 			if (!username) {
+// 				const token = request.cookies.accessToken;
+// 				if (!token) {
+// 					return reply.code(401).send({ userinfo: false, message: "No access token in cookies", accesstoken: false, refreshtoken: true });
+// 				}
+// 				const decodetoken = fastify.jwt.decode(token) as { userid: number };
+// 				userid = decodetoken.userid;
+// 			} else {
+// 				userid = await getuserid(fastify, username);
+// 				if (!userid) {
+// 					return reply.code(400).send({ message: "user not found !" });
+// 				}
+// 			}
+// 			const player_state: PlayerState | null = await getPlayerState(fastify, userid);
+// 			if (!player_state)
+// 				return reply.code(500).send('player_state not found !');
+// 			return reply.send({ level: player_state.level, total_xp: player_state.total_xp});
+// 		} catch (err) {
+// 			console.log('### : ', err);
+// 			return reply.code(400).send(err);
+// 		}
+// 	});
+// }
+
 export const UserPlayerStats = async (fastify: FastifyInstance) => {
-	fastify.get('/UserPlayerStats/:username?', async (request: FastifyRequest<{ Params: { username?: string } }>, reply) => {
-		try {
-			const { username } = request.params;
-			let userid: number | null = null;
-			if (!username) {
-				const token = request.cookies.accessToken;
-				if (!token) {
-					return reply.code(401).send({ userinfo: false, message: "No access token in cookies", accesstoken: false, refreshtoken: true });
-				}
-				const decodetoken = fastify.jwt.decode(token) as { userid: number };
-				userid = decodetoken.userid;
-			} else {
-				userid = await getuserid(fastify, username);
-				if (!userid) {
-					return reply.code(400).send({ message: "user not found !" });
-				}
-			}
-			const player_state: PlayerState | null = await getPlayerState(fastify, userid);
-			if (!player_state)
-				return reply.code(500).send('player_state not found !');
-			return reply.send({ level: player_state.level, total_xp: player_state.total_xp});
-		} catch (err) {
-			console.log('### : ', err);
-			return reply.code(400).send(err);
-		}
-	});
+    fastify.get('/UserPlayerStats/:username?', async (request: FastifyRequest<{ Params: { username?: string } }>, reply) => {
+        console.log('=== UserPlayerStats called ===');
+        console.log('Params:', request.params);
+        
+        try {
+            const { username } = request.params;
+            let userid: number | null = null;
+            
+            if (!username) {
+                console.log('No username provided, checking token...');
+                const token = request.cookies.accessToken;
+                if (!token) {
+                    return reply.code(401).send({ userinfo: false, message: "No access token in cookies", accesstoken: false, refreshtoken: true });
+                }
+                const decodetoken = fastify.jwt.decode(token) as { userid: number };
+                userid = decodetoken.userid;
+                console.log('User ID from token:', userid);
+            } else {
+                console.log('Username provided:', username);
+                userid = await getuserid(fastify, username);
+                console.log('User ID from username:', userid);
+                
+                if (!userid) {
+                    return reply.code(404).send({ message: "user not found !" });
+                }
+            }
+            
+            console.log('Fetching player state for userid:', userid);
+            const player_state: PlayerState | null = await getPlayerState(fastify, userid);
+            console.log('Player state result:', player_state);
+            
+            if (!player_state) {
+                return reply.code(404).send({ message: 'player_state not found !' });
+            }
+            
+            return reply.send({ level: player_state.level, total_xp: player_state.total_xp});
+        } catch (err) {
+            console.error('=== ERROR in UserPlayerStats ===');
+            console.error('Error type:', err?.constructor?.name);
+            console.error('Error message:', err instanceof Error ? err.message : err);
+            console.error('Error stack:', err instanceof Error ? err.stack : 'No stack trace');
+            console.error('Full error object:', err);
+            
+            return reply.code(500).send({ 
+                message: 'Internal server error',
+                error: err instanceof Error ? err.message : String(err)
+            });
+        }
+    });
 }
 
 export const PlayerHistory = async (fastify: FastifyInstance) => {

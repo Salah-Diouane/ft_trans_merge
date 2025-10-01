@@ -4,7 +4,7 @@
 // export default defineConfig({
 //   plugins: [react()],
 //   server: {
-//     allowedHosts: ["e3r10p1.1337.ma"],
+//     allowedHosts: ["e3r10p2.1337.ma"],
 //   }
 // })
 
@@ -21,7 +21,7 @@ export default defineConfig({
     port: 5173,
     hmr: {
       protocol: "wss",
-      host: "e3r10p1.1337.ma",
+      host: "e3r10p2.1337.ma",
       clientPort: 443, // because you're on HTTPS
     },
   },
