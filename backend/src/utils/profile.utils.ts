@@ -34,6 +34,7 @@ export interface PlayerHistory {
 
 export function getPlayerState(fastify: FastifyInstance, userid: number): Promise<PlayerState | null> {
 	return new Promise((resolve, reject) => {
+		console.log("=========> : userid :", userid);
 		fastify.db.get(
 			`SELECT total_xp, level FROM player_state WHERE  userid = ?`,
 			[
@@ -41,6 +42,7 @@ export function getPlayerState(fastify: FastifyInstance, userid: number): Promis
 			],
 			(err: Error | null, rom: PlayerState) => {
 				if (err) reject(err);
+				console.log("=========> : rom :", rom);
 				resolve(rom);
 			}
 		);
@@ -55,7 +57,8 @@ export function addNewPlayerState(fastify: FastifyInstance, userid: number): Pro
 				userid
 			],
 			(err) => {
-				if (err) return reject(err);
+				if (err)
+					return reject(err);
 				resolve();
 			}
 		);

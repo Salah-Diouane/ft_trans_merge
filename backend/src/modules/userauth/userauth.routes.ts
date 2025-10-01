@@ -1,12 +1,13 @@
 import fastify, { FastifyInstance } from "fastify";
 import { request } from "http";
 import { user_signup, user_signin, user_Verify2fa } from './userauth.schema'
-import { addNewUser, getuser , getuserid} from '../../utils/userauth.utils'
+import { addNewUser, getuser, getuserid } from '../../utils/userauth.utils'
 import type { User } from '../../utils/userauth.utils'
 import { handle_Signin, handel_verifytwofa, handle_googlesign } from './userauth.controller'
 import { generateAccessToken, generateRefreshToken } from './userauth.services'
 import { env } from "../../plugins/env.plugin";
 import { setdefaultgame } from "../../utils/settings.utils";
+import { addNewPlayerState } from "../../utils/profile.utils";
 
 export const SignUp = async (fastify: FastifyInstance) => {
 	fastify.post('/signup', {
@@ -16,12 +17,13 @@ export const SignUp = async (fastify: FastifyInstance) => {
 	}, async (request, reply) => {
 		const user = request.body as User;
 		try {
-			if (user.password != user.confirmpassword)
+			if (user.password !== user.confirmpassword)
 				throw ({ message: 'the password  and confirm password are not the same !', type: "confirmpassword", singup: false });
 			else {
 				await addNewUser(fastify, user);
 				const id = await getuserid(fastify, user.username) || 0;
 				await setdefaultgame(fastify, id);
+				await addNewPlayerState(fastify, id);
 				return reply.code(201).send({ message: "the user is created ", singup: true });
 			}
 		} catch (err: unknown) {
@@ -35,7 +37,7 @@ export const SignUp = async (fastify: FastifyInstance) => {
 					reply.code(400).send({ message: err.message, signup: false });
 				}
 			} else {
-				reply.code(400).send({ message: "something wrong !", signup: false });
+				reply.code(400).send(err);
 			}
 		}
 	});

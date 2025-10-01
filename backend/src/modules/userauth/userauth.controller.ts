@@ -5,6 +5,7 @@ import { updateImage } from '../../utils/settings.utils'
 import type { User } from '../../utils/userauth.utils';
 import { env } from '../../plugins/env.plugin';
 import { setdefaultgame } from "../../utils/settings.utils";
+import { addNewPlayerState } from '../../utils/profile.utils';
 
 export async function handle_Signin(fastify: FastifyInstance, request: FastifyRequest, reply: FastifyReply, user: User) {
 	const userinfo: User | null = await getuser(fastify, user.username);
@@ -47,7 +48,6 @@ export async function handle_googlesign(fastify: FastifyInstance, request: Fasti
 			Authorization: `Bearer ${token.token.access_token}`
 		}
 	});
-
 	const userInfo = await data.json() as { email: string, given_name: string, family_name: string, picture: string };
 	const user = await getuser_email(fastify, userInfo.email);
 	if (!user) {
@@ -56,6 +56,7 @@ export async function handle_googlesign(fastify: FastifyInstance, request: Fasti
 		await addNewUser(fastify, newuser);
 		const id = await getuserid(fastify, newuser.username) || 0;
 		await setdefaultgame(fastify, id);
+		await addNewPlayerState(fastify, id);
 		await updateImage(fastify, username, userInfo.picture);
 		await generateRefreshToken(fastify, reply, username);
 		await generateAccessToken(fastify, reply, newuser);
