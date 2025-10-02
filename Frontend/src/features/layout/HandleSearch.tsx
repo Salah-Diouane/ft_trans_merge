@@ -2,37 +2,19 @@ import React, { useState } from "react";
 import { UserPlus, X } from "lucide-react";
 import { User } from "../Chat/types/User";
 import { UserIcon } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import gf2 from "../Home/giphy1.gif"
+
 interface HandleSearchProps {
   showSearch: boolean;
-  setQuery: React.Dispatch<React.SetStateAction<string>>;
   result: User[];
-  currentUser: string;
 }
 
-const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, result, currentUser }) => {
-  const [sentRequests, setSentRequests] = useState<Record<string, boolean>>({});
-    
-    const handleSendRequest = async (username: string) => {
-      console.log("---> : inside the handleSendRequest");
-        try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/friends/sendrequest`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            // body: JSON.stringify({ friend_username: username }),
-            body: JSON.stringify({ frined_username: username }),
-            credentials: "include",
-        });
-
-        await res.json();
-        console.log(" res : ", res)
-        setSentRequests((prev) => ({ ...prev, [username]: true }));
-        } catch (err) {
-        console.error("Error sending request:", err);
-        } 
-    };
+const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, result }) => {
 
   if (!showSearch)
     return null;
+  const navigate = useNavigate();
 
   return (
     <div
@@ -51,7 +33,7 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
                 className="size-12 flex-shrink-0 rounded-full border-2 border-white"
                 alt="player profile"
               />
-              <strong className="text-white text-lg font-bold max-lg:text-sm truncate">
+              <strong className="text-white text-xl font-bold max-lg:text-sm truncate">
                 {user.username}
               </strong>
             </div>
@@ -59,24 +41,29 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
             <div className="flex flex-1 items-center justify-end gap-4">
               <button
                 className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
-                onClick={() => handleSendRequest(user.username)}
+                onClick={() => navigate(`/profile/${user.username}`)}
               >
-                <UserIcon className="size-8 max-lg:size-4"  /> View Profile
-                {!sentRequests[user.username] ? (
-                  <>
-                  <UserPlus size={16} /> Add friend
-                  </>
-                ) : (
-                  <>
-                    <X size={16} /> Request Sent
-                  </>
-                )}
+                 <UserIcon className="size-4 max-lg:size-4"  /> View Profile
               </button>
             </div>
           </div>
         ))
       ) : (
-        <span className="text-blue-400">No matching users</span>
+        // <span className="text-blue-400">No matching users</span>
+        <div className="flex flex-col items-center justify-center h-[250px] gap-4 p-6 ">
+        <img
+          src={gf2}
+          // className="h-60 w-auto rounded-xl shadow-lg border border-[#393E46]/40"
+          className="size-64  rounded-xl shadow-lg border border-[#393E46]/40"
+          alt="no history"
+        />
+        <h2 className="font-russo text-xl sm:text-2xl text-slate-200 tracking-wide">
+        No matching users
+        </h2>
+        {/* <p className="text-slate-400 text-sm sm:text-base text-center">
+          Play games to see your match history here!
+        </p> */}
+      </div>
       )}
     </div>
   );

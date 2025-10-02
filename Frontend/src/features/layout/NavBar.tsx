@@ -519,9 +519,7 @@ const NavBar: React.FC = () => {
 
           <HandleSearch
             showSearch={showSearch}
-            setQuery={setQuery}
             result={result}
-            currentUser={currentUser}
           />
         </div>
 
