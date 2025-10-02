@@ -88,7 +88,8 @@ export function addNewMatch(fastify: FastifyInstance, macthinfo: history): Promi
 
 export async function updatePlayerState(fastify: FastifyInstance, userid: number): Promise<void> {
 	const gameinfo: game_state = await getUserGameStats(fastify, userid);
-	const total_xp: number = gameinfo.draw * 50 + gameinfo.win * 100 + gameinfo.lose * 25;
+	// const total_xp: number = gameinfo.draw * 50 + gameinfo.win * 100 + gameinfo.lose * 25;
+	const total_xp: number = gameinfo.draw * 50 + gameinfo.win * 100;
 
 	console.log("########## gameinfo", gameinfo);
 	return new Promise((resolve, rejects) => {

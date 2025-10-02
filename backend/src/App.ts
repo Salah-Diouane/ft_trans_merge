@@ -40,16 +40,7 @@ app.register(cloudinaryPlugin);
 
 app.addHook("onRequest", async (request, reply) => {
     try {
-        // const publicPaths = ["/api/login", "/api/register"]; 
-        const publicPaths = [
-            "/api/login", 
-            "/api/register",
-            "/api/profile/UserPlayerStats",
-            "/api/profile/GameStats",
-            "/api/profile/userinfo",
-            "/api/profile/PlayerHistory",
-            "/api/profile/CountGames"
-        ];
+        const publicPaths = ["/api/login", "/api/register"]; 
         const isPublic = publicPaths.some(path => (request.raw.url || "").startsWith(path));
 
         if (!isPublic) {

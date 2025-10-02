@@ -1,20 +1,16 @@
-
-
-
-
-
-
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import socket from '../Chat/services/socket';
 import '../../styles/index.css'
 import { useStore } from "../../store/store"
 import { FaPlay } from "react-icons/fa";
 import { FaCrown, FaMedal, FaTrophy, FaBolt, FaStar, FaGamepad, FaFire, FaChevronRight, } from "react-icons/fa";
 import { useNavigate } from 'react-router';
-import { Data } from 'emoji-mart';
-import gf1 from "./gf1.gif"
-import gf2 from "./giphy1.gif"
 
+interface User {
+	name: string;
+	level: string | number;
+	rank: number;
+}
 
 interface DisplayItemProps {
 	type: 'level' | 'stat';
@@ -23,20 +19,13 @@ interface DisplayItemProps {
 	stat?: string;
 	color?: string;
 	rank?: number;
-	avatar?: string,
-	user_avatar?: string,
-	opponent_avatar?: string,
-	score?: string,
 	// user: User[];
 }
 
-const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank, avatar, user_avatar, opponent_avatar, score }) => {
-	console.log("---------------score : ", score)
+const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank }) => {
+
 	const store = useStore()
 	const level_int = level ? parseFloat(level.toString()) : 0;
-	const progress = (level_int % 1) * 100; // percentage inside current level
-	const displayedLevel = Math.floor(level_int); // show integer part only
-
 	const getRankIcon = (rank?: number) => {
 		switch (rank) {
 			case 1: return <FaCrown className="text-yellow-400 text-lg" />;
@@ -48,26 +37,25 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 	};
 
 	let color: string;
-	if (stat === 'Draw')
+	if (stat === 'DRAW') {
 		color = "text-[#469CFD]"
-	else if (stat === 'Lose')
+	}
+	else if (stat === 'DEFEAT')
 		color = "text-[#F85761]"
 	else
 		color = "text-[#3AA64B]"
-	console.log("score before split : ", score)
-	const final_score = score?.split("-")
-	console.log("--> : final_score : ", final_score)
+
 	const getStatElement = (stat?: string, color?: string) => {
-		console.log("stat and his color  ", stat, color);
+		console.log("stat : ", stat);
 		switch (stat?.toLowerCase()) {
-			case 'win':
+			case 'victory':
 				return (
 					<div className={`px-2 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
 						<FaTrophy className="text-emerald-400 animate-pulse" />
 						{stat}
 					</div>
 				);
-			case 'lose':
+			case 'defeat':
 				return (
 					<div className={`px-2 py-2 rounded-full text-sm font-bold ${color} bg-slate-700/30 border border-slate-600/50 backdrop-blur-sm group-hover:bg-[#393E46] group-hover:border-[#0077FF]/50 transition-all duration-300 flex items-center gap-2`}>
 						<FaBolt className="text-red-400 animate-pulse" />
@@ -91,14 +79,6 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 		}
 	};
 
-	console.log("type, name, level, stat, rank, avatar")
-	console.log("type : ", type)
-	console.log("name : ", name)
-	console.log("level : ", level)
-	console.log("stat : ", stat)
-	console.log("rank : ", rank)
-	console.log("avatar : ", avatar)
-
 	return (
 		<>
 
@@ -109,7 +89,7 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 					<div className="flex items-center gap-2 xs:gap-4 flex-shrink min-w-0">
 						<div className="relative flex-shrink-0 p-2">{getRankIcon(rank)}</div>
 						<img
-							src={avatar}
+							src={store.image_url}
 							className="size-8 xs:size-10 sm:size-12 rounded-full border-2 border-white flex-shrink-0"
 							alt="player profile"
 						/>
@@ -121,21 +101,13 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 					<div className=" flex flex-col items-start  gap-1 xs:gap-2">
 
 						{/* <div className=" sm:flex flex-col items-end w-full max-w-[200px]"> */}
-						{/* <p className="font-russo text-white text-left ">Level {level_int}</p>
+						<p className="font-russo text-white text-left ">Level {level}</p>
 						<div className="h-3 bg-[#5e7396] rounded-full overflow-hidden border border-[#393E46] w-24">
 							<div
 								className="h-full bg-gradient-to-r from-[#0077FF] to-[#00AAFF] rounded-full transition-all duration-500 ease-out shadow-lg shadow-[#0077FF]/30"
 								style={{ width: `${Math.min(level_int, 100)}%` }}
 							/>
-						</div> */}
-						<p className="font-russo text-white text-left">Level {level_int}</p>
-						<div className="h-3 bg-[#5e7396] rounded-full overflow-hidden border border-[#393E46] w-24">
-							<div
-								className="h-full bg-gradient-to-r from-[#0077FF] to-[#00AAFF] rounded-full transition-all duration-500 ease-out shadow-lg shadow-[#0077FF]/30"
-								style={{ width: `${progress}%` }}
-							/>
 						</div>
-
 						{/* </div> */}
 
 					</div>
@@ -147,23 +119,23 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 				<div className='group bg-[#222831]  m-2 h-16 rounded-3xl flex items-center p-4 justify-between border border-[#393E46]/50 hover:border-[#0077FF]/50 transition-all duration-300 hover:shadow-md'>
 
 					<img
-						src={user_avatar}
+						src={store.image_url}
 						className='size-12 rounded-full border-2 border-[#393E46] group-hover:border-[#0077FF] transition-all shadow-md'
 						alt="player profile"
 					/>
 
 					<div className='flex-1 flex items-center justify-between pl-4 pr-2'>
-						<p className={`font-russo ${color} text-lg font-bold`}>{final_score?.[0]}</p>
+						<p className={`font-russo ${color} text-lg font-bold`}>{6}</p>
 
 
 						<div className="group-hover:scale-105 transition-transform duration-300 p-2" >
 							{getStatElement(stat, color)}
 						</div>
-						<p className={`font-russo ${color} text-lg font-bold`}>{final_score?.[1]}</p>
+						<p className={`font-russo ${color} text-lg font-bold`}>6</p>
 
 					</div>
 					<img
-						src={opponent_avatar}
+						src={store.image_url}
 						className='size-12 rounded-full border-2 border-[#393E46] group-hover:border-[#0077FF] transition-all shadow-md ml-4'
 						alt="opponent profile"
 					/>
@@ -181,7 +153,7 @@ const WelcomeCard: React.FC = () => {
 	const navigate = useNavigate();
 	return (
 
-		<div className='z-10 relative w-full h-auto bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-hidden '>
+		<div className='z-10 relative w-full h-[20%] bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-hidden '>
 
 			<div className=' flex flex-col gap-8 2xl:gap-5 xl:gap-4 lg:gap-4 md:gap-3 sm:gap-4 p-4'>
 
@@ -246,7 +218,7 @@ const WelcomeCard: React.FC = () => {
 				</svg>
 			</div>
 
-			<div className="sm:absolute sm:top-0 sm:right-0 sm:z-20 sm:h-full sm md:w-[30%] xl:w-[20%] sm:w-[40%] sm:justify-end hidden sm:flex ">
+			<div className="sm:absolute sm:top-0 sm:right-0 sm:z-20 sm:h-full md:w-[30%] xl:w-[20%] sm:w-[40%] sm:justify-end hidden sm:flex ">
 				<svg
 					className="h-full w-full"
 					viewBox="0 0 220 270"
@@ -269,65 +241,37 @@ const WelcomeCard: React.FC = () => {
 	);
 };
 
-interface User {
-	username: string;
-	level: string | number;
-	rank: number;
-	avatar: string
-}
 
-interface History {
-	user_avatar: string,
-	opponent_avatar: string,
-	Score: string,
-	result: string,
-}
+
+
+
+
+const Users: User[] = [
+	{ name: "mohamed diouane", level: "75.32", rank: 1 },
+	{ name: "ali", level: "70", rank: 2 },
+	{ name: "salah", level: "66.22", rank: 3 },
+	{ name: "fatimafatimafatimafatimafatimafatimafatimafatima", level: "55.29", rank: 4 },
+	{ name: "ahmed", level: "44.58", rank: 5 },
+	{ name: "youssef", level: "39.85", rank: 6 },
+	{ name: "omar", level: "30.25", rank: 7 },
+	{ name: "adam", level: "10.25", rank: 8 },
+]
+
+const Stat = [
+	{ name: "salah", image_url: "url", stat: "DRAW", user: Users[2] },
+	{ name: "adam", image_url: "url", stat: "VICTORY", user: Users[7] },
+	{ name: "mohamed", image_url: "url", stat: "DEFEAT", user: Users[0] },
+	{ name: "youssef", image_url: "url", stat: "DRAW", user: Users[5] },
+	{ name: "omar", image_url: "url", stat: "DEFEAT", user: Users[6] },
+	{ name: "ahmed", image_url: "url", stat: "DRAW", user: Users[4] }
+];
 
 const Home: React.FC = () => {
-
-	const [users, setUsers] = useState<User[]>([])
-	const [history, setHistory] = useState<History[]>([])
 
 	useEffect(() => {
 		if (!socket.connect())
 			socket.connect()
 	});
-
-	useEffect(() => {
-
-		const fetch_Leaderboard = async () => {
-
-			const resp = await fetch(`${import.meta.env.VITE_API_URL}/api/home/Leaderboard/10`,
-				{
-					credentials: 'include',
-					method: 'GET'
-				}
-			);
-			const data = await resp.json();
-			console.log("---> : Data Stat : ", data)
-			setUsers(data);
-			console.log("---> : Users Stat : ", users)
-		}
-
-		const fetch_HistoryHome = async () => {
-			const resp = await fetch(`${import.meta.env.VITE_API_URL}/api/home/HistoryHome/10`,
-				{
-					credentials: 'include',
-					method: 'GET'
-				}
-			);
-
-			const data = await resp.json();
-			console.log("---> : Data Stat : ", data)
-			setHistory(data);
-			console.log("---> : Users Stat : ", users)
-		}
-		fetch_HistoryHome();
-		fetch_Leaderboard();
-		console.log("users data : ", users)
-	}, [])
-
-
 
 	return (
 		// <div className="w-full h-full flex flex-col 2xl:flex-row  max-sm:p-1  p-2 sm:p-4 md:p-6 lg:p-8 xl:p-10 2xl:p-12 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
@@ -340,9 +284,9 @@ const Home: React.FC = () => {
 
 					<div className='sticky top-0 z-10 font-russo  text-2xl h-16 size-auto bg-[#393E46] p-5'>LeaderBoard</div>
 
-					{users.length > 0 ? (
-						users.map((user, idx) => (
-							<DisplayItem type='level' name={user.username} level={user.level} rank={user.rank} avatar={user.avatar} />
+					{Users.length > 0 ? (
+						Users.map((user, idx) => (
+							<DisplayItem type='level' name={user.name} level={user.level} rank={user.rank} />
 						))
 					) : (
 						<span className="text-blue-400 text-center">No matching users</span>
@@ -358,47 +302,12 @@ const Home: React.FC = () => {
 
 					<div className='sticky top-0 z-10 font-russo p-5 h-16 text-2xl size-auto bg-[#393E46]'>History</div>
 
-					{/* {history.length > 0 ? (
-						history.map((stat, idx) => (
-							<DisplayItem type='stat' stat={stat.result} user_avatar={stat.user_avatar} opponent_avatar={stat.opponent_avatar} score={stat.Score} />
+					{Stat.length > 0 ? (
+						Stat.map((stat, idx) => (
+							<DisplayItem type='stat' stat={stat.stat} />
 						))
 					) : (
-						// <span className="text-blue-400 text-center">No matching users</span>
-						<div className="flex flex-col h-auto justify-center items-center rounded-[inherit] space-y-6 p-4">
-						  <img src={gf2} className="h-36 rounded-2xl shadow-2xl" />
-						  <div className="text-center space-y-4 max-w-md">
-							<h2 className="text-4xl font-semibold text-slate-100 mb-3 tracking-tight">
-								No matching users
-							</h2>
-						  </div>
-						</div>
-					)} */}
-					{history.length > 0 ? (
-						history.map((stat, idx) => (
-							<DisplayItem
-								key={idx}
-								type="stat"
-								stat={stat.result}
-								user_avatar={stat.user_avatar}
-								opponent_avatar={stat.opponent_avatar}
-								score={stat.Score}
-							/>
-						))
-					) : (
-						<div className="flex flex-col items-center justify-center h-[250px] gap-4 p-6 ">
-							<img
-								src={gf2}
-								// className="h-60 w-auto rounded-xl shadow-lg border border-[#393E46]/40"
-								className="size-64  rounded-xl shadow-lg border border-[#393E46]/40"
-								alt="no history"
-							/>
-							<h2 className="font-russo text-xl sm:text-2xl text-slate-200 tracking-wide">
-								No recent matches
-							</h2>
-							<p className="text-slate-400 text-sm sm:text-base text-center">
-								Play games to see your match history here!
-							</p>
-						</div>
+						<span className="text-blue-400 text-center">No matching users</span>
 					)}
 
 				</div>
@@ -410,8 +319,5 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
-
-
 
 

@@ -1,4 +1,6 @@
 import { resetBallProps, gameStateProps } from "./interfaces";
+import { FastifyInstance } from "fastify";
+import {addNewHistory} from '../../../utils/profile.utils'
 
 export function resetBall({
   state,
@@ -140,6 +142,7 @@ export function handleGameOver(
 
 // New function to handle scoring
 export function handleScoring(
+  fastify:FastifyInstance,
   ball: any,
   state: any,
   game: any,
@@ -160,6 +163,7 @@ export function handleScoring(
     if (state.score.right === 7) {
       const winner = game.players[1] || 'right';
       const loser = game.players[0] || 'left';
+      addNewHistory(fastify, game.players[1], game.players[0], state.score, 'Pong', false);
       handleGameOver(game, roomId, winner, loser, io, tournaments, games, paddleDirections);
       gameEnded = true;
     } else {
@@ -179,6 +183,7 @@ export function handleScoring(
     if (state.score.left === 7) {
       const winner = game.players[0] || 'left';
       const loser = game.players[1] || 'right';
+      addNewHistory(fastify, game.players[1], game.players[0], state.score, 'Pong', false);
       handleGameOver(game, roomId, winner, loser, io, tournaments, games, paddleDirections);
       gameEnded = true;
     } else {

@@ -6,6 +6,7 @@ import GameStats from './GameStats';
 import Playerlevel from './Playerlevel';
 import Gamehistory from './Gamehistory'
 import Gamecounter from './Gamecounter'
+import { UserPlus } from 'lucide-react';
 
 type userinfo = {
 	username: string;
@@ -56,15 +57,31 @@ export default function Profile() {
 					<div className="w-full rounded-t-[20px] overflow-hidden">
 						<img src={userinfo.cover_url} alt="Cover" className="w-full h-[300px] bg-cover bg-center object-cover" />
 					</div>
-					<div className="flex flex-col items-center mt-3 pb-4  space-y-0  lg:space-y-2 relative w-full 2xl:max-w-[1480px] bg-[#222831] h-[330px]  sm:h-[320px] 2xl:rounded-[20px]">
+					<div className="flex flex-col items-center mt-3 pb-4  space-y-0  lg:space-y-2 relative w-full 2xl:max-w-[1480px] bg-[#222831] h-[330px]  sm:h-[320px] 2xl:rounded-[20px] h-auto">
 						<div className="h-24">
 							<img src={userinfo.image_url} alt="Profile" className="absolute -top-16 left-1/2 transform -translate-x-1/2 w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover ring-[10px] ring-[#222831] bg-white" />
 						</div>
+
+
+
 						<div className="flex flex-col items-center space-y-2 lg:space-y-4">
-							<h1 className="text-white text-[20px]">{userinfo.username}</h1>
-							<h1 className="text-[#B3B3B3]">{userinfo.first_name + " " + userinfo.family_name}</h1>
+							<div className='flex items-center'>
+								<div className='flex flex-col'>
+									<h1 className="text-white text-[20px]">{userinfo.username}</h1>
+									<h1 className="text-[#B3B3B3]">{userinfo.first_name + " " + userinfo.family_name}</h1>
+								</div>
+								
+								<div className="flex flex-1 items-center  gap-4">
+									<button
+										className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2">
+										<UserPlus size={16} /> Add friend
+									</button>
+								</div>
+							</div>
+
 							<Playerlevel username={user} />
 						</div>
+
 						<GameStats type="normal" username={user} />
 					</div>
 					<div className="flex flex-col 2xl:flex-row mt-2 space-y-3 2xl:space-y-0 2xl:space-x-2  w-full 2xl:max-w-[1480px] 2xl:max-h-[1280px]">

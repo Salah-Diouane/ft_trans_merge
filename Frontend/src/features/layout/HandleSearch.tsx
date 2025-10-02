@@ -61,7 +61,7 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, setQuery, resul
                 className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
                 onClick={() => handleSendRequest(user.username)}
               >
-                {/* <UserIcon className="size-8 max-lg:size-4"  /> View Profile */}
+                <UserIcon className="size-8 max-lg:size-4"  /> View Profile
                 {!sentRequests[user.username] ? (
                   <>
                   <UserPlus size={16} /> Add friend

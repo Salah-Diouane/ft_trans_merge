@@ -159,6 +159,7 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
 
       // Handle scoring with single function
       const gameEnded = handleScoring(
+        pongGameEvent.fastify,
         ball,
         state,
         game,
