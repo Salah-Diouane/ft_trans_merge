@@ -298,7 +298,7 @@ const Game = () => {
 			))}
 
 			{(showTic && (
-				<>
+				<div className="flex flex-col gap-6">
 					<div className="flex justify-start pl-12">
 						<h1 className="text-white">Preview</h1>
 					</div>
@@ -329,7 +329,7 @@ const Game = () => {
 						</div>
 					</div>
 
-					<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0">
+					<div className="flex flex-col sm:flex-row w-full items-center sm:items-start gap-2 sm:gap-0 ">
 						<div className="flex-1 sm:pl-10 text-white font-semibold">
 							<label>X Color</label>
 						</div>
@@ -374,7 +374,7 @@ const Game = () => {
 						</button>
 					</div>
 
-				</>
+				</div>
 			))}
 
 		</div>

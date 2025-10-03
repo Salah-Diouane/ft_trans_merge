@@ -113,12 +113,13 @@ const GamestateDoughnut = ({ win, lose, draw }: game_state) => {
     };
 
     return (
-        <div className="w-full p-4 space-y-0 rounded-xl bg-[#222831]">
+        // <div className="w-full p-4 space-y-0 rounded-xl bg-[#222831]">
+        <div className="w-full p-4 space-y-0 rounded-xl ">
             <h2 className="text-center text-xl font-bold text-white mb-10 font-russo tracking-wide drop-shadow-md">
                 🏆 Game Results Overview
             </h2>
             {/* Responsive height: 250px on mobile, 350px on md, 400px on lg */}
-            <div className="h-[250px] md:h-[350px] lg:h-[400px]">
+            <div className="h-[250px] md:h-[350px] lg:h-[370px]">
                 <Doughnut data={data} options={options} plugins={[centerTextPlugin]} />
             </div>
         </div>

@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyPluginCallback } from 'fastify';
-import { sendRequest, acceptRequest, allfriends, allsendreq, allrecvreq, deleteReq, blockReq, unblockUser } from './friends.routes';
+import { sendRequest, acceptRequest, allfriends, allsendreq, allrecvreq, deleteReq, blockReq, unblockUser, deleteFriend } from './friends.routes';
 import { Server as IOServer } from 'socket.io';
 
 interface FriendsPluginOptions {
@@ -17,6 +17,7 @@ const friends: FastifyPluginCallback<FriendsPluginOptions> = (fastify, opts, don
 	fastify.register(deleteReq, { prefix: '/friends' });
 	fastify.register(blockReq, { prefix: '/friends' });
 	fastify.register(unblockUser, { prefix: '/friends' });
+	fastify.register(deleteFriend, { prefix: '/friends' });
 
 	done();
 };

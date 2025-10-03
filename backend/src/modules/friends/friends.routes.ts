@@ -1,7 +1,7 @@
 import fastify, { FastifyInstance, FastifyPluginCallback, FastifyReply, FastifyRequest } from 'fastify';
-import { friend_request, delete_req } from './friends.schema'
+import { friend_request, delete_req, delete_friend } from './friends.schema'
 import { getuserid, } from '../../utils/userauth.utils';
-import { addNewFriendReq, setFriendReq, getFriends, getSentFriendReqUsernames, getReceivedFriendRequests, deleteFriendReq, getBlockUser, unblockUser_utils, getNameById } from '../../utils/friends.utils';
+import { addNewFriendReq, setFriendReq, getFriends, getSentFriendReqUsernames, getReceivedFriendRequests, deleteFriendReq, getBlockUser, unblockUser_utils, getNameById, removeFriend } from '../../utils/friends.utils';
 import { Server as IOServer } from "socket.io";
 import { userSockets } from "../socket/chat/chat.handlers"
 import { onlineUsers } from "../socket/userdata/auth.middleware";
@@ -180,6 +180,7 @@ export const allfriends = async (fastify: FastifyInstance) => {
 			console.log("decode userid : ", decode.userid);
 			const friends = await getFriends(fastify, decode.userid);
 			console.log("--> : friends : ", friends);
+			
 			// const friend_online_status = friends.map((user) => ({
 			// 	...user,
 			// 	online: user.id ? onlineUsers.has(user.id) : false
@@ -188,8 +189,8 @@ export const allfriends = async (fastify: FastifyInstance) => {
 
 			const friend_online_status = friends.map((user) => {
 				const online = user.id ? onlineUsers.has(user.id) : false;
-				console.log("online : ", online)
 				console.log(`-------------> id: ${user.id}`);
+				console.log("-------------> online : ", online)
 				console.log(`-------------> Friend ${user.username} (id: ${user.id}) online?`, online);
 				return { ...user, online };
 			});
@@ -278,3 +279,26 @@ export const unblockUser = async (fastify: FastifyInstance) => {
 	})
 }
 
+export const deleteFriend = async (fastify: FastifyInstance) => {
+	fastify.delete('/deletefriend', {
+		schema: {
+			body: delete_friend
+		}
+	}, async (req: any, resp: any) => {
+		try {
+			const token = req.cookies.accessToken;
+			if (!token)
+				return resp.code(401).send({ message: "No access token in cookies", accesstoken: false, refreshtoken: true });
+			const decode = fastify.jwt.decode(token) as { userid: number };
+			const reqdata = req.body as { frined_username: string, type: string };
+			console.log("--> : reqdata.frined_username", reqdata.frined_username)
+			const friend_id = await getuserid(fastify, reqdata.frined_username);
+			if (!friend_id)
+				return resp.code(400).send({message: "Username not found !!!"});
+			await removeFriend(fastify, decode.userid, friend_id);
+			return (resp.send());
+		} catch (err) {
+			resp.code(500).send( {error: (err as Error).message})
+		}
+	})
+}

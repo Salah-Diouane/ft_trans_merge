@@ -24,6 +24,7 @@ import { User } from "../types/User";
 // import { User } from "lucide-react";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 
 interface ConversationProps {
   user: { username: string, id: number, image_url: string, online: boolean };
@@ -71,7 +72,7 @@ const Conversation: FC<ConversationProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -268,7 +269,9 @@ const Conversation: FC<ConversationProps> = ({
                 <IoIosArrowBack className="size-7  rounded-full p-0.5" />
               </button>
             )}
-            <img src={user.image_url} className="size-14 rounded-full max-lg:w-12 max-lg:h-12 border-2 border-[#0077FF]" alt="User profile" />
+            <img src={user.image_url} className="size-14 rounded-full max-lg:w-12 max-lg:h-12 border-2 border-[#0077FF] cursor-pointer" alt="User profile"
+              onClick={() => {navigate(`/profile/${user.username}`)}}
+            />
             <div className="flex flex-col">
               <strong className="text-white text-lg font-bold max-lg:text-sm">
                 {user?.username || "User"}

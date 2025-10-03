@@ -85,6 +85,7 @@ app.register(async (api) => {
             return reply.send({
                 userinfo: true,
                 data: {
+                    id: user?.id,
                     username: user?.username,
                     first_name: user?.first_name,
                     family_name: user?.family_name,

@@ -6,11 +6,14 @@ import GameStats from './GameStats';
 import Playerlevel from './Playerlevel';
 import Gamehistory from './Gamehistory'
 import Gamecounter from './Gamecounter'
-import { UserPlus, X } from 'lucide-react';
+import { MessageCircle, UserPlus, X } from 'lucide-react';
 import { useUsers } from "../layout/useUsers";
 import { User } from "../Chat/types/User";
+import { MdGroupRemove, MdPersonRemoveAlt1 } from 'react-icons/md';
+import toast from "react-hot-toast";
 
 type userinfo = {
+	id: number,
 	username: string;
 	first_name: string;
 	family_name: string;
@@ -24,6 +27,7 @@ export default function Profile() {
 	const store = useStore();
 	let { user } = useParams<{ user?: string }>();
 	const [userinfo, setuserinfo] = useState<userinfo>({
+		id: -1,
 		username: "",
 		first_name: "",
 		family_name: "",
@@ -52,6 +56,7 @@ export default function Profile() {
 				nav('/');
 			else {
 				const data = await response.json();
+				console.log("---------> : data : ", data);
 				setuserinfo(data.data);
 			}
 		};
@@ -86,6 +91,7 @@ export default function Profile() {
 	let showInvite: boolean = true;
 	let sm_h_value: string = "400px"
 	let h_value: string = "380px"
+	let h_div: string = "1120px"
 	console.log("loggedUserInfo : ", loggedUserInfo);
 	console.log("logged user : ", loggedUserInfo.currentUser);
 
@@ -96,6 +102,7 @@ export default function Profile() {
 	if (showInvite) {
 		sm_h_value = "400px";
 		h_value = "410px";
+		h_div = "1170px"
 	}
 
 	console.log(`/profile/${user}`)
@@ -119,12 +126,29 @@ export default function Profile() {
 			console.error("Error sending request:", err);
 		}
 	};
-
-
-
+	
+	const handleRemoveFriend = async (username: string) => {
+		try {
+			console.log("username inside handleRemoveFriend fct : ", username)
+		  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/friends/deletefriend`, {
+			method: "DELETE",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ frined_username: username }),
+			credentials: "include",
+		  });
+	  
+		  if (res.ok) {
+			setAllfriends(prev => prev.filter(u => u.username !== username));
+		  }
+		} catch (err) {
+		  console.error("Error removing friend:", err);
+		}
+	  };
+	  
 	return <>
 		<div className="flex justify-center items-center font-russo ">
-			<div className="flex flex-col w-full   2xl:max-w-[1500px] lg:max-w-[1000px] lg:min-h-[900px]  2xl:min-h-[1180px] bg-[#393E46] rounded-[20px] font-russo">
+		{/* <div className="flex flex-col w-full   2xl:max-w-[1500px] lg:max-w-[1000px] lg:min-h-[900px]  2xl:min-h-[1170px] bg-[#393E46] rounded-[20px] font-russo"> */}
+			<div className={`flex flex-col w-full   2xl:max-w-[1500px] lg:max-w-[1000px] lg:min-h-[900px]  2xl:min-h-[${h_div}] bg-[#393E46] rounded-[20px] font-russo`}>
 				<div className="flex flex-col w-full mx-auto items-center font-russo">
 					<div className="w-full rounded-t-[20px] overflow-hidden">
 						<img src={userinfo.cover_url} alt="Cover" className="w-full h-[300px] bg-cover bg-center object-cover" />
@@ -140,49 +164,51 @@ export default function Profile() {
 
 							<h1 className="text-white text-[20px]">{userinfo.username}</h1>
 							<h1 className="text-[#B3B3B3]">{userinfo.first_name + " " + userinfo.family_name}</h1>
-							{/* 							
-							{(showInvite && (
-								<div className="flex flex-1 items-center  gap-4">
-									<button
-										className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
-										onClick={() => handleSendRequest(userinfo.username)}
-										>
-										{!sentRequests[userinfo.username] ? (
-											<>
-											<UserPlus size={16} /> Add friend
-											</>
-											) : (
-											<>
-												<X size={16} /> Request Sent
-											</>
-										)}
-									</button>
-								</div>
-							))}	 */}
 
 							{showInvite && (
 								<div className="flex flex-1 items-center gap-4">
-									<button
-										className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
-										onClick={() => handleSendRequest(userinfo.username)}
-										disabled={isFriend(userinfo.username) || isPending(userinfo.username)}
-									>
-										{isFriend(userinfo.username) ? (
-											<>
-												<X size={16} /> Friend
-											</>
-										) : isPending(userinfo.username) || sentRequests[userinfo.username] ? (
-											<>
-												<X size={16} /> Request Sent
-											</>
-										) : (
-											<>
-												<UserPlus size={16} /> Add friend
-											</>
-										)}
-									</button>
+									{!isFriend(userinfo.username) && (
+										<button
+											className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
+											onClick={() => handleSendRequest(userinfo.username)}
+											disabled={isPending(userinfo.username) || sentRequests[userinfo.username]}
+										>
+											{isPending(userinfo.username) || sentRequests[userinfo.username] ? (
+												<>
+													<X size={16} /> Request Sent
+												</>
+											) : (
+												<>
+													<UserPlus size={16} /> Add Friend
+												</>
+											)}
+										</button>
+									)}
+
+									{isFriend(userinfo.username) && (
+										<>
+											<button
+												className="bg-red-500 text-white py-2 px-4 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-red-600"
+												
+											  onClick={() => {
+												handleRemoveFriend(userinfo.username)
+												toast.success(`${userinfo.username} has been removed from your friends list`);
+											  }} 
+											>
+												<MdPersonRemoveAlt1 size={16} /> Remove Friend
+											</button>
+
+											<button
+												className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold flex items-center gap-2"
+												onClick={() => nav(`/chat/${userinfo.username}`)}
+											>
+												<MessageCircle size={16} /> Chat
+											</button>
+										</>
+									)}
 								</div>
 							)}
+
 
 							<Playerlevel username={user} />
 
@@ -193,10 +219,10 @@ export default function Profile() {
 					</div>
 
 					<div className="flex flex-col 2xl:flex-row mt-2 space-y-3 2xl:space-y-0 2xl:space-x-2  w-full 2xl:max-w-[1480px] 2xl:max-h-[1280px]">
-						<div className="flex flex-1 bg-[#222831] 2xl:rounded-[20px] w-full lg:h-[530px] p-6 overflow-auto shadow-inner">
+						<div className="flex flex-1 bg-[#222831] 2xl:rounded-[20px] w-full lg:h-[470px] p-6 overflow-auto shadow-inner">
 							<Gamehistory username={user} />
 						</div>
-						<div className="flex flex-1  bg-[#222831] 2xl:rounded-[20px] w-full lg:h-[530px] items-center justify-center ">
+						<div className="flex flex-1  bg-[#222831] 2xl:rounded-[20px] w-full lg:h-[470px] items-center justify-center ">
 							<div className='flex lg:flex-row  lg:space-x-10 flex-col'>
 								<GameStats type='Doughnut' username={user} />
 								<Gamecounter username={user} />

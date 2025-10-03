@@ -52,7 +52,7 @@ export default function TwoFA() {
 		const defaultSytle = "w-10 h-12 text-center text-xl border rounded focus:outline-none focus:ring-2 focus:ring-blue-400";
 		const errorBorder = "border-red-500";
 		const normalBorder = "border-gray-300";
-		return `${defaultSytle} ${erros !== '' ? errorBorder : normalBorder}`
+		return `${defaultSytle} ${erros !== '' ? errorBorder :normalBorder}`
 	}
 	const writeError = () => {
 		if (erros === '')
@@ -88,9 +88,9 @@ export default function TwoFA() {
 									inputRefs.current[index - 1]?.focus();
 								}
 							}}
-							onFocus={() => { clearError() }}
-							className={inputClass()} />
-					))}
+							onFocus={() => {clearError()}}
+							className={inputClass()}/>
+					))} 
 				</div>{writeError()}
 				<br />
 				<div className="flex justify-center space-x-2">

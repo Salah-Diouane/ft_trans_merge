@@ -182,4 +182,21 @@ export function getNameById(fastify: FastifyInstance, id: number): Promise<User[
 		}
 	  );
 	});
+}
+
+
+export function removeFriend(fastify: FastifyInstance, id_sender: number, id_receiver: number): Promise<void> {
+	return new Promise((resolve, reject) => {
+	  fastify.db.run(
+		`DELETE FROM friendship 
+		 WHERE (id_sender = ? AND id_receiver = ?) 
+			OR (id_sender = ? AND id_receiver = ?)`,
+		[id_sender, id_receiver, id_receiver, id_sender],
+		(err: Error | null) => {
+		  if (err) return reject(err);
+		  resolve();
+		}
+	  )
+	})
   }
+  

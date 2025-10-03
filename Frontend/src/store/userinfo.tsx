@@ -1,6 +1,7 @@
 import { StateCreator } from 'zustand';
 
 export type userinfo = {
+	id: number;
 	username: string;
 	first_name: string;
 	family_name: string;
@@ -11,6 +12,7 @@ export type userinfo = {
 	hasFetchedUser: boolean;
 	twofa:boolean;
 
+	setid: (newid: number) => void;
 	setusername: (newusername: string) => void;
 	setfirst_name: (newfirst_name: string) => void;
 	setfamily_name: (newfamily_name: string) => void;
@@ -23,6 +25,7 @@ export type userinfo = {
 };
 
 export const createUserSlice: StateCreator<userinfo> = (set) => ({
+	id: -1,
 	username: '',
 	first_name: '',
 	family_name: '',
@@ -33,6 +36,7 @@ export const createUserSlice: StateCreator<userinfo> = (set) => ({
 	hasFetchedUser: false,
 	twofa: false,
 
+	setid: (newid) => set({ id: newid }),
 	setusername: (newusername) => set({ username: newusername }),
 	setfirst_name: (newfirst_name) => set({ first_name: newfirst_name }),
 	setfamily_name: (newfamily_name) => set({ family_name: newfamily_name }),
@@ -51,6 +55,7 @@ export const createUserSlice: StateCreator<userinfo> = (set) => ({
 				throw new Error('cannot fetch');
 
 			set({
+				id: respone.data.id,
 				username: respone.data.username,
 				first_name: respone.data.first_name,
 				family_name: respone.data.family_name,
@@ -60,7 +65,7 @@ export const createUserSlice: StateCreator<userinfo> = (set) => ({
 				cover_url: respone.data.cover_url,
 				twofa: respone.data.twofa
 			});
-			console.log(respone.data);
+			console.log("---> : respone.data", respone.data);
 			set({ hasFetchedUser: true });
 		} catch (error) {
 			console.error('Failed to fetch user info:', error);

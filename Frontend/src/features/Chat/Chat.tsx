@@ -35,11 +35,11 @@ const ChatApp: FC = () => {
   const requestedHistoryRef = useRef<Set<number>>(new Set());
   const isMobile = window.outerWidth <= 1024;
   const navigate = useNavigate();
-  const { userId } = useParams<{ userId: string }>();
-  // Keep refs in sync
+  // const { userId } = useParams<{ userId: string }>();
+  const { username } = useParams<{ username: string }>();
   useEffect(() => { selectedUserRef.current = selectedUser; }, [selectedUser]);
 
-  // Handle screen resize
+  //  screen resize
   useEffect(() => {
     const handleResize = () => setShowContactList(window.outerWidth < 1024);
     window.addEventListener("resize", handleResize);
@@ -48,25 +48,23 @@ const ChatApp: FC = () => {
 
   useEffect(() => {
 
-    if (!userId)
+    if (!username)
       return;
 
-    const targetUser = users.find((u) => u.id === Number(userId));
+    const targetUser = users.find((u) => u.username === username);
     if (targetUser) {
       setSelectedUser(targetUser);
-      setUnreadCounts((prev) => ({ ...prev, [targetUser.id]: 0 }));
+      setUnreadCounts((prev) => ({ ...prev, [targetUser.username]: 0 }));
       if (isMobile)
         setShowContactList(false);
     }
-  }, [userId, users]);
+  }, [username, users]);
 
-  // Connect socket
   useEffect(() => {
     if (!socket.connected)
       socket.connect();
   }, []);
 
-  // Socket events
   useEffect(() => {
 
     
@@ -130,7 +128,6 @@ const ChatApp: FC = () => {
         [otherUser.id]: [...(prev[otherUser.id] || []), newMsg],
       }));
 
-      // Update unread counts only if message is from another user and they're not currently selected
       if (msg.senderId !== currentUserRef.current && selectedUserRef.current?.id !== msg.senderId) {
         setUnreadCounts((prev) => ({
           ...prev,
@@ -163,7 +160,6 @@ const ChatApp: FC = () => {
     };
   }, []);
 
-  // Request chat history once per user
   useEffect(() => {
     if (!currentUserRef.current || users.length === 0) return;
 
@@ -207,7 +203,7 @@ const ChatApp: FC = () => {
 
   const handleUserSelect = (user: User) => {
     setSelectedUser(user);
-    navigate(`/chat/${user.id}`);
+    navigate(`/chat/${user.username}`);
     if (isMobile)
       setShowContactList(false);
     setUnreadCounts((prev) => ({ ...prev, [user.id]: 0 }));

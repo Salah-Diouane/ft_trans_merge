@@ -91,7 +91,7 @@ export default function Gamecounter({ username }: { username: string }) {
 			<h2 className="text-center text-xl font-bold text-white mb-4 font-russo tracking-wide">
 				📊 Games Played (Pong / Tic Tac)
 			</h2>
-			<div className="h-[200px] md:h-[300px] lg:h-[400px]">
+			<div className="h-[200px] md:h-[300px] lg:h-[370px]">
 				<Bar data={data} options={options} />
 			</div>
 		</div>

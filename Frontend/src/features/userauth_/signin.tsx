@@ -19,7 +19,7 @@ export default function Signin() {
 			password: password.current?.value || ''
 		};
 		try {
-			const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login/signin`, {
+			const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login/signin` , {
 				method: 'POST',
 				headers: {'Content-type' : 'application/json'},
 				body: JSON.stringify(body), 
@@ -47,7 +47,7 @@ export default function Signin() {
 		}
 	}
 	const inputClass = (fieldName : any) => {
-		const defaultSytle = "placeholder-black w-full  mb-4 p-3 sm:p-4 border  rounded-[10px] hover:scale-105 transition-transform";
+		const defaultSytle = "placeholder-black w-full mb-4 p-3 sm:p-4 border  rounded-[10px] hover:scale-105 transition-transform";
 		const errorBorder = "border-red-500";
 		const normalBorder = "border-black";
 	
@@ -68,7 +68,7 @@ export default function Signin() {
 
 	return (
 		<>
-			{/* <br /> */}
+			<br />
 			<h1 className="font-russo text-3xl sm:text-4xl md:text-5xl text-[#222831] text-center lg:text-left">Login</h1>
 			<br />
 			<GoogleSign />
@@ -82,7 +82,7 @@ export default function Signin() {
 				<input type="password" placeholder="Password" className={inputClass("password")} ref={password}  onFocus={() => clearError("password")}/> {writeError("password")}
 				<button className="font-russo w-full bg-blue-500 text-white py-2 sm:py-3 md:py-4 rounded-[10px] mb-4 hover:shadow-[0px_0px_8px_rgba(0,0,0,0.4)] transition-all" onClick={sendData}>Login</button>
 				<h6 className="text-center text-xs sm:text-sm">Don't have an account?{" "}
-					<Link className="text-blue-600 underline" to="/login/Signup">Sign-up</Link>
+					<Link className="text-blue" to="/login/Signup"> Contact</Link>
 				</h6>
 			</div>
 		</>

@@ -18,3 +18,14 @@ export const delete_req = {
 	},
 	additionalProperties: false,
 };
+
+
+export const delete_friend = {
+	type: 'object',
+	required: ['frined_username'],
+	properties: {
+		frined_username: { type: 'string' },  
+	},
+	additionalProperties: false,
+  }
+  
