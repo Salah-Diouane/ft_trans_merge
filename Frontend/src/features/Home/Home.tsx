@@ -49,6 +49,17 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 	console.log("score before split : ", score)
 	const final_score = score?.split("-")
 	console.log("--> : final_score : ", final_score)
+	
+	let user_score: number = 1
+	let opp_score: number = 1
+	
+	if (stat === "Win"){
+		user_score = 1; 
+		opp_score = 0; 
+	} else if (stat === "Lose"){
+		user_score = 0;
+		opp_score = 1;
+	}
 	const getStatElement = (stat?: string, color?: string) => {
 		console.log("stat and his color  ", stat, color);
 		switch (stat?.toLowerCase()) {
@@ -145,13 +156,15 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 					/>
 
 					<div className='flex-1 flex items-center justify-between pl-4 pr-2'>
-						<p className={`font-russo ${color} text-lg font-bold`}>{final_score?.[0]}</p>
+						{/* <p className={`font-russo ${color} text-lg font-bold`}>{final_score?.[0]}</p> */}
+						<p className={`font-russo ${color} text-lg font-bold`}>{user_score}</p>
 
 
 						<div className="group-hover:scale-105 transition-transform duration-300 p-2" >
 							{getStatElement(stat, color)}
 						</div>
-						<p className={`font-russo ${color} text-lg font-bold`}>{final_score?.[1]}</p>
+						{/* <p className={`font-russo ${color} text-lg font-bold`}>{final_score?.[1]}</p> */}
+						<p className={`font-russo ${color} text-lg font-bold`}>{opp_score}</p>
 
 					</div>
 					<img

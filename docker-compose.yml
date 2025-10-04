@@ -12,6 +12,7 @@ services:
       NODE_ENV: development
     networks:
       - frontend_backend
+    restart: always 
 
   frontend:
     build:
@@ -24,6 +25,7 @@ services:
       CHOKIDAR_USEPOLLING: "true"
     networks:
       - frontend_backend
+    restart: always 
 
   nginx:
     build:

@@ -3,7 +3,7 @@ import { UserPlus, X } from "lucide-react";
 import { User } from "../Chat/types/User";
 import { UserIcon } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import gf2 from "../Home/giphy1.gif"
+import gf2 from "../Home/Assets/giphy1.gif"
 
 interface HandleSearchProps {
   showSearch: boolean;
