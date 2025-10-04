@@ -22,7 +22,21 @@ import {
 const Layout: React.FC = () => {
   const [showNotifs, setShowNotifs] = useState(window.outerWidth < 1024);
   const location = useLocation();
-  const isMobile = window.outerWidth <= 1024;
+  // const isMobile = window.outerWidth <= 1024;
+  // useEffect(() => {
+  //   const handleResize = () => setShowNotifs(window.outerWidth < 1024);
+  //   window.addEventListener("resize", handleResize);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
+  
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth <= 1024);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(path + "/")
@@ -30,12 +44,6 @@ const Layout: React.FC = () => {
       : "";
 
   const store = useStore()
-
-  useEffect(() => {
-    const handleResize = () => setShowNotifs(window.outerWidth < 1024);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   return (
     // <div className="flex flex-col h-full">

@@ -107,7 +107,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
         )}
 
         {status === "all" && (
-          <button className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold flex items-center gap-2" onClick={() => navigate(`/chat/${id}`)}>
+          <button className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold flex items-center gap-2" onClick={() => navigate(`/chat/${name}`)}>
             {/* <MessageCircle size={16} onClick={() => navigate(`/chat/${id}`)} /> Chat */}
             <MessageCircle size={16}  /> Chat
           </button>

@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import React, { use, useEffect, useState } from 'react';
 import socket from '../Chat/services/socket';
 import '../../styles/index.css'
@@ -11,9 +5,7 @@ import { useStore } from "../../store/store"
 import { FaPlay } from "react-icons/fa";
 import { FaCrown, FaMedal, FaTrophy, FaBolt, FaStar, FaGamepad, FaFire, FaChevronRight, } from "react-icons/fa";
 import { useNavigate } from 'react-router';
-import { Data } from 'emoji-mart';
-import gf1 from "./gf1.gif"
-import gf2 from "./giphy1.gif"
+import gf2 from "./Assets/giphy1.gif"
 
 
 interface DisplayItemProps {
@@ -34,8 +26,8 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 	console.log("---------------score : ", score)
 	const store = useStore()
 	const level_int = level ? parseFloat(level.toString()) : 0;
-	const progress = (level_int % 1) * 100; // percentage inside current level
-	const displayedLevel = Math.floor(level_int); // show integer part only
+	const progress = (level_int % 1) * 100; 
+	const displayedLevel = Math.floor(level_int); 
 
 	const getRankIcon = (rank?: number) => {
 		switch (rank) {
