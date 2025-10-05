@@ -31,7 +31,7 @@ const RemoteGame: React.FC = () => {
   const [time, setTime] = useState<number>(0);
   const timerRef = useRef<number | null>(null);
 
-  // Timer effect
+
   useEffect(() => {
     if (startTimer && !gameResult) {
       timerRef.current = window.setInterval(() => {
@@ -59,7 +59,7 @@ const RemoteGame: React.FC = () => {
     };
   }, [startTimer, gameResult]);
 
-  // Cleanup on unmount
+
   useEffect(() => {
     return () => {
       if (hasJoinedGameRef.current && socket && socket.connected) {
@@ -124,7 +124,7 @@ const RemoteGame: React.FC = () => {
     setCurrentUser(playerName);
     currentUserRef.current = playerName;
     
-    // Reset connection states
+
     setWaitingForPlayer(false);
     setGameStarted(false);
     setUsersJoin(false);
@@ -133,7 +133,6 @@ const RemoteGame: React.FC = () => {
     socket.emit("join:game");
   }
 
-  // Socket event listeners
   useEffect(() => {
     const onGameStart = ({ playerX, playerO }: { playerX: string; playerO: string }) => {
       console.log("Game started!", { playerX, playerO });
@@ -171,7 +170,7 @@ const RemoteGame: React.FC = () => {
       setXIsNext(newXIsNext);
       setTime(0);
 
-      // Don't check for winner here - let backend handle it
+
       setStartTimer(true);
     };
 
@@ -184,14 +183,13 @@ const RemoteGame: React.FC = () => {
       setTime(0);
     };
 
-    // Unified game end handler
+
     const onGameEnd = (result: GameResult) => {
       console.log("Game ended:", result);
       setGameResult(result);
       cleanup();
 
-      // Trigger fireworks if current user won
-      // if ((result.winner === currentUserRef.current) && result.reason !== "draw") {
+
       if (result.reason === "draw"){
         result.winner = null;
       }
@@ -204,7 +202,6 @@ const RemoteGame: React.FC = () => {
       hasJoinedGameRef.current = false;
     };
 
-    // Register all socket listeners
     socket.on("game:start", onGameStart);
     socket.on("game:error", onGameError);
     socket.on("game:waiting", onGameWaiting);
@@ -245,12 +242,6 @@ const RemoteGame: React.FC = () => {
               >
                 Go Back
               </button>
-              {/* <button
-                onClick={playAgain}
-                className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
-              >
-                Play Again
-              </button> */}
             </div>
           </div>
         );
@@ -266,12 +257,6 @@ const RemoteGame: React.FC = () => {
               >
                 Go Back
               </button>
-              {/* <button
-                onClick={playAgain}
-                className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
-              >
-                Play Again
-              </button> */}
             </div>
           </div>
         );

@@ -32,6 +32,10 @@ export async function getuserid(fastify: FastifyInstance, username: string) : Pr
 			],
 			(err : Error | null, row: { id: number}) => {
 				if (err) rejects(err);
+				if (!row) {
+					console.warn(` No user found for username: ${username}`);
+					return resolve(null);
+				  }
 				resolve(row.id);
 			}
 		);
@@ -47,7 +51,8 @@ export async function updateImage(fastify: FastifyInstance, username: string, ne
 				username
 			],
 			(err) => {
-				if (err) return reject(err);
+				if (err)
+					return reject(err);
 				resolve();
 			}
 		);

@@ -58,11 +58,9 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, result }) => {
           alt="no history"
         />
         <h2 className="font-russo text-xl sm:text-2xl text-slate-200 tracking-wide">
-        No matching users
+             No matching users
         </h2>
-        {/* <p className="text-slate-400 text-sm sm:text-base text-center">
-          Play games to see your match history here!
-        </p> */}
+
       </div>
       )}
     </div>

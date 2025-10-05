@@ -121,7 +121,7 @@ const Conversation: FC<ConversationProps> = ({
   useEffect(() => {
     const allBlocked_fct = async () => {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/friends/blockReq`,
-      { credentials: "include" });
+        { credentials: "include" });
       const data = await res.json();
       // console.log("all blocked : ", data);
       setAllBlocked(Array.isArray(data) ? data : []);
@@ -141,7 +141,7 @@ const Conversation: FC<ConversationProps> = ({
   const addToInput = (emoji: { native: string }) => {
     setInput(input + emoji.native);
   };
-  
+
   const OnlineStatusIcon: React.FC<{ isOnline: boolean; size?: number }> = ({ isOnline, size = 12 }) => {
     console.log("======================is online======================", isOnline);
     return (
@@ -179,12 +179,6 @@ const Conversation: FC<ConversationProps> = ({
       blockedId: user.id,
     });
 
-
-    // setAllBlocked((prev) => prev.filter((u) => {
-    //   console.log("u.id : ", u.id)
-    //   console.log("user.id : ", user.id)
-    //   u.id !== user.id
-    // }));
 
     setAllBlocked((prev) => prev.filter((u) => u.id !== user.id));
 
@@ -270,7 +264,7 @@ const Conversation: FC<ConversationProps> = ({
               </button>
             )}
             <img src={user.image_url} className="size-14 rounded-full max-lg:w-12 max-lg:h-12 border-2 border-[#0077FF] cursor-pointer" alt="User profile"
-              onClick={() => {navigate(`/profile/${user.username}`)}}
+              onClick={() => { navigate(`/profile/${user.username}`) }}
             />
             <div className="flex flex-col">
               <strong className="text-white text-lg font-bold max-lg:text-sm">
@@ -313,20 +307,20 @@ const Conversation: FC<ConversationProps> = ({
                     </button>
                   )
                   }
-                  <PongInviteButton 
+                  <PongInviteButton
                     recipientUsername={user.id}
                     currentUserId={loggedInUserId}
                     onInviteSent={() => console.log('Invite sent!')}
                   />
-                   <button
-                      onClick={() => {
-                        setShowInvBlock(false)
-                      }}
-                      className="w-full px-4 py-2 text-left text-white-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
-                    >
-                      <Cancel01Icon />
-                      Close
-                    </button>
+                  <button
+                    onClick={() => {
+                      setShowInvBlock(false)
+                    }}
+                    className="w-full px-4 py-2 text-left text-white-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
+                  >
+                    <Cancel01Icon />
+                    Close
+                  </button>
                 </div>
               </div>
             )}
@@ -340,12 +334,7 @@ const Conversation: FC<ConversationProps> = ({
         >
           {loading && (
             <div className="flex justify-center items-center py-2">
-              {/* <DotLottieReact
-                className="size-16 text-neutral-800"
-                src="https://lottie.host/70d416bc-2964-4c04-9c76-5b3e51452944/RbbhKqbPTa.lottie"
-                loop
-                autoplay
-              /> */}
+
 
               <DotLottieReact
                 className="w-72 "
@@ -400,7 +389,7 @@ const Conversation: FC<ConversationProps> = ({
 
                     {isMe && (showMenu === msg.id) && (
                       <div className={`absolute top-0 z-50 right-full mr-2 mb-2`} >
-    
+
                         <div className="bg-white rounded-lg shadow-lg pb-0 border border-gray-200 min-w-[120px]">
                           <button
                             onClick={() => handleDeleteClick(msg.id)}
@@ -420,27 +409,7 @@ const Conversation: FC<ConversationProps> = ({
                       </div>
                     )}
 
-                       {/* {isMe && showMenu === msg.id && (
-                        <div className="absolute top-0 z-50 right-full mr-2 mb-2">
-                          <div className="bg-white rounded-lg shadow-lg pb-0 border border-gray-200 min-w-[120px]">
-                            <button
-                              onClick={() => handleDeleteClick(msg.id)}
-                              className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors duration-150"
-                            >
-                              <MdDelete />
-                              Delete
-                            </button>
-                            <button
-                              onClick={() => setShowMenu(null)}
-                              className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-150"
-                            >
-                              <MdCancel />
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      )} */}
-                    
+
                     {/* Timestamp */}
                     <span className="text-xs text-gray-500 mt-1 block text-right">{time}</span>
                   </div>

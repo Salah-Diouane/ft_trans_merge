@@ -18,23 +18,6 @@ export default function Square({ value, onSquareClick }: SquareProps) {
   );
 }
 
-// type Square_CostumeProps = {
-//   value: string | null;
-// };
-
-// export  function Square_Costume( {value}: Square_CostumeProps) {
-//   return (
-//     <button
-//       className={`bg-[#393E46] text-white text-4xl font-mono rounded-xl border-2 border-[#0077FF] shadow-lg  hover:text-white hover:scale-105
-//       transition duration-300 ease-in-out flex items-center justify-center h-20 sm:h-24 ${
-//         value ? "animate-pulse" : ""
-//       }`}
-
-//     >
-//       {value}
-//     </button>
-//   );
-// }
 
 type Square_CostumeProps = {
   value: string | null;

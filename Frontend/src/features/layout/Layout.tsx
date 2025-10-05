@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-// import {useStore} from "../../store/store"
 import { useStore } from '../../store/store';
 import meProfile from "../Assets/me.jpeg";
 import logo from "../Assets/logo.png";
@@ -22,20 +21,13 @@ import {
 const Layout: React.FC = () => {
   const [showNotifs, setShowNotifs] = useState(window.outerWidth < 1024);
   const location = useLocation();
-  // const isMobile = window.outerWidth <= 1024;
-  // useEffect(() => {
-  //   const handleResize = () => setShowNotifs(window.outerWidth < 1024);
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);
-  
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
 
-useEffect(() => {
-  const handleResize = () => setIsMobile(window.innerWidth <= 1024);
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
 
   const isActive = (path: string) =>

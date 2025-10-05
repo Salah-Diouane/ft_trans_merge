@@ -156,14 +156,12 @@ const DisplayItem: React.FC<DisplayItemProps> = ({ type, name, level, stat, rank
 					/>
 
 					<div className='flex-1 flex items-center justify-between pl-4 pr-2'>
-						{/* <p className={`font-russo ${color} text-lg font-bold`}>{final_score?.[0]}</p> */}
 						<p className={`font-russo ${color} text-lg font-bold`}>{user_score}</p>
 
 
 						<div className="group-hover:scale-105 transition-transform duration-300 p-2" >
 							{getStatElement(stat, color)}
 						</div>
-						{/* <p className={`font-russo ${color} text-lg font-bold`}>{final_score?.[1]}</p> */}
 						<p className={`font-russo ${color} text-lg font-bold`}>{opp_score}</p>
 
 					</div>
@@ -190,10 +188,6 @@ const WelcomeCard: React.FC = () => {
 
 			<div className=' flex flex-col gap-8 2xl:gap-5 xl:gap-4 lg:gap-4 md:gap-3 sm:gap-4 p-4'>
 
-				{/* <div className=''>
-					<h1 className='font-russo text-2xl sm:text-4xl sm:bg-gray-700 md:bg-blue-500 md:text-4xl lg:bg-red-300 xl:bg-yellow-200 2xl:bg-black sm_md:bg-green-600 2xl:text-7xl text-white animate-pulse'>Welcome Back!</h1>
-					<h2 className='font-russo text-1xl sm:text-4xl sm:bg-gray-700 md:bg-blue-500 md:text-4xl lg:bg-red-300 xl:bg-yellow-200 2xl:bg-black sm_md:bg-green-600 2xl:text-7xl text-white mt-1 animate-pulse'>Player</h2>
-				</div> */}
 				<div className=''>
 					<h1 className='font-russo text-2xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white animate-pulse'>Welcome Back!</h1>
 					<h2 className='font-russo text-1xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white mt-1 animate-pulse'>{store.username.toUpperCase()}</h2>
@@ -335,7 +329,7 @@ const Home: React.FC = () => {
 
 
 	return (
-		// <div className="w-full h-full flex flex-col 2xl:flex-row  max-sm:p-1  p-2 sm:p-4 md:p-6 lg:p-8 xl:p-10 2xl:p-12 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
+
 		<div className="w-full h-full flex flex-col 2xl:flex-row   p-5 gap-5  max-sm:p-1  max-[375px]:p-1 max-[390px]:w-[95%] max-[375px]:w-[90%] max-[360px]:w-[87%] max-[344px]:w-[60%]">
 
 			<div className='w-full flex flex-col gap-4 2xl:w-[70%]'>
@@ -363,21 +357,6 @@ const Home: React.FC = () => {
 
 					<div className='sticky top-0 z-10 font-russo p-5 h-16 text-2xl size-auto bg-[#393E46]'>History</div>
 
-					{/* {history.length > 0 ? (
-						history.map((stat, idx) => (
-							<DisplayItem type='stat' stat={stat.result} user_avatar={stat.user_avatar} opponent_avatar={stat.opponent_avatar} score={stat.Score} />
-						))
-					) : (
-						// <span className="text-blue-400 text-center">No matching users</span>
-						<div className="flex flex-col h-auto justify-center items-center rounded-[inherit] space-y-6 p-4">
-						  <img src={gf2} className="h-36 rounded-2xl shadow-2xl" />
-						  <div className="text-center space-y-4 max-w-md">
-							<h2 className="text-4xl font-semibold text-slate-100 mb-3 tracking-tight">
-								No matching users
-							</h2>
-						  </div>
-						</div>
-					)} */}
 					{history.length > 0 ? (
 						history.map((stat, idx) => (
 							<DisplayItem

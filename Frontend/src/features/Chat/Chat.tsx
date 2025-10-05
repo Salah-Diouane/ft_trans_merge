@@ -33,15 +33,22 @@ const ChatApp: FC = () => {
   const currentUserRef = useRef<number | null>(null);
   const selectedUserRef = useRef<User | null>(null);
   const requestedHistoryRef = useRef<Set<number>>(new Set());
-  const isMobile = window.outerWidth <= 1024;
+  // const isMobile = window.outerWidth <= 1024;
   const navigate = useNavigate();
   // const { userId } = useParams<{ userId: string }>();
   const { username } = useParams<{ username: string }>();
   useEffect(() => { selectedUserRef.current = selectedUser; }, [selectedUser]);
 
-  //  screen resize
+  // //  screen resize
+  // useEffect(() => {
+  //   const handleResize = () => setShowContactList(window.outerWidth < 1024);
+  //   window.addEventListener("resize", handleResize);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
   useEffect(() => {
-    const handleResize = () => setShowContactList(window.outerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);

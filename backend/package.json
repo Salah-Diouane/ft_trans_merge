@@ -28,11 +28,13 @@
     "@types/nodemailer": "^6.4.17",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   },
   "scripts": {
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/App.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/App.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node ./dist/App.js"
   }
+  
 }

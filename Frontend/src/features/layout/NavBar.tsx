@@ -173,7 +173,7 @@ const NavBar: React.FC = () => {
   const { users, currentUser, currentUserRef } = useUsers();
   const navigate = useNavigate();
   const nav = useNavigate();
-  const isMobile = window.outerWidth < 1024;
+  const isMobile = window.innerWidth < 1024;
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   useEffect(() => {
@@ -269,6 +269,7 @@ const NavBar: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowSearch(false);
+        setShowNotifs(false)
         setQuery("");
       }
     };
@@ -336,20 +337,6 @@ const NavBar: React.FC = () => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const handleNotification = (notification: any) => {
-  //     console.log('Received notification:', notification);
-      
-  //     // Handle temporary pong invites
-     
-  //   };
-
-  //   socket.on('notification', handleNotification);
-    
-  //   return () => {
-  //     socket.off('notification', handleNotification);
-  //   };
-  // }, []);
 
   useEffect(() => {
     const handlePongInviteNotification = (notification: any) => {
@@ -467,12 +454,14 @@ const NavBar: React.FC = () => {
   }, [navigate]);
 
 
-  console.log("==> location.pathname : ", location.pathname)
+
   let in_chat: boolean = false;;
 
-  if ((location.pathname === "/chat" || /^\/chat\/\d+$/.test(location.pathname)) && isMobile) {
+
+  if ((location.pathname === "/chat" || /^\/chat\/[^/]+$/.test(location.pathname)) && isMobile) {
     in_chat = true;
   }
+  
 
   console.log("in_chat :", in_chat)
   return (
@@ -503,7 +492,7 @@ const NavBar: React.FC = () => {
         </div>
 
 
-        <div className="relative flex items-center gap-6 w-1/3 justify-end max-lg:hidden">
+        <div className="relative flex items-center gap-6 w-1/3 justify-end max-lg:hidden" >
           <div>
 
             <Notification02Icon className="size-8 hover:text-blue-700  cursor-pointer max-sm:hidden"
