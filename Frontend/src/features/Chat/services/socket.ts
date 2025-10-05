@@ -10,13 +10,13 @@ import { io } from "socket.io-client";
 // });
 
 
-// const socket = io('https://e3r10p2.1337.ma', {
+// const socket = io('https://e3r9p2.1337.ma', {
 //   path: "/socket.io/",
 //   transports: ["websocket", "polling"],
 //   withCredentials: true
 // });
 
-const socket = io("https://e3r10p2.1337.ma", {
+const socket = io("https://e3r9p2.1337.ma", {
   path: "/socket.io/",
   withCredentials: true,
   transports: ["websocket", "polling"]

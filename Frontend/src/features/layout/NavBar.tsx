@@ -142,35 +142,15 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
                   <p className="text-sm font-medium text-gray-200 truncate">
                     {notif.sender || "Unknown"}
                   </p>
-                  <p className="text-xs text-gray-400 truncate">
-                    {notif.type === "New message"
-                      ? "Sent you a message"
-                      : notif.type === "friend_request"
-                      ? "Wants to be friends"
-                      : notif.type === "friend_request_accepted"
-                      ? "Accepted your request"
-                      : "Invite"}
-                  </p>
+
+                    <p className="text-xs text-gray-500">
+                      {notif.type === "New message" ? "Sent you a message" : 
+                      notif.type === "friend_request" ? "Wants to be friends" : 
+                      "Accepted your request"}
+                    </p>
                 </div>
               </div>
 
-              {/* Only show action buttons for non-pong invites */}
-              {notif.type === "Invite" && (
-                <div className="flex items-center justify-center gap-9 p-3">
-                  <button
-                    className="bg-[#0077FF] text-white p-2 rounded-full text-xs font-semibold flex items-center gap-2 hover:bg-blue-600 transition-colors"
-                    onClick={() => console.log("Accept other invite")}
-                  >
-                    <UserCheck size={20} /> Accept
-                  </button>
-                  <button
-                    className="bg-red-500 text-white p-2 rounded-full text-xs font-semibold flex items-center gap-2 hover:bg-red-600 transition-colors"
-                    onClick={() => console.log("Decline other invite")}
-                  >
-                    <UserX size={20} /> Decline
-                  </button>
-                </div>
-              )}
             </div>
           ))
         )}
@@ -212,8 +192,51 @@ const NavBar: React.FC = () => {
 
     const handleNotification = (notif: any) => {
       console.log("Received notification:", notif);
-      setNotifications(prev => [notif.messageData || notif, ...prev]);
-      setUnreadCount(prev => prev + 1);
+      if (notif.temporary && notif.type === 'pong_invite') {
+        console.log('🏓 Received pong invite:', notif);
+        
+        // Show toast notification with accept/decline buttons
+        toast.custom((t) => (
+          <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-[#393E46] shadow-lg rounded-xl pointer-events-auto ring-1 ring-black ring-opacity-5 p-4`}>
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
+                  <RiPingPongFill className="w-6 h-6 text-blue-400" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-white">Pong Challenge!</p>
+                <p className="text-sm text-gray-300">{notif.sender} wants to play</p>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => {
+                  // handleAcceptPongInvite(notification);
+                  toast.dismiss(t.id);
+                }}
+                className="flex-1 px-3 py-2 bg-green-500/20 text-green-400 rounded-lg font-medium hover:bg-green-500/30 transition-colors"
+              >
+                Accept
+              </button>
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                }}
+                className="flex-1 px-3 py-2 bg-red-500/20 text-red-400 rounded-lg font-medium hover:bg-red-500/30 transition-colors"
+              >
+                Decline
+              </button>
+            </div>
+          </div>
+        ), {
+          duration: 15000, // 15 seconds
+          position: 'top-right',
+        });
+      } else {
+        setNotifications(prev => [notif.messageData || notif, ...prev]);
+        setUnreadCount(prev => prev + 1);
+      }
     };
 
     const handleNotificationList = (data: any[]) => {
@@ -313,64 +336,20 @@ const NavBar: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const handleNotification = (notification: any) => {
-      console.log('Received notification:', notification);
+  // useEffect(() => {
+  //   const handleNotification = (notification: any) => {
+  //     console.log('Received notification:', notification);
       
-      // Handle temporary pong invites
-      if (notification.temporary && notification.type === 'pong_invite') {
-        console.log('🏓 Received pong invite:', notification);
-        
-        // Show toast notification with accept/decline buttons
-        toast.custom((t) => (
-          <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-[#393E46] shadow-lg rounded-xl pointer-events-auto ring-1 ring-black ring-opacity-5 p-4`}>
-            <div className="flex items-center gap-4">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <RiPingPongFill className="w-6 h-6 text-blue-400" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-white">Pong Challenge!</p>
-                <p className="text-sm text-gray-300">{notification.sender} wants to play</p>
-              </div>
-            </div>
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => {
-                  // handleAcceptPongInvite(notification);
-                  toast.dismiss(t.id);
-                }}
-                className="flex-1 px-3 py-2 bg-green-500/20 text-green-400 rounded-lg font-medium hover:bg-green-500/30 transition-colors"
-              >
-                Accept
-              </button>
-              <button
-                onClick={() => {
-                  toast.dismiss(t.id);
-                }}
-                className="flex-1 px-3 py-2 bg-red-500/20 text-red-400 rounded-lg font-medium hover:bg-red-500/30 transition-colors"
-              >
-                Decline
-              </button>
-            </div>
-          </div>
-        ), {
-          duration: 15000, // 15 seconds
-          position: 'top-right',
-        });
-      } else {
-        // Handle regular persistent notifications
-        setNotifications(prev => [notification, ...prev]);
-      }
-    };
+  //     // Handle temporary pong invites
+     
+  //   };
 
-    socket.on('notification', handleNotification);
+  //   socket.on('notification', handleNotification);
     
-    return () => {
-      socket.off('notification', handleNotification);
-    };
-  }, []);
+  //   return () => {
+  //     socket.off('notification', handleNotification);
+  //   };
+  // }, []);
 
   useEffect(() => {
     const handlePongInviteNotification = (notification: any) => {
@@ -527,7 +506,7 @@ const NavBar: React.FC = () => {
         <div className="relative flex items-center gap-6 w-1/3 justify-end max-lg:hidden">
           <div>
 
-            <Notification02Icon className="size-8 hover:text-[#00ADB5] cursor-pointer max-sm:hidden"
+            <Notification02Icon className="size-8 hover:text-blue-700  cursor-pointer max-sm:hidden"
               onClick={(e) => {
                 setShowNotifs(true)
                 setNotifClicked(false);
@@ -542,13 +521,6 @@ const NavBar: React.FC = () => {
             )}
           </div>
 
-          {/* <img
-            src={store.image_url}
-            className="size-12 rounded-full hover:text-[#00ADB5] cursor-pointer max-sm:hidden"
-            alt="Profile"
-          /> */}
-
-          {/* Profile */}
           <div className="relative  font-russo" >
 							<img src={store.image_url} alt="Profile" className="size-12 rounded-full hover:ring-2  cursor-pointer max-sm:hidden transition" onClick={() => setShowProfileDropdown(!showProfileDropdown)} />
 							{showProfileDropdown && (
@@ -579,3 +551,4 @@ const NavBar: React.FC = () => {
 };
 
 export default NavBar;
+

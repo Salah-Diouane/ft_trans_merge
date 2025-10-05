@@ -35,7 +35,7 @@ const InviteGame: React.FC = () => {
           throw new Error("Game not found.");
         }
         return response.ok;
-      } catch (error:any) {
+      } catch (error:any) {   
         console.error("Error fetching users:", error);
         setError("Game not found.");
         return {};

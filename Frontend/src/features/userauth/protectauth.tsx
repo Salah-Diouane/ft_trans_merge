@@ -31,7 +31,7 @@ export default function ProtectedRoute({ children }: Props) {
 						await store.fetchUserInfo();
 					setIsAuthenticated(true);
 			} catch (err) {
-				await fetch("http://e3r10p2.1337.ma:3000/logout");
+				await fetch("http://e3r9p2.1337.ma:3000/logout");
 				navigate('/login/Signin');
 			}
 		};
