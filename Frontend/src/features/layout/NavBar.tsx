@@ -24,11 +24,7 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // Remove pong invite related functions since we're not showing them in persistent notifications
-  // const handleAcceptPongInviteFromNotif = (notif: any) => { ... } // Remove this
-  // const handleDeclinePongInvite = (notif: any) => { ... } // Remove this
 
-  // Filter out pong invites from persistent notifications
   const filteredNotifications = notifications.filter(notif => notif.type !== 'pong_invite');
 
   const getType = (notif: any) => {
@@ -67,15 +63,19 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInMinutes < 1) return "Just now";
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInDays < 7) return `${diffInDays}d ago`;
+    if (diffInMinutes < 1)
+      return "Just now";
+    if (diffInMinutes < 60)
+      return `${diffInMinutes}m ago`;
+    if (diffInHours < 24)
+      return `${diffInHours}h ago`;
+    if (diffInDays < 7)
+      return `${diffInDays}d ago`;
     return notifTime.toLocaleDateString();
   };
 
   return (
-    <div className="absolute top-16 right-24 flex flex-col w-[380px] max-h-[500px] bg-[#222831] bg-opacity-90 text-black rounded-2xl shadow-2xl border border-gray-700 z-[99999] overflow-hidden">
+    <div className="absolute top-16 right-24 flex flex-col w-[380px] max-h-[500px] bg-[#222831] bg-opacity-90 text-black rounded-2xl shadow-2xl border border-gray-700 z-[99999] overflow-hidden  custom-scroll">
       <div className="flex justify-between items-center px-6 py-4 bg-gray-800 border-b border-gray-700">
         <div>
           <h2 className="text-2xl font-extrabold text-white">Notifications</h2>
