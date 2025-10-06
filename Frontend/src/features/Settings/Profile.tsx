@@ -2,7 +2,7 @@ import toast from "react-hot-toast";
 import { useStore } from "../../store/store";
 import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import i18n from '../../translation/translation'; 
+import i18n from '../../translation/translation';
 
 export default function Profile() {
 	const store = useStore();
@@ -18,6 +18,9 @@ export default function Profile() {
 	const [erros, seterros] = useState<{ [key: string]: string }>({});
 	const { t } = useTranslation();
 
+	const  cleanUpString = (input: any) => {
+		return input.trim().replace(/\s+/g, ' ');
+	}
 	useEffect(() => {
 		if (store.Language) {
 			i18n.changeLanguage(store.Language);
@@ -59,9 +62,9 @@ export default function Profile() {
 		e.preventDefault();
 		try {
 			const data = {
-				username: Useranme.current?.value || "",
-				first_name: first_nameRef.current?.value || "",
-				family_name: family_nameRef.current?.value || "",
+				username: cleanUpString(Useranme.current?.value) || "",
+				first_name: cleanUpString(first_nameRef.current?.value) || "",
+				family_name: cleanUpString(family_nameRef.current?.value) || "",
 				Language: LanguageRef.current?.value || "en",
 				image_url: Imgurl,
 				cover_url: Coverurl
@@ -77,7 +80,7 @@ export default function Profile() {
 					store.setcover_url(Coverurl);
 				if (Imgurl !== store.image_url)
 					store.setimage_url(Imgurl);
-				store.setUserinfo(Useranme.current?.value || "", first_nameRef.current?.value || "", family_nameRef.current?.value || "", LanguageRef.current?.value || "");
+				store.setUserinfo(cleanUpString(Useranme.current?.value) || "", cleanUpString(first_nameRef.current?.value) || "", cleanUpString(family_nameRef.current?.value) || "", LanguageRef.current?.value || "");
 				toast.success("done !");
 			} else {
 				const f = await respone.json() as { message: string, type: string };
@@ -88,7 +91,7 @@ export default function Profile() {
 			toast.error(`${err}`);
 		}
 	}
-	
+
 	const inputClass = (fieldName: string) => {
 		const baseStyle = "w-full sm:w-60 p-3 text-base rounded-lg border outline-none bg-[#222831]";
 		const errorStyle = "border-red-500 text-red-500";

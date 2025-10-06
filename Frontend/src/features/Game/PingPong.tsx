@@ -1,14 +1,13 @@
-import React from 'react';
-import Subtract from '../Assets/Subtract.svg';
-import f_logo from '../Assets/local.svg'
-import s_logo from '../Assets/tournament.svg'
-import t_logo from '../Assets/remote.svg'
-import { Link } from 'react-router';
+import React from "react";
+import Subtract from "../Assets/Subtract.svg";
+import f_logo from "../Assets/local.svg";
+import s_logo from "../Assets/tournament.svg";
+import t_logo from "../Assets/remote.svg";
+import { Link } from "react-router";
 
 const PingPong: React.FC = () => {
   return (
     <div className="relative w-full h-full bg-[#222831] rounded-2xl max-lg:h-[91%] overflow-hidden">
-      
       {/* Background Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-1/4 w-32 h-32 bg-[#0077FF]/3 rounded-full blur-3xl"></div>
@@ -18,7 +17,6 @@ const PingPong: React.FC = () => {
       </div>
 
       <div className="relative z-10 p-8 lg:p-16 h-full flex flex-col">
-        
         {/* Header Section */}
         <div className="text-center mb-12 lg:mb-16">
           <div className="relative inline-block mb-6">
@@ -27,7 +25,7 @@ const PingPong: React.FC = () => {
             </h1>
             <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[#0077FF] to-transparent rounded-full"></div>
           </div>
-          
+
           <div className="space-y-4">
             <p className="text-[#EEEEEE]/80 text-xl lg:text-2xl max-w-3xl mx-auto leading-relaxed font-light">
               Choose your gaming experience and challenge yourself
@@ -43,15 +41,18 @@ const PingPong: React.FC = () => {
         {/* Cards Grid */}
         <div className="flex-1 flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 max-w-7xl mx-auto w-full">
-            
             {/* Tournaments Card */}
             <div className="group relative">
               <div className="absolute inset-0 bg-[#0077FF]/8 rounded-3xl transform rotate-2 group-hover:rotate-0 transition-all duration-500 ease-out"></div>
               <div className="absolute inset-0 bg-gradient-to-br from-[#0077FF]/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
-              <div 
+
+              <div
                 className="relative flex flex-col items-center justify-between bg-[#393E46] rounded-3xl p-8 lg:p-12 h-80 lg:h-96 transition-all duration-500 group-hover:translate-y-[-8px] group-hover:scale-[1.02] border border-[#393E46] group-hover:border-[#0077FF]/30 shadow-lg group-hover:shadow-xl group-hover:shadow-[#0077FF]/10"
-                style={{ backgroundImage: `url(${Subtract})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                style={{
+                  backgroundImage: `url(${Subtract})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
               >
                 {/* Badge */}
                 <div className="absolute -top-3 -right-3 bg-[#0077FF] text-white px-3 py-1 rounded-full text-xs font-russo opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
@@ -63,7 +64,11 @@ const PingPong: React.FC = () => {
                   <div className="relative">
                     <div className="absolute inset-0 bg-[#0077FF]/15 rounded-full blur-2xl scale-150 group-hover:scale-125 transition-all duration-700"></div>
                     <div className="relative p-4 bg-[#222831]/50 rounded-2xl backdrop-blur-sm border border-[#0077FF]/20 group-hover:border-[#0077FF]/40 transition-all duration-300">
-                      <img src={s_logo} alt="Tournaments" className="w-16 lg:w-20 h-auto filter drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+                      <img
+                        src={s_logo}
+                        alt="Tournaments"
+                        className="w-16 lg:w-20 h-auto filter drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
+                      />
                     </div>
                   </div>
                 </div>
@@ -77,8 +82,8 @@ const PingPong: React.FC = () => {
                     Compete in structured battles and climb the leaderboard
                   </p>
                   <div className="pt-2">
-                    <Link 
-                      to="tournament-game" 
+                    <Link
+                      to="tournament-game"
                       className="inline-block bg-[#0077FF] hover:bg-[#0066DD] text-white px-10 py-4 rounded-2xl font-russo text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#0077FF]/30 active:scale-95 transform hover:translate-y-[-2px]"
                     >
                       Join Tournament
@@ -92,10 +97,14 @@ const PingPong: React.FC = () => {
             <div className="group relative">
               <div className="absolute inset-0 bg-[#0077FF]/8 rounded-3xl transform -rotate-1 group-hover:rotate-0 transition-all duration-500 ease-out"></div>
               <div className="absolute inset-0 bg-gradient-to-tl from-[#0077FF]/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
-              <div 
+
+              <div
                 className="relative flex flex-col items-center justify-between bg-[#393E46] rounded-3xl p-8 lg:p-12 h-80 lg:h-96 transition-all duration-500 group-hover:translate-y-[-8px] group-hover:scale-[1.02] border border-[#393E46] group-hover:border-[#0077FF]/30 shadow-lg group-hover:shadow-xl group-hover:shadow-[#0077FF]/10"
-                style={{ backgroundImage: `url(${Subtract})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                style={{
+                  backgroundImage: `url(${Subtract})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
               >
                 {/* Badge */}
                 <div className="absolute -top-3 -right-3 bg-[#0077FF] text-white px-3 py-1 rounded-full text-xs font-russo opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
@@ -107,7 +116,11 @@ const PingPong: React.FC = () => {
                   <div className="relative">
                     <div className="absolute inset-0 bg-[#0077FF]/15 rounded-full blur-2xl scale-150 group-hover:scale-125 transition-all duration-700"></div>
                     <div className="relative p-4 bg-[#222831]/50 rounded-2xl backdrop-blur-sm border border-[#0077FF]/20 group-hover:border-[#0077FF]/40 transition-all duration-300">
-                      <img src={f_logo} alt="Local" className="w-16 lg:w-20 h-auto filter drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+                      <img
+                        src={f_logo}
+                        alt="Local"
+                        className="w-16 lg:w-20 h-auto filter drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
+                      />
                     </div>
                   </div>
                 </div>
@@ -121,8 +134,8 @@ const PingPong: React.FC = () => {
                     Classic couch gaming with friends on the same device
                   </p>
                   <div className="pt-2">
-                    <Link 
-                      to="local-game" 
+                    <Link
+                      to="local-game"
                       className="inline-block bg-[#0077FF] hover:bg-[#0066DD] text-white px-10 py-4 rounded-2xl font-russo text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#0077FF]/30 active:scale-95 transform hover:translate-y-[-2px]"
                     >
                       Play Local
@@ -136,10 +149,14 @@ const PingPong: React.FC = () => {
             <div className="group relative">
               <div className="absolute inset-0 bg-[#0077FF]/8 rounded-3xl transform rotate-1 group-hover:rotate-0 transition-all duration-500 ease-out"></div>
               <div className="absolute inset-0 bg-gradient-to-bl from-[#0077FF]/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
-              <div 
+
+              <div
                 className="relative flex flex-col items-center justify-between bg-[#393E46] rounded-3xl p-8 lg:p-12 h-80 lg:h-96 transition-all duration-500 group-hover:translate-y-[-8px] group-hover:scale-[1.02] border border-[#393E46] group-hover:border-[#0077FF]/30 shadow-lg group-hover:shadow-xl group-hover:shadow-[#0077FF]/10"
-                style={{ backgroundImage: `url(${Subtract})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                style={{
+                  backgroundImage: `url(${Subtract})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
               >
                 {/* Badge */}
                 <div className="absolute -top-3 -right-3 bg-[#0077FF] text-white px-3 py-1 rounded-full text-xs font-russo opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
@@ -151,7 +168,11 @@ const PingPong: React.FC = () => {
                   <div className="relative">
                     <div className="absolute inset-0 bg-[#0077FF]/15 rounded-full blur-2xl scale-150 group-hover:scale-125 transition-all duration-700"></div>
                     <div className="relative p-4 bg-[#222831]/50 rounded-2xl backdrop-blur-sm border border-[#0077FF]/20 group-hover:border-[#0077FF]/40 transition-all duration-300">
-                      <img src={t_logo} alt="Remote" className="w-16 lg:w-20 h-auto filter drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+                      <img
+                        src={t_logo}
+                        alt="Remote"
+                        className="w-16 lg:w-20 h-auto filter drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
+                      />
                     </div>
                   </div>
                 </div>
@@ -165,8 +186,8 @@ const PingPong: React.FC = () => {
                     Challenge players worldwide in real-time battles
                   </p>
                   <div className="pt-2">
-                    <Link 
-                      to="remote-game" 
+                    <Link
+                      to="remote-game"
                       className="inline-block bg-[#0077FF] hover:bg-[#0066DD] text-white px-10 py-4 rounded-2xl font-russo text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#0077FF]/30 active:scale-95 transform hover:translate-y-[-2px]"
                     >
                       Start Battle
@@ -187,14 +208,16 @@ const PingPong: React.FC = () => {
                 <div className="w-2 h-2 bg-[#0077FF]/60 rounded-full animate-pulse delay-150"></div>
                 <div className="w-2 h-2 bg-[#0077FF]/40 rounded-full animate-pulse delay-300"></div>
               </div>
-              <span className="font-russo tracking-wide">Select your preferred game mode</span>
+              <span className="font-russo tracking-wide">
+                Select your preferred game mode
+              </span>
               <div className="flex gap-1">
                 <div className="w-2 h-2 bg-[#0077FF]/40 rounded-full animate-pulse delay-500"></div>
                 <div className="w-2 h-2 bg-[#0077FF]/60 rounded-full animate-pulse delay-650"></div>
                 <div className="w-2 h-2 bg-[#0077FF] rounded-full animate-pulse delay-800"></div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-6 text-[#EEEEEE]/30 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-1 h-1 bg-[#0077FF] rounded-full"></div>

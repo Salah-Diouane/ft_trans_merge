@@ -1,18 +1,16 @@
-import React, { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
-import socket from "../Chat/services/socket"
-
+import React, { useEffect } from "react";
+import { Outlet } from "react-router-dom";
+import socket from "../Chat/services/socket";
 
 const Game: React.FC = () => {
-
   useEffect(() => {
-    if (!socket.connect()){
+    if (!socket.connect()) {
       socket.connect();
     }
-  })
+  });
 
   return (
-    <div className='w-full h-full flex items-center justify-center '>
+    <div className="w-full h-full flex items-center justify-center ">
       <Outlet />
     </div>
   );

@@ -1,54 +1,31 @@
-
 import { io } from "socket.io-client";
-
-// const socket = io(import.meta.env.VITE_API_URL_SOCKET, {
-//     withCredentials: true,
-//     autoConnect: false,
-//     reconnection: true,
-//     path: "/socket.io/",
-//     transports: ["websocket", "polling"],
-// });
-
-
-// const socket = io('https://e3r9p2.1337.ma', {
-//   path: "/socket.io/",
-//   transports: ["websocket", "polling"],
-//   withCredentials: true
-// });
 
 const socket = io("https://e3r9p2.1337.ma", {
   path: "/socket.io/",
   withCredentials: true,
-  transports: ["websocket", "polling"]
+  transports: ["websocket", "polling"],
 });
 
-// const socket = io('${import.meta.env.VITE_API_URL}/api', {
-//     withCredentials: true,
-//     autoConnect: false,
-// });
-
 export function joinGame(name: string) {
-    console.log("here", name);
-    socket.emit('join', name);
+  console.log("here", name);
+  socket.emit("join", name);
 }
 
 export function sendInput(keys: Record<string, boolean>) {
-socket.emit('input', keys);
+  socket.emit("input", keys);
 }
 
 export function sendScale(scale: number) {
-socket.emit('scale', scale);
+  socket.emit("scale", scale);
 }
 
-// Listen for game state updates
+
 export function onState(cb: (state: any) => void) {
-socket.on('state', cb);
+  socket.on("state", cb);
 }
 
-// Listen for the "ready" event when game is ready to start
 export function onReady(cb: () => void) {
-socket.on('ready', cb);
+  socket.on("ready", cb);
 }
 
 export default socket;
-

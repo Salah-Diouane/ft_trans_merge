@@ -29,9 +29,9 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
   const getNotificationColor = (type: string) => {
     switch (type) {
       case "friend_request":
-        return "border-l-4 border-l-sky-400 bg-gray-800"; 
+        return "border-l-4 border-l-sky-400 bg-gray-800";
       case "friend_request_accepted":
-        return "border-l-4 border-l-emerald-500 bg-gray-800"; 
+        return "border-l-4 border-l-emerald-500 bg-gray-800";
       case "New message":
         return "border-l-4 border-l-indigo-500 bg-gray-800";
       default:
@@ -61,7 +61,7 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
         <div>
           <h2 className="text-2xl font-extrabold text-white">Notifications</h2>
           <p className="text-sm font-light text-gray-400 mt-1">
-            {(notifications?.length || 0)}{" "}
+            {notifications?.length || 0}{" "}
             {(notifications?.length || 0) === 1 ? "new alert" : "new alerts"}
           </p>
         </div>
@@ -141,7 +141,6 @@ const Notification: React.FC = () => {
   const [locked, setLocked] = useState(false);
   const nav = useNavigate();
 
-
   useEffect(() => {
     let timeout: any;
     const handleResize = () => {
@@ -168,10 +167,9 @@ const Notification: React.FC = () => {
   const handleNotifClick = () => {
     setLocked(true);
   };
-  
+
   useEffect(() => {
-    if (!socket.connect())
-      socket.connect();
+    if (!socket.connect()) socket.connect();
   }, []);
 
   useEffect(() => {
@@ -223,10 +221,7 @@ const Notification: React.FC = () => {
       onClick={handleNotifClick}
     >
       {showNotifs ? (
-        <HandleNotifs
-          notifications={notifications}
-          clearNotifs={clearNotifs}
-        />
+        <HandleNotifs notifications={notifications} clearNotifs={clearNotifs} />
       ) : (
         <div className="flex items-center justify-center text-white h-full">
           Redirecting...

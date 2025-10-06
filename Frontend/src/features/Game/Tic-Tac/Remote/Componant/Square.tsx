@@ -1,13 +1,11 @@
-
-
 import { useEffect, useState } from "react";
 
-type SquareProps = {
+interface SquareProps {
   value: string | null;
   onSquareClick: () => void;
   disabled?: boolean;
   isWinningSquare?: boolean;
-};
+}
 
 export default function Square({
   value,
@@ -29,6 +27,7 @@ export default function Square({
             credentials: "include",
           }
         );
+
         if (response.ok) {
           const data = (await response.json()) as {
             x_color: string;

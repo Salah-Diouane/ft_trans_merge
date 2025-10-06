@@ -16,7 +16,7 @@ export const useChatSocket = () => {
   const [messages, setMessages] = useState<Record<number, Message[]>>({});
   const [currentUser, setCurrentUser] = useState<Partial<User> | null>(null);
   const [unreadCounts, setUnreadCounts] = useState<Record<number, number>>({});
-  
+
   const usersRef = useRef<User[]>([]);
   const currentUserRef = useRef<number | null>(null);
   const requestedHistoryRef = useRef<Set<number>>(new Set());
@@ -32,28 +32,42 @@ export const useChatSocket = () => {
       usersRef.current = backendUsers;
     });
 
-    socket.on("profile-data", (data: { id: number; username: string; online: boolean }) => {
-      currentUserRef.current = data.id;
-      setCurrentUser({ id: data.id, username: data.username, online: data.online });
-    });
+    socket.on(
+      "profile-data",
+      (data: { id: number; username: string; online: boolean }) => {
+        currentUserRef.current = data.id;
+        setCurrentUser({
+          id: data.id,
+          username: data.username,
+          online: data.online,
+        });
+      }
+    );
 
     socket.on("chat:history", (history: Message[]) => {
       if (!history.length) return;
-      const contactId = history[0].senderId === currentUserRef.current
-        ? history[0].recipientId
-        : history[0].senderId;
+      const contactId =
+        history[0].senderId === currentUserRef.current
+          ? history[0].recipientId
+          : history[0].senderId;
       setMessages((prev) => ({ ...prev, [contactId]: history }));
     });
 
     socket.on("chat:message", (msg: Message) => {
-      const userId = msg.senderId === currentUserRef.current ? msg.recipientId : msg.senderId;
+      const userId =
+        msg.senderId === currentUserRef.current
+          ? msg.recipientId
+          : msg.senderId;
       setMessages((prev) => ({
         ...prev,
         [userId]: [...(prev[userId] || []), msg],
       }));
 
       if (msg.senderId !== currentUserRef.current)
-        setUnreadCounts((prev) => ({ ...prev, [userId]: (prev[userId] || 0) + 1 }));
+        setUnreadCounts((prev) => ({
+          ...prev,
+          [userId]: (prev[userId] || 0) + 1,
+        }));
     });
 
     socket.on("chat:deleted", ({ id }: { id: number | string }) => {
@@ -66,9 +80,14 @@ export const useChatSocket = () => {
       });
     });
 
-    socket.on("user:status", ({ id, online }: { id: number; online: boolean }) => {
-      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, online } : u)));
-    });
+    socket.on(
+      "user:status",
+      ({ id, online }: { id: number; online: boolean }) => {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === id ? { ...u, online } : u))
+        );
+      }
+    );
 
     return () => {
       socket.off("friends:list");

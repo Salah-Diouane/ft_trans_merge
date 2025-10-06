@@ -1,7 +1,7 @@
 import fastify, { FastifyInstance } from "fastify";
 import { Server as IOServer } from "socket.io";
 import { AuthenticatedSocket } from "../pong/interfaces";
-import { addNewHistory } from '../../../utils/profile.utils'
+import { addNewHistory } from "../../../utils/profile.utils";
 
 interface handleGameEventsProps {
   fastify: FastifyInstance;
@@ -31,9 +31,14 @@ const playerToGameMap = new Map<string, string>();
 
 function calculateWinner(squares: (string | null)[]) {
   const lines = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6],
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
   ];
   for (let [a, b, c] of lines) {
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
@@ -52,17 +57,17 @@ function createGameSession(gameId: string): GameSession {
       playerO: "",
       players: [],
       gameEnded: false,
-      gameId
+      gameId,
     },
     playersInRoom: new Map<string, string>(),
-    moveTimers: new Map<string, NodeJS.Timeout>()
+    moveTimers: new Map<string, NodeJS.Timeout>(),
   };
 }
 
 function cleanupGameSession(gameId: string) {
   const session = gameSessions.get(gameId);
   if (session) {
-    session.moveTimers.forEach(timer => clearTimeout(timer));
+    session.moveTimers.forEach((timer) => clearTimeout(timer));
     session.playersInRoom.forEach((_, socketId) => {
       playerToGameMap.delete(socketId);
       waitingPlayers.delete(socketId);
@@ -71,7 +76,7 @@ function cleanupGameSession(gameId: string) {
   }
 }
 
-function endGame (
+function endGame(
   fastify: FastifyInstance,
   io: IOServer,
   session: GameSession,
@@ -80,7 +85,7 @@ function endGame (
   loser: string
 ) {
   session.gameState.gameEnded = true;
-  session.moveTimers.forEach(timer => clearTimeout(timer));
+  session.moveTimers.forEach((timer) => clearTimeout(timer));
   session.moveTimers.clear();
 
   console.log("---> End game reason:", reason);
@@ -101,8 +106,7 @@ function endGame (
     right = 1;
   }
 
-  const currentUser = winner; 
-
+  const currentUser = winner;
 
   if (currentUser === session.gameState.playerO) {
     const temp = left;
@@ -131,8 +135,12 @@ function endGame (
   cleanupGameSession(session.gameState.gameId);
 }
 
-
-function startTurnTimer(fastify: FastifyInstance, io: IOServer, session: GameSession, currentPlayer: string) {
+function startTurnTimer(
+  fastify: FastifyInstance,
+  io: IOServer,
+  session: GameSession,
+  currentPlayer: string
+) {
   if (session.gameState.gameEnded) return;
 
   session.moveTimers.forEach(clearTimeout);
@@ -142,9 +150,10 @@ function startTurnTimer(fastify: FastifyInstance, io: IOServer, session: GameSes
     if (session.gameState.gameEnded) return;
 
     const loser = currentPlayer;
-    const winner = loser === session.gameState.playerX
-      ? session.gameState.playerO
-      : session.gameState.playerX;
+    const winner =
+      loser === session.gameState.playerX
+        ? session.gameState.playerO
+        : session.gameState.playerX;
 
     endGame(fastify, io, session, "timeout", winner, loser);
   }, 10000);
@@ -159,7 +168,10 @@ function findOrCreateGame(socketId: string, username: string): string {
   }
 
   for (const [gameId, session] of gameSessions) {
-    if (session.playersInRoom.size === 1 && !session.playersInRoom.has(socketId)) {
+    if (
+      session.playersInRoom.size === 1 &&
+      !session.playersInRoom.has(socketId)
+    ) {
       const usernames = Array.from(session.playersInRoom.values());
       if (!usernames.includes(username)) {
         return gameId;
@@ -167,12 +179,18 @@ function findOrCreateGame(socketId: string, username: string): string {
     }
   }
 
-  const gameId = `game_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const gameId = `game_${Date.now()}_${Math.random()
+    .toString(36)
+    .substr(2, 9)}`;
   gameSessions.set(gameId, createGameSession(gameId));
   return gameId;
 }
 
-export default function handleGameEvents({ fastify, io, socket }: handleGameEventsProps) {
+export default function handleGameEvents({
+  fastify,
+  io,
+  socket,
+}: handleGameEventsProps) {
   const userData = socket.user;
 
   socket.on("join:game", () => {
@@ -185,7 +203,9 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
 
     const existingUsernames = Array.from(session.playersInRoom.values());
     if (existingUsernames.includes(userData.username)) {
-      socket.emit("game:error", { message: "Username already taken in this game." });
+      socket.emit("game:error", {
+        message: "Username already taken in this game.",
+      });
       return;
     }
 
@@ -231,10 +251,11 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     if (session.gameState.squares[index] !== null) return;
 
     const isPlayerX = player === session.gameState.playerX;
-    const isPlayersTurn = (isPlayerX && session.gameState.xIsNext) || (!isPlayerX && !session.gameState.xIsNext);
+    const isPlayersTurn =
+      (isPlayerX && session.gameState.xIsNext) ||
+      (!isPlayerX && !session.gameState.xIsNext);
     if (!isPlayersTurn) return;
-    if (calculateWinner(session.gameState.squares))
-      return;
+    if (calculateWinner(session.gameState.squares)) return;
 
     session.gameState.squares[index] = isPlayerX ? "X" : "O";
     session.gameState.xIsNext = !session.gameState.xIsNext;
@@ -245,24 +266,30 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     });
 
     const winner = calculateWinner(session.gameState.squares);
-    const isDraw = session.gameState.squares.every(sq => sq !== null);
+    const isDraw = session.gameState.squares.every((sq) => sq !== null);
     const x_player = session.gameState.playerX;
     const o_player = session.gameState.playerO;
     if (winner || isDraw) {
-
       if (winner) {
-        // the winner and loser 
-        const winnerName = winner === "X" ? session.gameState.playerX : session.gameState.playerO;
-        const loserName = winner === "X" ? session.gameState.playerO : session.gameState.playerX;
+        // the winner and loser
+        const winnerName =
+          winner === "X"
+            ? session.gameState.playerX
+            : session.gameState.playerO;
+        const loserName =
+          winner === "X"
+            ? session.gameState.playerO
+            : session.gameState.playerX;
         endGame(fastify, io, session, "win", winnerName, loserName);
-
       } else if (isDraw) {
         endGame(fastify, io, session, "draw", x_player, o_player);
       }
       return;
     }
 
-    const nextPlayer = session.gameState.xIsNext ? session.gameState.playerX : session.gameState.playerO;
+    const nextPlayer = session.gameState.xIsNext
+      ? session.gameState.playerX
+      : session.gameState.playerO;
     startTurnTimer(fastify, io, session, nextPlayer);
   });
 
@@ -271,9 +298,14 @@ export default function handleGameEvents({ fastify, io, socket }: handleGameEven
     if (!gameId) return;
 
     const session = gameSessions.get(gameId);
-    if (!session || !userData?.username || !session.gameState.players.includes(userData.username)) return;
+    if (
+      !session ||
+      !userData?.username ||
+      !session.gameState.players.includes(userData.username)
+    )
+      return;
 
-    session.moveTimers.forEach(timer => clearTimeout(timer));
+    session.moveTimers.forEach((timer) => clearTimeout(timer));
     session.moveTimers.clear();
 
     session.gameState.squares = Array(9).fill(null);

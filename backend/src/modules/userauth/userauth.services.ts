@@ -7,7 +7,7 @@ import {env} from '../../plugins/env.plugin';
 export const generateRefreshToken = async (fastify: FastifyInstance, reply: FastifyReply, username: string) : Promise<string> => {
 	const token =  await fastify.jwt.sign({username : `${username}`}, { expiresIn: '7d' });
 	reply.setCookie('refreshtoken', token, {
-		path: '/login/refreshtoken',
+		path: '/api/login/refreshtoken',
 		secure: false,
 		httpOnly: true,
 		sameSite: 'strict'

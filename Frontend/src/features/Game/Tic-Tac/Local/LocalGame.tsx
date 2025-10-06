@@ -1,9 +1,7 @@
-
-import React, { useState, useRef , useEffect } from "react";
-import Choose from "./choose"
-import triggerFireworks from "./confetti"
-import Board from "./Board"
-
+import React, { useState, useRef, useEffect } from "react";
+import Choose from "./Componant/choose";
+import triggerFireworks from "./Componant/confetti";
+import Board from "./Componant/Board";
 
 function calculateWinner(squares: (string | null)[]) {
   const lines = [
@@ -18,11 +16,7 @@ function calculateWinner(squares: (string | null)[]) {
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
-    if (
-      squares[a] &&
-      squares[a] === squares[b] &&
-      squares[a] === squares[c]
-    ) {
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
     }
   }
@@ -33,7 +27,9 @@ const LocalGame: React.FC = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [playerXName, setPlayerXName] = useState("");
   const [playerOName, setPlayerOName] = useState("");
-  const [squares, setSquares] = useState<(string | null)[]>(Array(9).fill(null));
+  const [squares, setSquares] = useState<(string | null)[]>(
+    Array(9).fill(null)
+  );
   const [xIsNext, setXIsNext] = useState(true);
 
   const handlePlay = (nextSquares: (string | null)[]) => {
@@ -74,22 +70,27 @@ const LocalGame: React.FC = () => {
             setGameStarted(true);
           }}
         />
-        
       ) : (
         <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
           <div className="bg-[#393E46] p-4 rounded-xl shadow-md w-full text-white flex justify-around">
-
-            <div className={`text-center ${xIsNext  ? "bg-blue-600 w-1/3" : ""} rounded-xl`}>
+            <div
+              className={`text-center ${
+                xIsNext ? "bg-blue-600 w-1/3" : ""
+              } rounded-xl`}
+            >
               <p className="font-bold">{playerXName}</p>
-              <p >X</p>
+              <p>X</p>
             </div>
-            <div className={`text-center ${!xIsNext  ? "bg-green-600 w-1/3" : ""} rounded-xl`}>
+            <div
+              className={`text-center ${
+                !xIsNext ? "bg-green-600 w-1/3" : ""
+              } rounded-xl`}
+            >
               <p className="font-bold">{playerOName}</p>
-              <p >O</p>
+              <p>O</p>
             </div>
           </div>
 
-          
           <Board
             xIsNext={xIsNext}
             squares={squares}
@@ -122,5 +123,3 @@ const LocalGame: React.FC = () => {
 };
 
 export default LocalGame;
-
-

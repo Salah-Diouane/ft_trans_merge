@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { UserPlus, X } from "lucide-react";
 import { User } from "../Chat/types/User";
-import { UserIcon } from 'lucide-react';
+import { UserIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import gf2 from "../Home/Assets/giphy1.gif"
+import gf2 from "../Home/Assets/giphy1.gif";
 
 interface HandleSearchProps {
   showSearch: boolean;
@@ -11,9 +11,7 @@ interface HandleSearchProps {
 }
 
 const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, result }) => {
-
-  if (!showSearch)
-    return null;
+  if (!showSearch) return null;
   const navigate = useNavigate();
 
   return (
@@ -43,7 +41,7 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, result }) => {
                 className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm max-lg:text-xs font-semibold hover:bg-opacity-80 transition-colors flex items-center gap-2"
                 onClick={() => navigate(`/profile/${user.username}`)}
               >
-                 <UserIcon className="size-4 max-lg:size-4"  /> View Profile
+                <UserIcon className="size-4 max-lg:size-4" /> View Profile
               </button>
             </div>
           </div>
@@ -51,17 +49,16 @@ const HandleSearch: React.FC<HandleSearchProps> = ({ showSearch, result }) => {
       ) : (
         // <span className="text-blue-400">No matching users</span>
         <div className="flex flex-col items-center justify-center h-[250px] gap-4 p-6 ">
-        <img
-          src={gf2}
-          // className="h-60 w-auto rounded-xl shadow-lg border border-[#393E46]/40"
-          className="size-64  rounded-xl shadow-lg border border-[#393E46]/40"
-          alt="no history"
-        />
-        <h2 className="font-russo text-xl sm:text-2xl text-slate-200 tracking-wide">
-             No matching users
-        </h2>
-
-      </div>
+          <img
+            src={gf2}
+            // className="h-60 w-auto rounded-xl shadow-lg border border-[#393E46]/40"
+            className="size-64  rounded-xl shadow-lg border border-[#393E46]/40"
+            alt="no history"
+          />
+          <h2 className="font-russo text-xl sm:text-2xl text-slate-200 tracking-wide">
+            No matching users
+          </h2>
+        </div>
       )}
     </div>
   );

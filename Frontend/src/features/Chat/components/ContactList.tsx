@@ -1,5 +1,3 @@
-
-
 import React, { FC } from "react";
 import { Search } from "lucide-react";
 import meProfile from "../Assets/me.jpeg";
@@ -36,18 +34,17 @@ const ContactList: FC<ContactListProps> = ({
   setSearchTerm,
   unreadCounts,
 }) => {
+  const sortedUsers = [...users].sort((a, b) => {
+    const lastA = messages[a.id]?.[messages[a.id].length - 1];
+    const lastB = messages[b.id]?.[messages[b.id].length - 1];
 
-const sortedUsers = [...users].sort((a, b) => {
-  const lastA = messages[a.id]?.[messages[a.id].length - 1];
-  const lastB = messages[b.id]?.[messages[b.id].length - 1];
+    const timeA = lastA ? new Date(lastA.timestamp).getTime() : 0;
+    const timeB = lastB ? new Date(lastB.timestamp).getTime() : 0;
 
-  const timeA = lastA ? new Date(lastA.timestamp).getTime() : 0;
-  const timeB = lastB ? new Date(lastB.timestamp).getTime() : 0;
+    return timeB - timeA;
+  });
 
-  return timeB - timeA; 
-});
-
-  console.log("users in contact List : ", users)
+  console.log("users in contact List : ", users);
   return (
     <div className="p-2 rounded-2xl w-[40%] h-full">
       <div className="h-full w-full bg-[#222831] rounded-xl custom-scroll overflow-y-auto">
@@ -69,10 +66,10 @@ const sortedUsers = [...users].sort((a, b) => {
           {/* Contact List */}
           <div className="p-4">
             {users.length === 0 ? (
-              <p className="text-gray-400 mt-4 text-center">No contacts found.</p>
+              <p className="text-gray-400 mt-4 text-center">
+                No contacts found.
+              </p>
             ) : (
-             
-
               sortedUsers.map((user, index) => {
                 const userMessages = messages[user.id] || [];
                 const lastMessage = userMessages[userMessages.length - 1];
@@ -83,13 +80,15 @@ const sortedUsers = [...users].sort((a, b) => {
                       minute: "2-digit",
                     })
                   : "";
-              
+
                 const isSelected = selectedUser?.id === user.id;
                 const unreadCount = unreadCounts[user.id] || 0;
-              
+
                 return (
                   <div
-                    key={user.id ? `${user.id}-${user.username}` : `user-${index}`}
+                    key={
+                      user.id ? `${user.id}-${user.username}` : `user-${index}`
+                    }
                     onClick={() => setSelectedUser(user)}
                     className={`relative flex items-center justify-between rounded-xl p-4 h-16 my-2 cursor-pointer transition-all duration-100 ${
                       isSelected
@@ -112,10 +111,12 @@ const sortedUsers = [...users].sort((a, b) => {
                         </span>
                       </div>
                     </div>
-              
+
                     <div className="flex items-start space-x-5">
                       {lastTime && (
-                        <span className="text-xs text-gray-500 font-medium">{lastTime}</span>
+                        <span className="text-xs text-gray-500 font-medium">
+                          {lastTime}
+                        </span>
                       )}
                       {unreadCount > 0 && (
                         <span className="size-4 bg-[#0077FF] rounded-full text-center text-xs ring-white">
@@ -126,8 +127,6 @@ const sortedUsers = [...users].sort((a, b) => {
                   </div>
                 );
               })
-              
-
             )}
           </div>
         </div>

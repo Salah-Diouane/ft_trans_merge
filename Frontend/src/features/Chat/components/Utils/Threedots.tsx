@@ -7,7 +7,7 @@ import { IoBanOutline } from "react-icons/io5";
 import PongInviteButton from "../../../Game/PingPong/Invite/PongInviteBtn";
 
 interface threedotsProps {
-  user: { username: string, id: number, image_url: string, online: boolean };
+  user: { username: string; id: number; image_url: string; online: boolean };
   loggedInUserId: number;
   isBlocked: boolean;
   showInvBlock: boolean;
@@ -16,9 +16,15 @@ interface threedotsProps {
   setAllBlocked: React.Dispatch<React.SetStateAction<User[]>>;
 }
 
-const Threedots: React.FC<threedotsProps> = ({ user, loggedInUserId, isBlocked, setShowInvBlock, setShowInvBlockmenu, setAllBlocked, showInvBlock }) => {
-
-
+const Threedots: React.FC<threedotsProps> = ({
+  user,
+  loggedInUserId,
+  isBlocked,
+  setShowInvBlock,
+  setShowInvBlockmenu,
+  setAllBlocked,
+  showInvBlock,
+}) => {
   const handleThreeDotsInvBlock = (e: React.MouseEvent) => {
     setShowInvBlock(true);
   };
@@ -26,12 +32,10 @@ const Threedots: React.FC<threedotsProps> = ({ user, loggedInUserId, isBlocked, 
   const handleBlockClick = () => {
     setShowInvBlockmenu(true);
     setShowInvBlock(false);
-  }
+  };
 
   const handleUnblockUser = () => {
-
-    if (!user)
-      return;
+    if (!user) return;
 
     socket.emit("unblock:user", {
       blockerId: loggedInUserId,
@@ -45,14 +49,14 @@ const Threedots: React.FC<threedotsProps> = ({ user, loggedInUserId, isBlocked, 
     <div className="flex gap-x-6">
       <button
         onClick={(e) => handleThreeDotsInvBlock(e)}
-        className={`group-hover:opacity-100 transition-opacity duration-200 text-gray-500 rounded-full `}>
+        className={`group-hover:opacity-100 transition-opacity duration-200 text-gray-500 rounded-full `}
+      >
         <HiEllipsisVertical className="size-6" />
       </button>
 
-      {(showInvBlock) && (
+      {showInvBlock && (
         <div className={`absolute   right-20 `}>
           <div className="bg-[#393E46] rounded-lg shadow-lg border-1 border-gray-900 min-w-[120px]">
-
             {!isBlocked ? (
               <button
                 onClick={handleBlockClick}
@@ -70,16 +74,15 @@ const Threedots: React.FC<threedotsProps> = ({ user, loggedInUserId, isBlocked, 
                 <IoBanOutline className="w-5 h-5" />
                 Unblock User
               </button>
-            )
-            }
+            )}
             <PongInviteButton
               recipientUsername={user.id}
               currentUserId={loggedInUserId}
-              onInviteSent={() => console.log('Invite sent!')}
+              onInviteSent={() => console.log("Invite sent!")}
             />
             <button
               onClick={() => {
-                setShowInvBlock(false)
+                setShowInvBlock(false);
               }}
               className="w-full px-4 py-2 text-left text-white-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
             >
@@ -89,9 +92,8 @@ const Threedots: React.FC<threedotsProps> = ({ user, loggedInUserId, isBlocked, 
           </div>
         </div>
       )}
-
     </div>
-  )
-}
+  );
+};
 
 export default Threedots;

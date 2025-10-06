@@ -1,134 +1,143 @@
-
 import { ExtendedError, Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
 import { IncomingMessage } from "http";
 import { parse as parseCookie } from "cookie";
 import { Server as IOServer } from "socket.io";
-import { onlineUsers } from "./auth.middleware"; 
+import { onlineUsers } from "./auth.middleware";
 
 interface AuthenticatedSocket extends Socket {
-	user?: any;
-	online?: boolean
+  user?: any;
+  online?: boolean;
 }
 
 interface handleUserEventsProps {
-	fastify: FastifyInstance
-	io: IOServer
-	socket: AuthenticatedSocket
+  fastify: FastifyInstance;
+  io: IOServer;
+  socket: AuthenticatedSocket;
 }
 
 interface User {
-	id: number;
-	online: boolean
-	username: string;
-	first_name: string;
-	family_name: string;
-	image_url: string;
-	cover_url: string;
+  id: number;
+  online: boolean;
+  username: string;
+  first_name: string;
+  family_name: string;
+  image_url: string;
+  cover_url: string;
 }
 
 interface Message {
-	username: string;
-	recipient: string;
-	text: string;
-	timestamp: string;
-	blocked: boolean;
+  username: string;
+  recipient: string;
+  text: string;
+  timestamp: string;
+  blocked: boolean;
 }
 
-export default function handleUserEvents({ fastify, io, socket }: handleUserEventsProps) {
-	const db = fastify.db;
-	const userData = socket.user;
-	console.log("userData : socket.user : ", userData)
-	console.log(userData.userid)
-	console.log(socket.user.userid)
+export default function handleUserEvents({
+  fastify,
+  io,
+  socket,
+}: handleUserEventsProps) {
+  const db = fastify.db;
+  const userData = socket.user;
+  console.log("userData : socket.user : ", userData);
+  console.log(userData.userid);
+  console.log(socket.user.userid);
 
-	if (userData) {
-		socket.online = true;
+  if (userData) {
+    socket.online = true;
 
-		socket.join(`user:${userData.username}`);
-		io.emit("user:status", {
-			username: userData.username,
-			id: userData.userid,
-			online: true
-		});
+    socket.join(`user:${userData.username}`);
+    io.emit("user:status", {
+      username: userData.username,
+      id: userData.userid,
+      online: true,
+    });
 
-		socket.emit("profile-data", {
-			user: userData.username,
-			id: userData.userid,
-			online: true,
-		});
+    socket.emit("profile-data", {
+      user: userData.username,
+      id: userData.userid,
+      online: true,
+    });
 
-		console.log(`User ${userData.username} connected and set online`);
-	}
+    console.log(`User ${userData.username} connected and set online`);
+  }
 
-	socket.on("disconnect", () => {
+  socket.on("disconnect", () => {
+    console.log("User disconnecting");
 
-		console.log("User disconnecting");
+    if (userData && socket.online) {
+      socket.online = false;
+      console.log(
+        "====> user is disconnecte : ",
+        socket.user.username,
+        socket.online
+      );
+      console.log("====> his status  : ", socket.online);
 
-		if (userData && socket.online) {
-			socket.online = false;
-			console.log("====> user is disconnecte : ", socket.user.username, socket.online)
-			console.log("====> his status  : ", socket.online)
+      io.emit("user:status", {
+        username: userData.username,
+        id: userData.userid,
+        online: false,
+      });
 
-			io.emit("user:status", {
-				username: userData.username,
-				id: userData.userid,
-				online: false
-			});
+      console.log(
+        `---> : User ${userData.username} disconnected and set offline`
+      );
+    }
+  });
 
-			console.log(`---> : User ${userData.username} disconnected and set offline`);
-		}
-	});
+  socket.on("get-my-profile", () => {
+    if (userData) {
+      // data: { id: number; username: string; online: boolean }
+      console.log("----> : userData.userid : ", userData.userid);
+      console.log("----> : userData.username : ", userData.username);
 
-	socket.on("get-my-profile", () => {
-		if (userData) {
-			// data: { id: number; username: string; online: boolean }
-			console.log("----> : userData.userid : ", userData.userid)
-			console.log("----> : userData.username : ", userData.username)
+      socket.emit("profile-data", {
+        id: userData.userid,
+        username: userData.username,
+        online: socket.online ?? true,
+      });
+    }
+  });
 
-			socket.emit("profile-data", {
-				id: userData.userid,
-				username: userData.username,
-				online: socket.online ?? true,
-			});
-		}
-	});
+  socket.on("request:init", () => {
+    db.all(
+      "SELECT * FROM user_authentication ORDER BY id ASC",
+      (err, user_authentication: User[]) => {
+        if (!err) {
+          const enrichedUsers = user_authentication.map((u) => {
+            const userSockets = Array.from(io.sockets.sockets.values()).filter(
+              (s: any) => s.user?.username === u.username && s.online === true
+            );
 
-	socket.on("request:init", () => {
-		db.all("SELECT * FROM user_authentication ORDER BY id ASC", (err, user_authentication: User[]) => {
+            return {
+              ...u,
+              online: userSockets.length > 0,
+            };
+          });
 
-			if (!err) {
+          socket.emit("user:list", enrichedUsers);
+          // console.log("============> enrichedUsers", enrichedUsers);
 
-				const enrichedUsers = user_authentication.map((u) => {
+          if (userData) {
+            db.all(
+              "SELECT * FROM messages WHERE sender = ? OR recipient = ? ORDER BY timestamp ASC",
+              [userData.username, userData.username],
+              (err, history: Message[]) => {
+                if (!err) {
+                  socket.emit("chat:history", history);
+                }
+              }
+            );
+          }
+        }
+      }
+    );
 
-					const userSockets = Array.from(io.sockets.sockets.values())
-						.filter((s: any) => s.user?.username === u.username && s.online === true);
-
-					return {
-						...u,
-						online: userSockets.length > 0,
-					};
-					
-				});
-
-				socket.emit("user:list", enrichedUsers);
-				// console.log("============> enrichedUsers", enrichedUsers);
-
-				if (userData) {
-					db.all(
-						"SELECT * FROM messages WHERE sender = ? OR recipient = ? ORDER BY timestamp ASC",
-						[userData.username, userData.username],
-						(err, history: Message[]) => {
-							if (!err) {
-								socket.emit("chat:history", history);
-							}
-						}
-					);
-				}
-			}
-		});
-		
-		db.all("SELECT u.id, u.username, u.first_name, u.family_name, u.image_url FROM friendship f \
+    db.all(
+      "SELECT u.id, u.username, u.first_name, u.family_name, u.image_url FROM friendship f \
 							JOIN user_authentication u ON u.id = f.id_receiver\
 							WHERE f.id_sender = ? AND f.accepted = 1\
 							UNION\
@@ -136,22 +145,21 @@ export default function handleUserEvents({ fastify, io, socket }: handleUserEven
 							FROM friendship f\
 							JOIN user_authentication u ON u.id = f.id_sender\
 							WHERE f.id_receiver = ? AND f.accepted = 1",
-							
-			[userData.userid, userData.userid], (err, friends: User[]) => {
 
-				if (err || !friends) {
-					console.log("error in get friends!!!!")
-				}
+      [userData.userid, userData.userid],
+      (err, friends: User[]) => {
+        if (err || !friends) {
+          console.log("error in get friends!!!!");
+        }
 
+        const enrichedFriends = friends.map((friend) => ({
+          ...friend,
+          online: onlineUsers.has(friend.id),
+        }));
 
-					const enrichedFriends = friends.map(friend => ({
-						...friend,
-						online: onlineUsers.has(friend.id)
-					}));
-
-				// console.log("all friends : ", enrichedFriends)
-				socket.emit("friends:list", enrichedFriends);
-			})
-	});
+        // console.log("all friends : ", enrichedFriends)
+        socket.emit("friends:list", enrichedFriends);
+      }
+    );
+  });
 }
-

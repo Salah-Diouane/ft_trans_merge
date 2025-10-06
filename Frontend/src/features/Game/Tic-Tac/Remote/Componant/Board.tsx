@@ -1,6 +1,6 @@
 import Square from "./Square";
 
-type BoardProps = {
+interface BoardProps {
   xIsNext: boolean;
   squares: (string | null)[];
   onPlay: (index: number) => void;
@@ -9,14 +9,14 @@ type BoardProps = {
   playerXName: string;
   playerOName: string;
   gameStarted: boolean;
-  currentUser: string;
+  currentUser: string | undefined;
   mySymbol: "X" | "O" | null;
   gameResult?: {
     winner: string | null;
     loser: string | null;
     reason: "win" | "draw" | "timeout" | "disconnect";
   } | null;
-};
+}
 
 function calculateWinnerWithLine(squares: (string | null)[]) {
   const lines = [
@@ -43,8 +43,6 @@ export default function Board({
   xIsNext,
   squares,
   onPlay,
-  replayGame,
-  playagain,
   playerXName,
   playerOName,
   gameStarted,
@@ -140,7 +138,6 @@ export default function Board({
     );
   }
 
-  // 🔹 Find winning line if win
   const winningInfo =
     gameResult?.reason === "win" ? calculateWinnerWithLine(squares) : null;
   const winningLine = winningInfo?.line || [];
