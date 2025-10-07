@@ -18,6 +18,12 @@ const useHandleNotifications = ({
   }, []);
 
   useEffect(() => {
+    if (currentUserRef.current) {
+      socket.emit("notification:get", Number(currentUserRef.current));
+    }
+  }, [currentUserRef.current]);
+
+  useEffect(() => {
     const handleNotification = (notif: any) => {
       if (notif.temporary && notif.type === "pong_invite") {
         toast.custom((t) => (
@@ -77,7 +83,8 @@ const useHandleNotifications = ({
       socket.off("notification", handleNotification);
       socket.off("notification:list", handleNotificationList);
     };
-  }, [currentUserRef, setNotifications, setUnreadCount]);
+  }, [currentUserRef.current]);
+  // currentUserRef, setNotifications, setUnreadCount
 };
 
 export default useHandleNotifications;

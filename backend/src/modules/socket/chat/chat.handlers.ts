@@ -202,7 +202,7 @@ export default function handleChatEvents({
           console.error("DB error in notification:get:", err.message);
           return;
         }
-
+        console.log("rows in notif;get : ", rows)
         socket.emit("notification:list", rows);
       }
     );

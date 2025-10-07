@@ -37,7 +37,10 @@ const NavBar: React.FC = () => {
   // click outside search & notifications
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+      if (
+        (searchRef.current && !searchRef.current.contains(e.target as Node)) ||
+        (notifRef.current && !notifRef.current.contains(e.target as Node))
+      ) {
         setShowSearch(false);
         setShowNotifs(false);
         setQuery("");
