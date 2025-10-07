@@ -16,9 +16,6 @@ export const useUsers = () => {
       setUsers(backendUsers);
       usersRef.current = backendUsers;
     });
-    // user: userData.username,
-    // id: userData.userid,
-    // online: true,
     socket.on(
       "profile-data",
       (socketData: { username: string; id: number; online: boolean }) => {
