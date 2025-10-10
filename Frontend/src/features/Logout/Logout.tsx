@@ -5,7 +5,8 @@ const Logout: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (socket.connect()) socket.disconnect();
+    if (socket.connect())
+      socket.disconnect();
   });
 
   useEffect(() => {

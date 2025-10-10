@@ -148,7 +148,7 @@ export default function Profile() {
 						<select className="w-full sm:w-60 py-3 px-3 text-base rounded-lg border-black outline-none bg-[#222831] text-white" ref={LanguageRef} defaultValue={store.Language}>
 							<option value="en">🇬🇧 English</option>
 							<option value="fr">🇫🇷 French</option>
-							<option value="ar">🇸🇦 Arabic</option>
+							<option value="es">🇪🇸 Spanish</option>
 						</select>
 					</div>
 					<button className="mt-4 px-10 py-3 text-white border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition" onClick={(e) => sendInfo(e)}>Save</button>

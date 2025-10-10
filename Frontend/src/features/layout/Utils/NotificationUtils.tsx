@@ -1,13 +1,14 @@
-export function getType(notif: any): string {
+// import { useTranslation } from "react-i18next";
+
+export function getType(notif: any, t: any): string {
+  // const {t} = useTranslation();
   switch (notif.type) {
     case "friend_request":
-      return "Friend Request";
+      return t("friend_req");
     case "friend_request_accepted":
-      return "Request Accepted";
-    case "Invite":
-      return "Invite";
+      return t("req_accepted");
     default:
-      return "New message";
+      return t("new_msg");
   }
 }
 
@@ -26,17 +27,22 @@ export function getNotificationColor(type: string): string {
   }
 }
 
-export function formatTime(timestamp: string): string {
+export function formatTime(timestamp: string, t: any): string {
   const now = new Date();
   const notifTime = new Date(timestamp);
   const diffInMs = now.getTime() - notifTime.getTime();
   const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
   const diffInHours = Math.floor(diffInMinutes / 60);
   const diffInDays = Math.floor(diffInHours / 24);
+  // const {t} = useTranslation();
 
-  if (diffInMinutes < 1) return "Just now";
-  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-  if (diffInHours < 24) return `${diffInHours}h ago`;
-  if (diffInDays < 7) return `${diffInDays}d ago`;
+  if (diffInMinutes < 1)
+    return t("just_now");
+  if (diffInMinutes < 60)
+    return `${diffInMinutes}${t("m_ago")}`;
+  if (diffInHours < 24)
+    return `${diffInHours}${t("h_ago")}`;
+  if (diffInDays < 7)
+    return `${diffInDays}${t("d_ago")}`;
   return notifTime.toLocaleDateString();
 }

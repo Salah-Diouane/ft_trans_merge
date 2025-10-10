@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+
+
 interface InputBlockedprops {
   input: string;
   setInput: (value: string) => void;
@@ -11,11 +14,12 @@ const InputBlocked: React.FC<InputBlockedprops> = ({
   onSend,
   isBlocked,
 }) => {
+  const {t} = useTranslation();
   return (
     <div className="relative mt-4 opacity-30">
       <input
         type="text"
-        placeholder="You have blocked this user."
+        placeholder={t("You_have_blocked_this_user")}
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {

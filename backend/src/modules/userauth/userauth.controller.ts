@@ -1,11 +1,12 @@
 import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { sendemail, generateAccessToken, generateRefreshToken, generateusername } from './userauth.services'
-import { addNewUser, getuser, setTwofAcode, getuser_email, getuserid} from "../../utils/userauth.utils";
+import { addNewUser, getuser, setTwofAcode, getuser_email, getuserid } from "../../utils/userauth.utils";
 import { updateImage } from '../../utils/settings.utils'
 import type { User } from '../../utils/userauth.utils';
 import { env } from '../../plugins/env.plugin';
 import { setdefaultgame } from "../../utils/settings.utils";
 import { addNewPlayerState } from '../../utils/profile.utils';
+import { setTwoFACountById } from '../../utils/userauth.utils'
 
 export async function handle_Signin(fastify: FastifyInstance, request: FastifyRequest, reply: FastifyReply, user: User) {
 	const userinfo: User | null = await getuser(fastify, user.username);
@@ -28,10 +29,17 @@ export async function handel_verifytwofa(fastify: FastifyInstance, request: Fast
 	const userinfo: User | null = await getuser(fastify, username);
 
 	if (userinfo === null)
-		return reply.code(400).send({ message: "user not found", login: false });
+		return reply.code(400).send({ message: "user not found", login: false , twofa: true});
 	else {
 		if (userinfo?.twoFA_code !== twofa) {
-			return reply.code(400).send({ message: "your 2fa code not correct try again !", login: false });
+			if (userinfo.twoFA_count !== 3) {
+				console.log("###!@#@#@ userinfo.id", userinfo.id);
+				await setTwoFACountById(fastify, userinfo.id || 0, userinfo.twoFA_count + 1);
+				return reply.code(400).send({ message: "your 2fa code not correct try again !", login: false , twofa: true});
+			} else {
+				await setTwoFACountById(fastify, userinfo.id || 0, 0);
+				return reply.code(400).send({ message: "For your security, you have up to three attempts to enter the 2FA code.", login: false , twofa: false});
+			}
 		}
 		else {
 			await generateRefreshToken(fastify, reply, userinfo.username);

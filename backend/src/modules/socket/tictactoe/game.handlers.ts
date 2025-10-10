@@ -360,6 +360,7 @@ export default function handleGameEvents({
     if (session.playersInRoom.size === 1) {
       const [remainingSocketId] = session.playersInRoom.keys();
       const remainingUsername = session.playersInRoom.get(remainingSocketId)!;
+      console.log("game disconnecte : ")
       endGame(fastify, io, session, "disconnect", remainingUsername, username);
     } else if (session.playersInRoom.size === 0) {
       cleanupGameSession(gameId);

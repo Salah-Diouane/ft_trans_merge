@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const socket = io("https://e3r9p2.1337.ma", {
+const socket = io(import.meta.env.VITE_API_URL_SOCKET, {       
   path: "/socket.io/",
   withCredentials: true,
   transports: ["websocket", "polling"],

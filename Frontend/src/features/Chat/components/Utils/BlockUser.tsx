@@ -1,5 +1,5 @@
 import { MdDelete } from "react-icons/md";
-
+import { useTranslation } from "react-i18next";
 interface BlockUserProps {
   showInvBlockMenu: boolean;
   confirmBlock: () => void;
@@ -11,6 +11,7 @@ const BlockUser: React.FC<BlockUserProps> = ({
   confirmBlock,
   cancelBlock,
 }) => {
+  const {t} = useTranslation();
   return (
     <>
       {showInvBlockMenu && (
@@ -21,7 +22,7 @@ const BlockUser: React.FC<BlockUserProps> = ({
                 <MdDelete className="size-10 text-red-700" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Block this User ?
+                {t("block_user")}
               </h3>
             </div>
 
@@ -31,13 +32,13 @@ const BlockUser: React.FC<BlockUserProps> = ({
                   onClick={cancelBlock}
                   className="flex-1 py-3 px-4 text-gray-600 font-medium border-r border-gray-200 hover:bg-gray-50 transition-colors duration-150"
                 >
-                  Cancel
+                  {t("cancel")};
                 </button>
                 <button
                   onClick={confirmBlock}
                   className="flex-1 py-3 px-4 text-red-600 font-medium hover:bg-red-50 transition-colors duration-150"
                 >
-                  Block
+                  {t("block")}
                 </button>
               </div>
             </div>

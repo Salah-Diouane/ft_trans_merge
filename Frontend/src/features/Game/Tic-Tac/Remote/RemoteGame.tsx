@@ -6,6 +6,7 @@ import GameHeader from "./Componant/GameHeader";
 import GameTimer from "./Componant/GameTimer";
 import GameEndMessage from "./Componant/GameEndMessage";
 import { useRemoteGameLogic } from "./Componant/GameLogic";
+import { useTranslation } from "react-i18next";
 
 const RemoteGame: React.FC = () => {
   const {
@@ -28,7 +29,7 @@ const RemoteGame: React.FC = () => {
     time,
     currentUserRef,
   } = useRemoteGameLogic();
-
+  const {t} = useTranslation();
   const renderGameEndMessage = () => {
     if (!gameResult) return null;
 
@@ -40,9 +41,9 @@ const RemoteGame: React.FC = () => {
           <div className="text-center mt-6">
             <p className="text-2xl font-bold mb-4">
               {isWinner ? (
-                <span className="text-green-400">You Win! 🎉</span>
+                <span className="text-green-400">{t("you_win")}</span>
               ) : (
-                <span className="text-red-400">You Lost!</span>
+                <span className="text-red-400">{t("you_lost")}</span>
               )}
             </p>
             <div className="flex gap-4 justify-center">
@@ -50,7 +51,7 @@ const RemoteGame: React.FC = () => {
                 onClick={startNewGame}
                 className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
               >
-                Go Back
+                {t("go_back")}
               </button>
             </div>
           </div>
@@ -60,14 +61,14 @@ const RemoteGame: React.FC = () => {
         return (
           <div className="text-center mt-6">
             <p className="text-2xl font-bold text-yellow-400 mb-4">
-              It's a Draw!
+              {t("its_draw")}
             </p>
             <div className="flex gap-4 justify-center">
               <button
                 onClick={startNewGame}
                 className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
               >
-                Go Back
+                 {t("go_back")}
               </button>
             </div>
           </div>
@@ -79,17 +80,17 @@ const RemoteGame: React.FC = () => {
             <p className="text-2xl font-bold mb-4">
               {isWinner ? (
                 <span className="text-green-400">
-                  You Win! Opponent Timed Out ⏳
+                  {t("you_win_opponent_timed_out")}
                 </span>
               ) : (
-                <span className="text-red-400">You Lost! Time's Up ⏳</span>
+                <span className="text-red-400">{t("you_lost_times_up")}</span>
               )}
             </p>
             <button
               onClick={startNewGame}
               className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
             >
-              Go Back
+              {t("go_back")}
             </button>
           </div>
         );
@@ -100,17 +101,17 @@ const RemoteGame: React.FC = () => {
             <p className="text-2xl font-bold mb-4">
               {isWinner ? (
                 <span className="text-green-400">
-                  You Win! Opponent Disconnected
+                  {t("you_win_opp_disconnected")}
                 </span>
               ) : (
-                <span className="text-red-400">Connection Lost</span>
+                <span className="text-red-400">{t("cnx_lost")}</span>
               )}
             </p>
             <button
               onClick={startNewGame}
               className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
             >
-              Go Back
+              {t("go_back")}
             </button>
           </div>
         );
@@ -164,7 +165,7 @@ const RemoteGame: React.FC = () => {
               onClick={handleLeaveGame}
               className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg shadow-md mt-4"
             >
-              Leave Game
+              {t("leave_game")}
             </button>
           )}
         </div>

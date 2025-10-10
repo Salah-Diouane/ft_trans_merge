@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import socket from "../../../../Chat/services/socket";
-
+import { useTranslation } from "react-i18next";
 interface ChooseProps {
   onChoose: (
     playerName: string,
@@ -29,13 +29,13 @@ export default function Choose({ onChoose }: ChooseProps) {
     };
   }, []);
 
-  console.log("-> currentUser : ", currentUser);
+  const {t} = useTranslation();
   return (
     <div className="bg-[#393E46] rounded-xl shadow-lg p-8 max-w-md w-full text-white">
-      <h2 className="text-3xl font-bold text-center mb-6">Welcome!</h2>
+      <h2 className="text-3xl font-bold text-center mb-6">{t("welcome")}</h2>
 
       <div className="mb-4">
-        <label className="block text-sm mb-2">Enter your name:</label>
+        <label className="block text-sm mb-2">{t("enter_ur_name")}</label>
 
         <input
           type="text"
@@ -46,7 +46,7 @@ export default function Choose({ onChoose }: ChooseProps) {
       </div>
 
       <div className="mb-4">
-        <p className="text-center mb-2">Choose your symbol:</p>
+        <p className="text-center mb-2">{t("choose_ur_symbole")}</p>
 
         <div className="flex gap-4 justify-center">
           <button
@@ -66,7 +66,7 @@ export default function Choose({ onChoose }: ChooseProps) {
       </div>
 
       <p className="text-xs text-center text-gray-300">
-        You'll play against {currentUser}
+        {t("play_against")} {currentUser}
       </p>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Square from "./Square";
 import triggerFireworks from "./confetti";
-
+import { useTranslation } from "react-i18next";
 interface BoardProps {
   xIsNext: boolean;
   squares: (string | null)[];
@@ -45,7 +45,7 @@ export default function Board({
     nextSquares[i] = xIsNext ? "X" : "O";
     onPlay(nextSquares);
   }
-
+  const {t} = useTranslation();
   const winner = calculateWinner(squares);
   const isBoardFull = squares.every((square) => square !== null);
   const currentPlayerName = xIsNext ? playerXName : playerOName;
@@ -77,23 +77,23 @@ export default function Board({
     const winnerName = winner === "X" ? playerXName : playerOName;
     status = (
       <div className={`text-center ${statusAnimation}`}>
-        <p className="text-[#00FF7F] font-bold text-2xl mb-2"> Winner!</p>
+        <p className="text-[#00FF7F] font-bold text-2xl mb-2"> {t("winner")}</p>
 
         <p className="text-white text-xl">
-          {winnerName} ({winner}) wins!
+          {winnerName} ({winner}) {t("wins")}
         </p>
       </div>
     );
   } else if (isBoardFull) {
     status = (
       <div className={`text-center ${statusAnimation}`}>
-        <p className="text-yellow-400 text-xl font-bold"> It's a draw!</p>
+        <p className="text-yellow-400 text-xl font-bold"> {t("its_draw")}</p>
       </div>
     );
   } else if (gameStarted) {
     status = (
       <p className="text-[#0077FF] font-semibold text-xl text-center">
-        Next player:{" "}
+        {t("next_player")}{" "}
         <span className="text-white">
           {currentPlayerName} ({xIsNext ? "X" : "O"})
         </span>
@@ -103,7 +103,7 @@ export default function Board({
 
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-5xl font-extrabold text-white mb-6">Tic Tac Toe</h1>
+      <h1 className="text-5xl font-extrabold text-white mb-6">{t("tic_tac_toe_title")}</h1>
 
       <div className="mb-4">{status}</div>
 

@@ -1,6 +1,5 @@
 import { MdDelete } from "react-icons/md";
-import socket from "../../services/socket";
-import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface DeleteMessageProps {
   showDeleteModal: boolean;
@@ -13,6 +12,7 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
   cancelDelete,
   showDeleteModal,
 }) => {
+  const {t} = useTranslation();
   return (
     <>
       {showDeleteModal && (
@@ -23,7 +23,7 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
                 <MdDelete className="size-10 text-red-700" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Delete Message?
+                {t("Delete_Message")}
               </h3>
             </div>
 
@@ -33,13 +33,13 @@ const DeleteMessage: React.FC<DeleteMessageProps> = ({
                   onClick={cancelDelete}
                   className="flex-1 py-3 px-4 text-gray-600 font-medium border-r border-gray-200 hover:bg-gray-50 transition-colors duration-150"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   onClick={confirmDelete}
                   className="flex-1 py-3 px-4 text-red-600 font-medium hover:bg-red-50 transition-colors duration-150"
                 >
-                  Delete
+                  {t("delete")}
                 </button>
               </div>
             </div>

@@ -14,18 +14,33 @@ export interface User {
 	cover_url?: string
 	twoFA?: boolean;
 	twoFA_code?: number;
+	twoFA_count: number;
 	Language?: string;
 }
 
+export async function setTwoFACountById(fastify: FastifyInstance, id: number, value: number): Promise<void> {
+	return new Promise((resolve, reject) => {
+		fastify.db.run(
+			`UPDATE user_authentication
+       SET twoFA_count = ?
+       WHERE id = ?`,
+			[value, id], // <-- Corrected: both values in one array
+			function (err: Error | null) {
+				if (err) return reject(err);
+				resolve();
+			}
+		);
+	});
+}
 
-export async function getuserid(fastify: FastifyInstance, username: string) : Promise<number | null> {
+export async function getuserid(fastify: FastifyInstance, username: string): Promise<number | null> {
 	return new Promise((resolve, rejects) => {
 		fastify.db.get(
 			`SELECT id from user_authentication WHERE username = ? `,
 			[
 				username
 			],
-			(err : Error, row: { id: number}) => {
+			(err: Error, row: { id: number }) => {
 				if (err) rejects(err);
 				resolve(row.id);
 			}
@@ -33,14 +48,14 @@ export async function getuserid(fastify: FastifyInstance, username: string) : Pr
 	})
 }
 
-export async function getUserName(fastify: FastifyInstance, id: string) : Promise<string | null> {
+export async function getUserName(fastify: FastifyInstance, id: string): Promise<string | null> {
 	return new Promise((resolve, rejects) => {
 		fastify.db.get(
 			`SELECT username from user_authentication WHERE id = ? `,
 			[
 				id
 			],
-			(err : Error, row: { username: string}) => {
+			(err: Error, row: { username: string }) => {
 				if (err) rejects(err);
 				resolve(row.username);
 			}
@@ -48,14 +63,14 @@ export async function getUserName(fastify: FastifyInstance, id: string) : Promis
 	})
 }
 
-export async function getUserImage(fastify: FastifyInstance, id: string) : Promise<string | null> {
+export async function getUserImage(fastify: FastifyInstance, id: string): Promise<string | null> {
 	return new Promise((resolve, rejects) => {
 		fastify.db.get(
 			`SELECT image_url from user_authentication WHERE id = ? `,
 			[
 				id
 			],
-			(err : Error, row: { image_url: string}) => {
+			(err: Error, row: { image_url: string }) => {
 				if (err) rejects(err);
 				resolve(row.image_url);
 			}

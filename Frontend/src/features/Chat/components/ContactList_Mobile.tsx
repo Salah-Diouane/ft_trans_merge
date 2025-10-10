@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { Search } from "lucide-react";
 import { User } from "../types/User";
+import { useTranslation } from "react-i18next";
 
 interface Message {
   id: string | number;
@@ -34,6 +35,7 @@ const ContactList_Mobile: FC<ContactListMobileProps> = ({
   setSearchTerm,
   unreadCounts,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="w-full h-[100%]  bg-[#222831] flex flex-col p-2">
       <div className="sticky bg-[#222831] pb-3 pt-2 px-2 border-b w-[100%] border-gray-700">
@@ -41,7 +43,7 @@ const ContactList_Mobile: FC<ContactListMobileProps> = ({
           <Search className="text-gray-400 mr-2" size={20} />
           <input
             type="text"
-            placeholder="Search conversations..."
+            placeholder={t("search_connv")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="bg-transparent text-white placeholder-gray-500 outline-none w-full text-sm"

@@ -59,6 +59,19 @@ export const useRemoteGameLogic = () => {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      
+      if (hasJoinedGameRef.current && socket && socket.connected) {
+        console.log("===> : hasJoinedGameRef.current : ", hasJoinedGameRef.current),
+        console.log("===> : socket : ", socket),
+        console.log("===> : socket.connected : ", socket.connected),
+        socket.emit("leave:game");
+        cleanup();
+      }
+    };
+  }, []);
+
   const resetGameState = () => {
     setSquares(Array(9).fill(null));
     setXIsNext(true);

@@ -6,7 +6,7 @@ import {
   FaStar,
   FaGamepad,
 } from "react-icons/fa";
-
+import { useTranslation } from "react-i18next";;
 interface DisplayItemProps {
   type: "level" | "stat";
   name?: string;
@@ -33,6 +33,7 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
 }) => {
   const level_int = level ? parseFloat(level.toString()) : 0;
   const progress = (level_int % 1) * 100;
+  const {t} = useTranslation();
 
   const getRankIcon = (rank?: number) => {
     switch (rank) {
@@ -48,19 +49,30 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
   };
 
   let color: string;
-  if (stat === "Draw") color = "text-[#469CFD]";
-  else if (stat === "Lose") color = "text-[#F85761]";
-  else color = "text-[#3AA64B]";
-
+  if (stat === "Draw"){
+    color = "text-[#469CFD]";
+  }
+  else if (stat === "Lose"){
+    color = "text-[#F85761]";
+  }
+  else{
+    color = "text-[#3AA64B]";
+  }
+  
+  
   let user_score: number = 1;
   let opp_score: number = 1;
-
+  
   if (stat === "Win") {
+    stat = t("win");
     user_score = 1;
     opp_score = 0;
   } else if (stat === "Lose") {
+    stat = t("lose");
     user_score = 0;
     opp_score = 1;
+  } else {
+    stat = t("draw");
   }
 
   const getStatElement = (stat?: string, color?: string) => {
@@ -122,7 +134,7 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
             </p>
           </div>
           <div className=" flex flex-col items-start  gap-1 xs:gap-2">
-            <p className="font-russo text-white text-left">Level {level_int}</p>
+            <p className="font-russo text-white text-left">{t("level")} {level_int}</p>
             <div className="h-3 bg-[#5e7396] rounded-full overflow-hidden border border-[#393E46] w-24">
               <div
                 className="h-full bg-gradient-to-r from-[#0077FF] to-[#00AAFF] rounded-full transition-all duration-500 ease-out shadow-lg shadow-[#0077FF]/30"

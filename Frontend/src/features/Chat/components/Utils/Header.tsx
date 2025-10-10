@@ -1,6 +1,7 @@
 import OnlineStatusIcon from "./OnlineStatusIcon";
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 interface HeaderProps {
   isMobile: boolean;
   user: { username: string; id: number; image_url: string; online: boolean };
@@ -9,6 +10,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ isMobile, user, onBack }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-x-6">
       {isMobile && (
@@ -30,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ isMobile, user, onBack }) => {
         </strong>
         <strong className="text-gray-400 text-sm max-lg:text-xs flex items-center gap-x-2">
           <OnlineStatusIcon isOnline={user.online} />
-          {user.online ? "Online" : "Offline"}
+          {user.online ? t("online") : t("offline")}
         </strong>
       </div>
     </div>

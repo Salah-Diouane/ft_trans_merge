@@ -120,7 +120,7 @@ app.register(
       }
     });
 
-    app.get("/logout", (request, reply) => {
+    api.get("/logout", (request, reply) => {
       reply.clearCookie("accessToken", {
         path: "/",
         secure: false,
@@ -157,5 +157,6 @@ app.ready().then(() => {
 });
 
 app.listen({ port: 3000, host: "0.0.0.0" }, () => {
+  console.log('routes ', app.printRoutes());
   console.log("127.0.0.1:3000");
 });

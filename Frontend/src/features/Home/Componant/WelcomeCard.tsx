@@ -1,17 +1,18 @@
 import { FaPlay } from "react-icons/fa";
 import { useNavigate } from "react-router";
 import { useStore } from "../../../store/store";
-
+import { useTranslation } from "react-i18next";;
 const WelcomeCard: React.FC = () => {
   const store = useStore();
   const navigate = useNavigate();
+  const {t} = useTranslation();
 
   return (
     <div className="z-10 relative w-full h-auto bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-hidden ">
       <div className=" flex flex-col gap-8 2xl:gap-5 xl:gap-4 lg:gap-4 md:gap-3 sm:gap-4 p-4">
         <div className="">
           <h1 className="font-russo text-2xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white animate-pulse">
-            Welcome Back!
+            {t("welcome_back")}
           </h1>
           <h2 className="font-russo text-1xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white mt-1 animate-pulse">
             {store.username.toUpperCase()}
@@ -22,7 +23,7 @@ const WelcomeCard: React.FC = () => {
           onClick={() => navigate(`/game`)}
         >
           <FaPlay className="text-lg" />
-          <span>Play</span>
+          <span>{t("play")}</span>
         </button>
       </div>
       <div className="absolute top-[50%] right-2 sm:hidden flex items-center justify-center w-20 h-20 rounded-full overflow-hidden shadow-lg ">

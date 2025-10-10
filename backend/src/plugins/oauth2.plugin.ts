@@ -14,7 +14,7 @@ const authplugin = async (fastify : FastifyInstance) => {
 			},
 			auth: auth.GOOGLE_CONFIGURATION
 		},
-		startRedirectPath: '/login/google',
+		startRedirectPath: '/api/login/google',
 		callbackUri: `${env.CALLBACKURL}`
 	})
 };

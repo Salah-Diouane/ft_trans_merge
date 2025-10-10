@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Search } from "lucide-react";
 import meProfile from "../Assets/me.jpeg";
 import { User } from "../types/User";
-
+import { useTranslation } from "react-i18next";
 interface Message {
   id: string | number;
   sender: string;
@@ -34,6 +34,7 @@ const ContactList: FC<ContactListProps> = ({
   setSearchTerm,
   unreadCounts,
 }) => {
+  const { t } = useTranslation();
   const sortedUsers = [...users].sort((a, b) => {
     const lastA = messages[a.id]?.[messages[a.id].length - 1];
     const lastB = messages[b.id]?.[messages[b.id].length - 1];
@@ -55,7 +56,7 @@ const ContactList: FC<ContactListProps> = ({
               <Search className="text-gray-400 mr-2" size={20} />
               <input
                 type="text"
-                placeholder="Search conversations..."
+                placeholder={t("search_conv")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="bg-transparent text-white placeholder-gray-500 outline-none w-full text-sm"

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { HiEllipsisVertical } from "react-icons/hi2";
 import { MdCancel, MdDelete } from "react-icons/md";
 import { Message } from "../../types/Message";
-
+import { useTranslation } from "react-i18next";
 interface Messageprops {
   messages: Message[];
   loggedInUserId: number;
@@ -30,7 +30,7 @@ const Messages: React.FC<Messageprops> = ({
   const pageSize = 15;
   const [visibleMessages, setVisibleMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const {t} = useTranslation();
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [visibleMessages]);
@@ -79,7 +79,7 @@ const Messages: React.FC<Messageprops> = ({
 
       {visibleMessages.map((msg, index) => {
         const msgDate = new Date(msg.timestamp);
-        const currentDateStr = msgDate.toLocaleDateString("en-GB", {
+        const currentDateStr = msgDate.toLocaleDateString(t("date_conv"), {
           day: "numeric",
           month: "long",
           year: "numeric",
@@ -87,7 +87,7 @@ const Messages: React.FC<Messageprops> = ({
         const previousDateStr =
           index > 0
             ? new Date(visibleMessages[index - 1].timestamp).toLocaleDateString(
-                "en-GB",
+                t("date_conv"),
                 { day: "numeric", month: "long", year: "numeric" }
               )
             : null;
@@ -136,14 +136,14 @@ const Messages: React.FC<Messageprops> = ({
                         className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors duration-150"
                       >
                         <MdDelete />
-                        Delete
+                        {t("delete")}
                       </button>
                       <button
                         onClick={() => setShowMenu(null)}
                         className="w-full px-4 py-2 text-left text-gray-600 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-150"
                       >
                         <MdCancel />
-                        Cancel
+                        {t("cancel")}
                       </button>
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Choose from "./Componant/choose";
-import triggerFireworks from "./Componant/confetti";
+import { useTranslation } from "react-i18next";
 import Board from "./Componant/Board";
 
 function calculateWinner(squares: (string | null)[]) {
@@ -54,7 +54,7 @@ const LocalGame: React.FC = () => {
   const winner = calculateWinner(squares);
   const isDraw = squares.every((sq) => sq !== null) && !winner;
   const gameOver = winner || isDraw;
-
+  const { t } = useTranslation(); 
   return (
     <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4 max-lg:bg-black max-sm:bg-white ">
       {!gameStarted ? (
@@ -106,13 +106,13 @@ const LocalGame: React.FC = () => {
                 onClick={playAgain}
                 className="bg-green-600 hover:bg-green-700 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
               >
-                Play Again
+                {t("play_again")}
               </button>
               <button
                 onClick={startNewGame}
                 className="bg-[#0077FF] hover:bg-blue-800 px-5 py-2 rounded-lg text-white font-semibold shadow-md"
               >
-                New Game
+                {t("new_game")}
               </button>
             </div>
           )}

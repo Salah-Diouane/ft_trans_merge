@@ -26,6 +26,7 @@ const ChatApp: FC = () => {
   const { username } = useParams<{ username: string }>();
   const isMobile = useResponsive();
 
+  
   useEffect(() => {
     if (!username) return;
     const targetUser = users.find((u) => u.username === username);

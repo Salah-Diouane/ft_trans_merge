@@ -3,8 +3,11 @@ import Subtract from "../Assets/Subtract.svg";
 import f_logo from "../Assets/local.svg";
 import t_logo from "../Assets/remote.svg";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const TicTacToe: React.FC = () => {
+  const { t } = useTranslation(); 
+
   return (
     <div className="relative w-full h-full bg-[#222831] rounded-2xl max-lg:h-[91%] overflow-hidden">
       {/* Background Decorative Elements */}
@@ -20,14 +23,14 @@ const TicTacToe: React.FC = () => {
         <div className="text-center mb-12 lg:mb-16">
           <div className="relative inline-block mb-6">
             <h1 className="text-5xl lg:text-6xl font-russo text-white tracking-wider relative">
-              TIC TAC TOE
+              {t("tic_tac_toe_title")}
             </h1>
             <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-[#0077FF] to-transparent rounded-full"></div>
           </div>
 
           <div className="space-y-4">
             <p className="text-[#EEEEEE]/80 text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed font-light">
-              Choose your battle mode and outsmart your opponent
+              {t("tic_tac_toe_desc")}
             </p>
             <div className="flex items-center justify-center gap-2">
               <div className="w-1 h-1 bg-[#0077FF] rounded-full"></div>
@@ -55,7 +58,7 @@ const TicTacToe: React.FC = () => {
               >
                 {/* Badge */}
                 <div className="absolute -top-3 -right-3 bg-[#0077FF] text-white px-3 py-1 rounded-full text-xs font-russo opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                  CLASSIC
+                  {t("classic")}
                 </div>
 
                 {/* Icon Container */}
@@ -75,17 +78,17 @@ const TicTacToe: React.FC = () => {
                 {/* Content */}
                 <div className="text-center space-y-4 w-full">
                   <h3 className="text-2xl lg:text-3xl font-russo text-white group-hover:text-[#0077FF] transition-colors duration-300">
-                    Local
+                    {t("tic_local_title")}
                   </h3>
                   <p className="text-[#EEEEEE]/70 text-sm lg:text-base leading-relaxed px-4">
-                    Play against a friend on the same device
+                    {t("tic_local_desc")}
                   </p>
                   <div className="pt-2">
                     <Link
                       to="local-game"
                       className="inline-block bg-[#0077FF] hover:bg-[#0066DD] text-white px-8 py-3 rounded-2xl font-russo text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#0077FF]/30 active:scale-95 transform hover:translate-y-[-2px]"
                     >
-                      Play Local
+                      {t("tic_local_btn")}
                     </Link>
                   </div>
                 </div>
@@ -107,7 +110,7 @@ const TicTacToe: React.FC = () => {
               >
                 {/* Badge */}
                 <div className="absolute -top-3 -right-3 bg-[#0077FF] text-white px-3 py-1 rounded-full text-xs font-russo opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                  ONLINE
+                  {t("strategy")}
                 </div>
 
                 {/* Icon Container */}
@@ -127,17 +130,17 @@ const TicTacToe: React.FC = () => {
                 {/* Content */}
                 <div className="text-center space-y-4 w-full">
                   <h3 className="text-2xl lg:text-3xl font-russo text-white group-hover:text-[#0077FF] transition-colors duration-300">
-                    Remote
+                    {t("tic_online_title")}
                   </h3>
                   <p className="text-[#EEEEEE]/70 text-sm lg:text-base leading-relaxed px-4">
-                    Challenge players worldwide online
+                    {t("tic_online_desc")}
                   </p>
                   <div className="pt-2">
                     <Link
                       to="remote-game"
                       className="inline-block bg-[#0077FF] hover:bg-[#0066DD] text-white px-8 py-3 rounded-2xl font-russo text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#0077FF]/30 active:scale-95 transform hover:translate-y-[-2px]"
                     >
-                      Start Battle
+                      {t("tic_online_btn")}
                     </Link>
                   </div>
                 </div>
@@ -156,7 +159,7 @@ const TicTacToe: React.FC = () => {
                 <div className="w-2 h-2 bg-[#0077FF]/40 rounded-full animate-pulse delay-300"></div>
               </div>
               <span className="font-russo tracking-wide">
-                Select your game mode
+                {t("tic_footer_select")}
               </span>
               <div className="flex gap-1">
                 <div className="w-2 h-2 bg-[#0077FF]/40 rounded-full animate-pulse delay-500"></div>
@@ -168,15 +171,15 @@ const TicTacToe: React.FC = () => {
             <div className="flex items-center gap-6 text-[#EEEEEE]/30 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-1 h-1 bg-[#0077FF] rounded-full"></div>
-                <span>Local Play</span>
+                <span>{t("tic_footer_local")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-1 h-1 bg-[#0077FF] rounded-full"></div>
-                <span>Online Battle</span>
+                <span>{t("tic_footer_online")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-1 h-1 bg-[#0077FF] rounded-full"></div>
-                <span>Strategy Game</span>
+                <span>{t("tic_footer_strategy")}</span>
               </div>
             </div>
           </div>

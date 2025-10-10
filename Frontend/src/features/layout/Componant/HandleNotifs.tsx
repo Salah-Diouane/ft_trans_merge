@@ -1,7 +1,9 @@
 
 import { formatTime, getNotificationColor, getType } from "../Utils/NotificationUtils";
+import { useTranslation } from "react-i18next";
 
 interface HandleNotifsProps {
+  showNotifs?: boolean,
   setShowNotifs: React.Dispatch<React.SetStateAction<boolean>>;
   notifications: any[];
   clearNotifs: () => void;
@@ -9,11 +11,13 @@ interface HandleNotifsProps {
 }
 
 const HandleNotifs: React.FC<HandleNotifsProps> = ({
+  showNotifs,
   setShowNotifs,
   notifications,
   clearNotifs,
   notifRef,
 }) => {
+  const {t} = useTranslation();
   const filteredNotifications = notifications.filter(
     (notif) => notif.type !== "pong_invite"
   );
@@ -26,25 +30,25 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
     >
       <div className="flex justify-between items-center px-6 py-4 bg-gray-800 border-b border-gray-700">
         <div>
-          <h2 className="text-2xl font-extrabold text-white">Notifications</h2>
+          <h2 className="text-2xl font-extrabold text-white">{t("Notifications")}</h2>
           <p className="text-sm font-light text-gray-400 mt-1">
             {filteredNotifications?.length || 0}{" "}
             {(filteredNotifications?.length || 0) === 1
-              ? "new alert"
-              : "new alerts"}
+              ? t("new_alert")
+              : t("new_alerts")}
           </p>
         </div>
         <button
           onClick={clearNotifs}
           className="px-4 py-2 text-xs font-semibold text-gray-400 hover:text-white rounded-xl transition-all duration-300"
         >
-          Clear All
+          {t("clear_all")}
         </button>
         <button
           onClick={() => setShowNotifs(false)}
           className="p-2 text-xs font-semibold text-gray-400 hover:text-white rounded-xl transition-all duration-300"
         >
-          Close
+          {t("close")}
         </button>
       </div>
 
@@ -53,10 +57,10 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
           <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
             <span className="text-4xl mb-4">🔔</span>
             <h3 className="text-xl font-semibold text-gray-200 mb-2">
-              All caught up!
+              {t("all_caught_up")}
             </h3>
             <p className="text-sm text-gray-400">
-              You have no new notifications right now.
+              {t("no_notifs_ow")}
             </p>
           </div>
         ) : (
@@ -69,16 +73,16 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
             >
               <div className="flex items-start justify-between mb-2">
                 <h4 className="text-sm font-semibold text-gray-200">
-                  {getType(notif)}
+                  {getType(notif, t)}
                 </h4>
                 <span className="text-xs text-gray-500 font-medium">
-                  {formatTime(notif.timestamp)}
+                  {formatTime(notif.timestamp, t)}
                 </span>
               </div>
 
               {notif.type !== "Invite" && (
                 <p className="text-sm text-gray-400 mb-3 leading-relaxed truncate max-w-60">
-                  {notif.text || notif.message || "No message"}
+                  {/* {notif.text || notif.message || "No message"} */}
                 </p>
               )}
 
@@ -95,10 +99,10 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
 
                   <p className="text-xs text-gray-500">
                     {notif.type === "New message"
-                      ? "Sent you a message"
+                      ? t("sent_u_a_msg")
                       : notif.type === "friend_request"
-                      ? "Wants to be friends"
-                      : "Accepted your request"}
+                      ? t("want_to_be_friend")
+                      : t("accept_ur_req")}
                   </p>
                 </div>
               </div>

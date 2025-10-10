@@ -17,7 +17,8 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			password VARCHAR(25),
 			twoFA BOOLEAN DEFAULT true,
 			twoFA_code INTEGER,
-			Language VARCHAR(25) DEFAULT 'english',
+			twoFA_count INTEGER DEFAULT  0,
+			Language VARCHAR(25) DEFAULT 'en',
 			image_url VARCHAR(200) NOT NULL DEFAULT 'https://res.cloudinary.com/dgwo1ehtt/image/upload/v1754901100/defaultprofile.jpg',
 			cover_url VARCHAR(200) NOT NULL DEFAULT 'https://res.cloudinary.com/dgwo1ehtt/image/upload/v1754901213/defaultcover.jpg'
 	  	);

@@ -2,6 +2,8 @@ import { MdEmojiEmotions } from "react-icons/md";
 import { VscSend } from "react-icons/vsc";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
+import { useTranslation } from "react-i18next";
+
 interface InputSendProps {
   input: string;
   setInput: (value: string) => void;
@@ -22,12 +24,12 @@ const InputSend: React.FC<InputSendProps> = ({
   const addToInput = (emoji: { native: string }) => {
     setInput(input + emoji.native);
   };
-
+  const {t} = useTranslation();
   return (
     <div className="relative mt-4 opacity-80">
       <input
         type="text"
-        placeholder="Type a message..."
+        placeholder={t("type_a_message")}
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {

@@ -11,6 +11,7 @@ import BlockUser from "./Utils/BlockUser";
 import InputSend from "./Utils/InputSend";
 import InputBlocked from "./Utils/InputBlocked";
 
+
 interface ConversationProps {
   user: { username: string; id: number; image_url: string; online: boolean };
   messages: Message[];
@@ -31,6 +32,7 @@ const Conversation: FC<ConversationProps> = ({
   onBack,
   loggedInUserId,
 }) => {
+
   const isMobile = typeof window !== "undefined" && window.outerWidth < 1024;
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [showMenu, setShowMenu] = useState<string | number | null>(null);

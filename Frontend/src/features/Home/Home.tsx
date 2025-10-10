@@ -1,7 +1,7 @@
 import React, { use, useEffect, useState } from "react";
 import socket from "../Chat/services/socket";
 import "../../styles/index.css";
-
+import { useTranslation } from "react-i18next";;
 import DisplayItem from "./Componant/DisplayItems";
 import WelcomeCard from "./Componant/WelcomeCard";
 import NoStatFound from "./Componant/NoStatFound";
@@ -23,9 +23,10 @@ interface History {
 const Home: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [history, setHistory] = useState<History[]>([]);
-
+  const {t} = useTranslation();
   useEffect(() => {
-    if (!socket.connect()) socket.connect();
+    if (!socket.connect())
+      socket.connect();
   });
 
   useEffect(() => {
@@ -61,7 +62,7 @@ const Home: React.FC = () => {
         <WelcomeCard />
         <div className="flex-1 bg-[#393E46] rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll ">
           <div className="sticky top-0 z-10 font-russo  text-2xl h-16 size-auto bg-[#393E46] p-5">
-            LeaderBoard
+            {t("LeaderBoard")}
           </div>
           {users.length > 0 ? (
             users.map((user, idx) => (
@@ -74,14 +75,14 @@ const Home: React.FC = () => {
               />
             ))
           ) : (
-            <span className="text-blue-400 text-center">No matching users</span>
+            <span className="text-blue-400 text-center">{t("no_user")}</span>
           )}
         </div>
       </div>
       <div className="w-full 2xl:w-[30%]  flex flex-col ">
         <div className="flex-1  bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll ">
           <div className="sticky top-0 z-10 font-russo p-5 h-16 text-2xl size-auto bg-[#393E46]">
-            History
+            {t("History")}
           </div>
           {history.length > 0 ? (
             history.map((stat, idx) => (

@@ -3,8 +3,11 @@ import Subtract from "../Assets/Subtract.svg";
 import ping_pong from "../Assets/ping-pong.svg";
 import tic_tac from "../Assets/tic-tac-toe-game.svg";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const GameHome: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="relative w-full h-full bg-[#222831] rounded-2xl overflow-hidden">
       {/* Background Decorative Elements */}
@@ -20,14 +23,14 @@ const GameHome: React.FC = () => {
         <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12 xl:mb-16 flex-shrink-0">
           <div className="relative inline-block mb-4 sm:mb-6">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-russo text-white tracking-wider relative">
-              GAME CENTER
+              {t("game_center")}
             </h1>
             <div className="absolute -bottom-1 sm:-bottom-2 left-1/2 transform -translate-x-1/2 w-24 sm:w-32 md:w-36 lg:w-40 h-0.5 sm:h-1 bg-gradient-to-r from-transparent via-[#0077FF] to-transparent rounded-full"></div>
           </div>
 
           <div className="space-y-2 sm:space-y-3 md:space-y-4">
             <p className="text-[#EEEEEE]/80 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl max-w-xl md:max-w-2xl mx-auto leading-relaxed font-light px-4">
-              Select your favorite game and start playing
+              {t("select_favorite_game")}
             </p>
             <div className="flex items-center justify-center gap-1 sm:gap-2">
               <div className="w-1 h-1 bg-[#0077FF] rounded-full"></div>
@@ -37,7 +40,7 @@ const GameHome: React.FC = () => {
           </div>
         </div>
 
-        {/* Games Grid - Responsive Container */}
+        {/* Games Grid */}
         <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
           <div className="w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-16 xl:gap-24">
@@ -56,14 +59,14 @@ const GameHome: React.FC = () => {
                 >
                   {/* Badge */}
                   <div className="absolute -top-2 sm:-top-3 -right-2 sm:-right-3 bg-[#0077FF] text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-russo opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 sm:translate-y-2 group-hover:translate-y-0">
-                    CLASSIC
+                    {t("classic")}
                   </div>
 
-                  {/* Icon Container */}
+                  {/* Icon */}
                   <div className="flex-1 flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
                     <div className="relative">
                       <div className="absolute inset-0 bg-[#0077FF]/15 rounded-full blur-xl sm:blur-2xl scale-125 sm:scale-150 group-hover:scale-110 sm:group-hover:scale-125 transition-all duration-700"></div>
-                      <div className="relative p-3 sm:p-4 md:p-5 lg:p-6 bg-[#222831]/50 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-[#0077FF]/20  transition-all duration-300">
+                      <div className="relative p-3 sm:p-4 md:p-5 lg:p-6 bg-[#222831]/50 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-[#0077FF]/20 transition-all duration-300">
                         <img
                           src={ping_pong}
                           alt="Ping Pong"
@@ -73,20 +76,20 @@ const GameHome: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Content */}
+                  {/* Texts */}
                   <div className="text-center space-y-2 sm:space-y-3 md:space-y-4 w-full">
                     <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-russo text-white group-hover:text-[#0077FF] transition-colors duration-300">
-                      Ping Pong
+                      {t("ping_pong_title")}
                     </h3>
                     <p className="text-[#EEEEEE]/70 text-xs sm:text-sm md:text-base leading-relaxed px-2 sm:px-4">
-                      Classic table tennis action with multiple game modes
+                      {t("ping_pong_desc")}
                     </p>
                     <div className="pt-1 sm:pt-2">
                       <Link
                         to="ping-pong"
                         className="inline-block bg-[#0077FF] hover:bg-[#0066DD] text-white px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-russo text-sm sm:text-base md:text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#0077FF]/30 active:scale-95 transform hover:translate-y-[-1px] sm:hover:translate-y-[-2px]"
                       >
-                        Play Now
+                        {t("play_now")}
                       </Link>
                     </div>
                   </div>
@@ -108,10 +111,10 @@ const GameHome: React.FC = () => {
                 >
                   {/* Badge */}
                   <div className="absolute -top-2 sm:-top-3 -right-2 sm:-right-3 bg-[#0077FF] text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-russo opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 sm:translate-y-2 group-hover:translate-y-0">
-                    STRATEGY
+                    {t("strategy")}
                   </div>
 
-                  {/* Icon Container */}
+                  {/* Icon */}
                   <div className="flex-1 flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
                     <div className="relative">
                       <div className="absolute inset-0 bg-[#0077FF]/15 rounded-full blur-xl sm:blur-2xl scale-125 sm:scale-150 group-hover:scale-110 sm:group-hover:scale-125 transition-all duration-700"></div>
@@ -125,20 +128,20 @@ const GameHome: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Content */}
+                  {/* Texts */}
                   <div className="text-center space-y-2 sm:space-y-3 md:space-y-4 w-full">
                     <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-russo text-white group-hover:text-[#0077FF] transition-colors duration-300">
-                      Tic Tac Toe
+                      {t("tic_tac_toe_title")}
                     </h3>
                     <p className="text-[#EEEEEE]/70 text-xs sm:text-sm md:text-base leading-relaxed px-2 sm:px-4">
-                      Strategic grid-based game for quick thinking battles
+                      {t("tic_tac_toe_desc")}
                     </p>
                     <div className="pt-1 sm:pt-2">
                       <Link
                         to="tic-tac-toe"
                         className="inline-block bg-[#0077FF] hover:bg-[#0066DD] text-white px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-russo text-sm sm:text-base md:text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#0077FF]/30 active:scale-95 transform hover:translate-y-[-1px] sm:hover:translate-y-[-2px]"
                       >
-                        Play Now
+                        {t("play_now")}
                       </Link>
                     </div>
                   </div>
@@ -148,7 +151,7 @@ const GameHome: React.FC = () => {
           </div>
         </div>
 
-        {/* Enhanced Footer */}
+        {/* Footer */}
         <div className="text-center mt-6 sm:mt-8 md:mt-10 lg:mt-12 xl:mt-16 flex-shrink-0">
           <div className="inline-flex flex-col items-center gap-2 sm:gap-3 md:gap-4">
             <div className="flex items-center gap-2 sm:gap-3 text-[#EEEEEE]/50 text-xs sm:text-sm md:text-base">
@@ -158,7 +161,7 @@ const GameHome: React.FC = () => {
                 <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-[#0077FF]/40 rounded-full animate-pulse delay-300"></div>
               </div>
               <span className="font-russo tracking-wide text-center">
-                Choose your game and start playing
+                {t("choose_your_game")}
               </span>
               <div className="flex gap-0.5 sm:gap-1">
                 <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-[#0077FF]/40 rounded-full animate-pulse delay-500"></div>
@@ -170,15 +173,15 @@ const GameHome: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-6 text-[#EEEEEE]/30 text-xs">
               <div className="flex items-center gap-1 sm:gap-2">
                 <div className="w-1 h-1 bg-[#0077FF] rounded-full"></div>
-                <span>Single Player</span>
+                <span>{t("single_player")}</span>
               </div>
               <div className="flex items-center gap-1 sm:gap-2">
                 <div className="w-1 h-1 bg-[#0077FF] rounded-full"></div>
-                <span>Multiplayer</span>
+                <span>{t("multiplayer")}</span>
               </div>
               <div className="flex items-center gap-1 sm:gap-2">
                 <div className="w-1 h-1 bg-[#0077FF] rounded-full"></div>
-                <span>Tournaments</span>
+                <span>{t("tournaments")}</span>
               </div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { HiEllipsisVertical } from "react-icons/hi2";
 import { Cancel01Icon, UserBlock02Icon } from "hugeicons-react";
 import { IoBanOutline } from "react-icons/io5";
 import PongInviteButton from "../../../Game/PingPong/Invite/PongInviteBtn";
+import { useTranslation } from "react-i18next";
 
 interface threedotsProps {
   user: { username: string; id: number; image_url: string; online: boolean };
@@ -25,6 +26,7 @@ const Threedots: React.FC<threedotsProps> = ({
   setAllBlocked,
   showInvBlock,
 }) => {
+  const {t} = useTranslation();
   const handleThreeDotsInvBlock = (e: React.MouseEvent) => {
     setShowInvBlock(true);
   };
@@ -63,7 +65,7 @@ const Threedots: React.FC<threedotsProps> = ({
                 className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
               >
                 <UserBlock02Icon />
-                Block
+                {t("block")}
               </button>
             ) : (
               <button
@@ -72,13 +74,12 @@ const Threedots: React.FC<threedotsProps> = ({
                 role="menuitem"
               >
                 <IoBanOutline className="w-5 h-5" />
-                Unblock User
+                {t("UnblockUser")}
               </button>
             )}
             <PongInviteButton
               recipientUsername={user.id}
               currentUserId={loggedInUserId}
-              onInviteSent={() => console.log("Invite sent!")}
             />
             <button
               onClick={() => {
@@ -87,7 +88,7 @@ const Threedots: React.FC<threedotsProps> = ({
               className="w-full px-4 py-2 text-left text-white-600 hover:bg-red-50 hover:rounded-lg flex items-center gap-2 transition-colors duration-150"
             >
               <Cancel01Icon />
-              Close
+              {t("Close")}
             </button>
           </div>
         </div>

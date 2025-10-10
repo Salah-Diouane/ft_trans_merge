@@ -32,7 +32,7 @@ const ChatLayout: React.FC<Props> = ({
   selectedUser,
   handleUserSelect,
   messages,
-  unreadCounts,
+  unreadCounts,   
   input,
   setInput,
   onSend,

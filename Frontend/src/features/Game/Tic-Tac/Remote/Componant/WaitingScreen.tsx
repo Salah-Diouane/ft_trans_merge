@@ -1,12 +1,13 @@
 import React from "react";
 import { FiUsers } from "react-icons/fi";
 import { RiPingPongFill } from "react-icons/ri";
-
+import { useTranslation } from "react-i18next";
 interface Props {
   onCancel: () => void;
 }
 
 const WaitingScreen: React.FC<Props> = ({ onCancel }) => {
+  const {t} = useTranslation();
   return (
     <>
       <div className="bg-[#393e46] rounded-2xl p-8 shadow-2xl w-[900px] max-w-2xl mx-auto border border-gray-600">
@@ -14,8 +15,8 @@ const WaitingScreen: React.FC<Props> = ({ onCancel }) => {
           <div className="w-16 h-16 bg-[#222831] rounded-full flex items-center justify-center mb-4 mx-auto border border-gray-600">
             <RiPingPongFill className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Finding Match</h1>
-          <p className="text-gray-300">Connecting you with an opponent...</p>
+          <h1 className="text-2xl font-bold text-white mb-2">{t("finding_match")}</h1>
+          <p className="text-gray-300">{t("connecting_u_with_an_opp")}</p>
         </div>
 
         <div className="relative mb-8">
@@ -24,7 +25,7 @@ const WaitingScreen: React.FC<Props> = ({ onCancel }) => {
               <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-2 border-2 border-blue-500">
                 <FiUsers className="w-6 h-6 text-white" />
               </div>
-              <span className="text-sm text-white font-medium">You</span>
+              <span className="text-sm text-white font-medium">{t("you")}</span>
             </div>
 
             <div className="flex-1 mx-2 sm:mx-4 relative">
@@ -57,7 +58,7 @@ const WaitingScreen: React.FC<Props> = ({ onCancel }) => {
                 </div>
               </div>
               <span className="text-sm text-gray-400 font-medium">
-                Opponent
+                {t("opponant")}
               </span>
             </div>
           </div>
@@ -67,7 +68,7 @@ const WaitingScreen: React.FC<Props> = ({ onCancel }) => {
           <div className="inline-flex items-center space-x-3 bg-[#222831] px-6 py-3 rounded-full border border-gray-600">
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
             <span className="text-gray-300 font-medium">
-              Searching for players
+              {t("search_for_players")}
             </span>
           </div>
         </div>
@@ -77,7 +78,7 @@ const WaitingScreen: React.FC<Props> = ({ onCancel }) => {
             onClick={onCancel}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg"
           >
-            Cancel Search
+            {t("cancel_search")}
           </button>
         </div>
       </div>

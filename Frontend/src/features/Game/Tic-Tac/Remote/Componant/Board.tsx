@@ -1,5 +1,5 @@
 import Square from "./Square";
-
+import { useTranslation } from "react-i18next";
 interface BoardProps {
   xIsNext: boolean;
   squares: (string | null)[];
@@ -50,6 +50,7 @@ export default function Board({
   mySymbol,
   gameResult = null,
 }: BoardProps) {
+  const {t} = useTranslation();
   const isMyTurn =
     mySymbol &&
     ((xIsNext && mySymbol === "X") || (!xIsNext && mySymbol === "O"));
@@ -77,7 +78,7 @@ export default function Board({
                   : "text-red-400"
               }
             >
-              {gameResult.winner} wins! 🎉
+              {gameResult.winner} {t("wins")}
             </span>
           </p>
         );
@@ -85,7 +86,7 @@ export default function Board({
       case "draw":
         status = (
           <p className="text-yellow-400 text-2xl font-bold text-center">
-            It's a draw!
+            {t("its_draw")}
           </p>
         );
         break;
@@ -99,7 +100,7 @@ export default function Board({
                   : "text-red-400"
               }
             >
-              {gameResult.loser} ran out of time ⏳ — {gameResult.winner} wins!
+              {gameResult.loser} {t("out_of_time")} — {gameResult.winner} {t("wins")}
             </span>
           </p>
         );
@@ -114,7 +115,7 @@ export default function Board({
                   : "text-red-400"
               }
             >
-              {gameResult.loser} left — {gameResult.winner} wins!
+              {gameResult.loser} {t("left")} — {gameResult.winner} {t("wins")}
             </span>
           </p>
         );
@@ -127,11 +128,11 @@ export default function Board({
       <p className="text-[#0077FF] font-semibold text-xl text-center">
         {isCurrentPlayerMe ? (
           <span className="text-green-400">
-            Your turn ({xIsNext ? "X" : "O"})
+            {t("ur_turn")} ({xIsNext ? "X" : "O"})
           </span>
         ) : (
           <span className="text-white">
-            {currentPlayerName}'s turn ({xIsNext ? "X" : "O"})
+            {currentPlayerName}{t("s_turn")} ({xIsNext ? "X" : "O"})
           </span>
         )}
       </p>

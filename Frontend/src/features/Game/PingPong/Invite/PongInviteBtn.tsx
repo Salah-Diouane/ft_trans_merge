@@ -3,7 +3,7 @@ import socket from '../../../Chat/services/socket';
 import { RiPingPongFill } from 'react-icons/ri';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-
+import { useTranslation } from "react-i18next";
 interface PongInviteButtonProps {
   recipientUsername: string | number;
   currentUserId: string | number;
@@ -19,6 +19,7 @@ const PongInviteButton: React.FC<PongInviteButtonProps> = ({
   const [inviteSent, setInviteSent] = useState(false);
   const [waitingForOpponent, setWaitingForOpponent] = useState(false);
   const navigate = useNavigate();
+  const {t} = useTranslation();
 
   useEffect(() => {
     const handleInviteSent = (data: any) => {
@@ -27,7 +28,7 @@ const PongInviteButton: React.FC<PongInviteButtonProps> = ({
       setWaitingForOpponent(true);
       onInviteSent?.();
       
-      toast.success(data.message || 'Pong invite sent! Waiting for opponent...', {
+      toast.success(data.message || t('Pong_invite_sent_Waiting_for_opponent'), {
         icon: '🏓',
         duration: 3000,
       });
@@ -98,10 +99,10 @@ const PongInviteButton: React.FC<PongInviteButtonProps> = ({
   };
 
   const getButtonText = () => {
-    if (waitingForOpponent) return "Waiting for opponent...";
-    if (inviteSent) return "Invite Sent!";
-    if (isInviting) return "Sending...";
-    return "Pong Challenge";
+    if (waitingForOpponent) return t("Waiting_for_opponent");
+    if (inviteSent) return t("Invite_Sent");
+    if (isInviting) return t("Sending");
+    return t("Pong_Challenge");
   };
 
   const getButtonClass = () => {
