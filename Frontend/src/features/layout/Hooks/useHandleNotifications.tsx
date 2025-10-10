@@ -13,9 +13,21 @@ const useHandleNotifications = ({
   setUnreadCount,
   currentUserRef,
 }: UseHandleNotificationsProps) => {
+// THI S
   useEffect(() => {
     if (!socket.connected) socket.connect();
-  }, []);
+  
+    const handleReconnect = () => {
+      if (currentUserRef.current)
+        socket.emit("notification:get", Number(currentUserRef.current));
+    };
+    socket.on("connect", handleReconnect);
+  
+    return () => {
+      socket.off("connect", handleReconnect);
+    }
+  }, [currentUserRef]);
+  
 
   useEffect(() => {
     if (currentUserRef.current) {

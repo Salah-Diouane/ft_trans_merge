@@ -27,14 +27,12 @@ export const UserGameStats = async (fastify: FastifyInstance) => {
         if (!username) {
           const token = request.cookies.accessToken;
           if (!token) {
-            return reply
-              .code(401)
-              .send({
-                userinfo: false,
-                message: "No access token in cookies",
-                accesstoken: false,
-                refreshtoken: true,
-              });
+            return reply.code(401).send({
+              userinfo: false,
+              message: "No access token in cookies",
+              accesstoken: false,
+              refreshtoken: true,
+            });
           }
           const decodetoken = fastify.jwt.decode(token) as { userid: number };
           const gamestate = await getUserGameStats(fastify, decodetoken.userid);
@@ -100,14 +98,12 @@ export const UserPlayerStats = async (fastify: FastifyInstance) => {
           console.log("No username provided, checking token...");
           const token = request.cookies.accessToken;
           if (!token) {
-            return reply
-              .code(401)
-              .send({
-                userinfo: false,
-                message: "No access token in cookies",
-                accesstoken: false,
-                refreshtoken: true,
-              });
+            return reply.code(401).send({
+              userinfo: false,
+              message: "No access token in cookies",
+              accesstoken: false,
+              refreshtoken: true,
+            });
           }
           const decodetoken = fastify.jwt.decode(token) as { userid: number };
           userid = decodetoken.userid;
@@ -172,14 +168,12 @@ export const PlayerHistory = async (fastify: FastifyInstance) => {
         if (!username) {
           const token = request.cookies.accessToken;
           if (!token)
-            return reply
-              .code(401)
-              .send({
-                userinfo: false,
-                message: "No access token in cookies",
-                accesstoken: false,
-                refreshtoken: true,
-              });
+            return reply.code(401).send({
+              userinfo: false,
+              message: "No access token in cookies",
+              accesstoken: false,
+              refreshtoken: true,
+            });
 
           const decodetoken = fastify.jwt.decode(token) as { userid: number };
           userid = decodetoken.userid;
@@ -243,14 +237,12 @@ export const CountGames = async (fastify: FastifyInstance) => {
         if (!username) {
           const token = request.cookies.accessToken;
           if (!token)
-            return reply
-              .code(401)
-              .send({
-                userinfo: false,
-                message: "No access token in cookies",
-                accesstoken: false,
-                refreshtoken: true,
-              });
+            return reply.code(401).send({
+              userinfo: false,
+              message: "No access token in cookies",
+              accesstoken: false,
+              refreshtoken: true,
+            });
           const decodetoken = fastify.jwt.decode(token) as { userid: number };
           userid = decodetoken.userid;
         } else {

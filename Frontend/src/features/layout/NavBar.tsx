@@ -21,14 +21,18 @@ const NavBar: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [showProfileDropdown, setShowProfileDropdown] =
-    useState<boolean>(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState<boolean>(false);
 
   const store = useStore();
   const { users, currentUserRef } = useUsers();
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = window.innerWidth < 1024;
+
+  useEffect ( () => {
+    if (!socket.connect())
+        socket.connect();
+  }, [])
 
   //  hooks for socket events
   useHandleNotifications({ setNotifications, setUnreadCount, currentUserRef });
@@ -52,7 +56,8 @@ const NavBar: React.FC = () => {
 
   // filter users based on search query
   useEffect(() => {
-    if (!query.trim()) return setResult([]);
+    if (!query.trim())
+      return setResult([]);
     const filtered = users.filter(
       (user) =>
         user.username.toLowerCase().includes(query.toLowerCase()) &&
@@ -83,8 +88,7 @@ const NavBar: React.FC = () => {
   };
 
   const inChat =
-    (location.pathname === "/chat" ||
-      /^\/chat\/[^/]+$/.test(location.pathname)) &&
+    (location.pathname === "/chat" || /^\/chat\/[^/]+$/.test(location.pathname)) &&
     isMobile;
 
   return (
@@ -107,7 +111,7 @@ const NavBar: React.FC = () => {
                 onFocus={() => setShowSearch(true)}
                 onChange={(e) => setQuery(e.target.value)}
               />
-            </div>
+            </div>     
             <HandleSearch showSearch={showSearch} result={result} />
           </div>
 

@@ -1,6 +1,8 @@
 
+import { useEffect } from "react";
 import { formatTime, getNotificationColor, getType } from "../Utils/NotificationUtils";
 import { useTranslation } from "react-i18next";
+import socket from "../../Chat/services/socket";
 
 interface HandleNotifsProps {
   showNotifs?: boolean,
@@ -17,6 +19,11 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
   clearNotifs,
   notifRef,
 }) => {
+  
+  useEffect(() => {
+    if (!socket.connect()) socket.connect();
+  }, []);
+
   const {t} = useTranslation();
   const filteredNotifications = notifications.filter(
     (notif) => notif.type !== "pong_invite"
