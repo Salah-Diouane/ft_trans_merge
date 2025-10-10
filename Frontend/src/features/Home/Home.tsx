@@ -56,6 +56,35 @@ const Home: React.FC = () => {
     fetch_Leaderboard();
   }, []);
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const [leaderboardResp, historyResp] = await Promise.all([
+  //         fetch(`${import.meta.env.VITE_API_URL}/api/home/Leaderboard/10`, {
+  //           credentials: "include",
+  //           method: "GET",
+  //         }),
+  //         fetch(`${import.meta.env.VITE_API_URL}/api/home/HistoryHome/10`, {
+  //           credentials: "include",
+  //           method: "GET",
+  //         }),
+  //       ]);
+  
+  //       const [leaderboardData, historyData] = await Promise.all([
+  //         leaderboardResp.json(),
+  //         historyResp.json(),
+  //       ]);
+  
+  //       setUsers(leaderboardData);
+  //       setHistory(historyData);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //   };
+  
+  //   fetchData();
+  // }, []);
+  
   return (
     <div className="w-full h-full flex flex-col 2xl:flex-row   p-5 gap-5  max-sm:p-1  max-[375px]:p-1 max-[390px]:w-[95%] max-[375px]:w-[90%] max-[360px]:w-[87%] max-[344px]:w-[60%]">
       <div className="w-full flex flex-col gap-4 2xl:w-[70%]">

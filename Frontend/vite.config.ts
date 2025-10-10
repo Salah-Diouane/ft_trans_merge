@@ -8,7 +8,7 @@ export default defineConfig({
     port: 5173,
     hmr: {
       protocol: "wss",
-      host: "e3r9p2.1337.ma",
+      host: "e3r10p18.1337.ma",
       clientPort: 443,
     },
   },

@@ -1,9 +1,4 @@
-import fastify, {
-  FastifyInstance,
-  FastifyPluginCallback,
-  FastifyReply,
-  FastifyRequest,
-} from "fastify";
+import { FastifyInstance, FastifyPluginCallback } from "fastify";
 import { friend_request, delete_req, delete_friend } from "./friends.schema";
 import { getuserid } from "../../utils/userauth.utils";
 import {
@@ -18,9 +13,13 @@ import {
   getNameById,
   removeFriend,
 } from "../../utils/friends.utils";
+
 import { Server as IOServer } from "socket.io";
 import { userSockets } from "../socket/chat/chat.handlers";
 import { onlineUsers } from "../socket/userdata/auth.middleware";
+
+
+
 
 interface SendRequestOptions {
   io: IOServer;
@@ -28,6 +27,19 @@ interface SendRequestOptions {
 
 interface AcceptRequestOptions {
   io: IOServer;
+
+}
+
+interface Notification {
+  id: number,
+  id_sender: number;
+  id_receiver: number;
+  sender: string;
+  receiver: string;
+  type: string;
+  text: string;
+  seen: boolean;
+  timestamp: string;
 }
 
 export const sendRequest: FastifyPluginCallback<SendRequestOptions> = (
@@ -37,9 +49,13 @@ export const sendRequest: FastifyPluginCallback<SendRequestOptions> = (
 ) => {
   const io = opts.io;
 
-  fastify.post(
-    "/sendrequest",
-    { schema: { body: friend_request } },
+  fastify.post("/sendrequest",
+    {
+      schema: {
+        
+        body: friend_request
+      }
+    },
     async (req, reply) => {
       try {
         const token = req.cookies.accessToken;
@@ -63,41 +79,85 @@ export const sendRequest: FastifyPluginCallback<SendRequestOptions> = (
           return reply.code(500).send({ message: "User data not found" });
         }
 
+        // if (io) {
+        //   const notification: Notification = {
+        //     id: this?.lastID,
+        //     type: "friend_request",
+        //     id_sender: decode.userid,
+        //     id_receiver: id_receiver,
+        //     sender,
+        //     receiver,
+        //     seen: false,
+        //     text: "Friend Request",
+        //     timestamp: new Date().toISOString(),
+        //   };
+
+        //   const data = JSON.stringify(notification);
+
+        //   fastify.db.run(
+        //     "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, seen,  text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        //     [
+        //       notification.id_sender,
+        //       notification.id_receiver,
+        //       notification.sender,
+        //       notification.receiver,
+        //       notification.type,
+        //       notification.seen,
+        //       notification.text,
+        //       notification.timestamp,
+        //     ],
+        //     (err: any) => {
+        //       if (err) console.error("Notification insert error:", err);
+        //     }
+        //   );
+
+        //   const recipientSocketId = userSockets.get(id_receiver);
+        //   if (recipientSocketId) {
+        //     io.to(recipientSocketId).emit("notification", notification);
+        //   }
+        // }
+
         if (io) {
-          const notification = {
-            type: "friend_request",
-            senderId: decode.userid,
-            recipientId: id_receiver,
-            sender,
-            receiver,
-            message: "Friend Request",
-            timestamp: new Date().toISOString(),
-          };
-
-          const data = JSON.stringify(notification);
-
+          const timestamp = new Date().toISOString();
+        
           fastify.db.run(
-            "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, seen, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [
-              notification.senderId,
-              notification.recipientId,
-              notification.sender,
-              notification.receiver,
-              notification.type,
-              notification.message,
-              notification.timestamp,
+              decode.userid,
+              id_receiver,
+              sender,
+              receiver,
+              "friend_request",
+              false,
+              "Friend Request",
+              timestamp,
             ],
-            (err: any) => {
-              if (err) console.error("Notification insert error:", err);
+            function (this: { lastID: number }, err: Error | null) {
+              if (err) {
+                console.error("Notification insert error:", err);
+                return;
+              }
+        
+              const notification: Notification = {
+                id: this.lastID,  // here `this.lastID` is valid
+                type: "friend_request",
+                id_sender: decode.userid,
+                id_receiver: id_receiver,
+                sender,
+                receiver,
+                seen: false,
+                text: "Friend Request",
+                timestamp,
+              };
+        
+              const recipientSocketId = userSockets.get(id_receiver);
+              if (recipientSocketId) {
+                io.to(recipientSocketId).emit("notification", notification);
+              }
             }
           );
-
-          const recipientSocketId = userSockets.get(id_receiver);
-          if (recipientSocketId) {
-            io.to(recipientSocketId).emit("notification", notification);
-          }
         }
-
+        
         return reply.send({ message: "Friend request sent successfully." });
       } catch (err) {
         reply.code(500).send({ error: (err as Error).message });
@@ -155,33 +215,52 @@ export const acceptRequest: FastifyPluginCallback<AcceptRequestOptions> = (
         console.log("RECEIVER : ", receiver);
 
         if (io) {
-          const notification = {
-            type: "friend_request_accepted",
-            senderId: decode.userid, // who accepted
-            recipientId: id_receiver, // sender
-            sender: sender,
-            receiver: receiver,
-            message: "Request Accepted",
-            timestamp: new Date().toISOString(),
-          };
+
 
           fastify.db.run(
-            "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type , text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO notification (id_sender, id_receiver, sender, receiver, seen,  type , text, timestamp) VALUES (?, ?, ?,  ?, ?, ?, ?, ?)",
             [
               decode.userid,
               id_receiver,
-              notification.sender,
-              notification.receiver,
-              notification.type,
-              notification.message,
-              notification.timestamp,
-            ]
-          );
-
-          const recipientSocketId = userSockets.get(id_receiver);
-          if (recipientSocketId)
-            io.to(recipientSocketId).emit("notification", notification);
+              sender,
+              receiver,
+              "friend_request_accepted",
+              false,
+              "Request Accepted",
+              new Date().toISOString(),
+            ],
+            
+            function (this: { lastID: number }, err: Error | null) {
+              if (err) {
+                console.error("Notification insert error:", err);
+                return;
+              }
+        
+              const notification: Notification = {
+                id: this.lastID,
+                type: "friend_request_accepted",
+                id_sender: decode.userid, // who accepted
+                id_receiver: id_receiver, // sender
+                sender: sender,
+                receiver: receiver,
+                text: "Request Accepted",
+                seen: false,
+                timestamp: new Date().toISOString(),
+              };
+        
+              const recipientSocketId = userSockets.get(id_receiver);
+              if (recipientSocketId) {
+                io.to(recipientSocketId).emit("notification", notification);
+              }
+            }          
+     
+            
+            // const recipientSocketId = userSockets.get(id_receiver);
+            // if (recipientSocketId)
+              //   io.to(recipientSocketId).emit("notification", notification);
+            );
         }
+        
 
         return reply.send({ message: "friend request is accepted !" });
       } catch (err) {

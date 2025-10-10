@@ -29,10 +29,12 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
     (notif) => notif.type !== "pong_invite"
   );
 
+
+
   return (
     <div
       className="absolute top-16 right-24 flex flex-col w-[380px] max-h-[500px] bg-[#222831] bg-opacity-90 text-black rounded-2xl shadow-2xl border border-gray-700 z-[99999] overflow-hidden  custom-scroll"
-      // onClick={(e) => e.stopPropagation()}
+      
       ref={notifRef}
     >
       <div className="flex justify-between items-center px-6 py-4 bg-gray-800 border-b border-gray-700">

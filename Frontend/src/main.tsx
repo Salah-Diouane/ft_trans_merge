@@ -30,11 +30,11 @@ function App() {
 }
 
 createRoot(document.getElementById("root") as HTMLElement).render(
-  <StrictMode>
+  // <StrictMode>
     <I18nextProvider i18n={i18n}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
     </I18nextProvider>
-  </StrictMode>
+  // </StrictMode>
 );

@@ -86,7 +86,10 @@ const NavBar: React.FC = () => {
     setNotifications([]);
     setUnreadCount(0);
   };
-
+  const notifIsseen = () => {
+    console.log("===> : in notifIsseen", notifications)
+    socket.emit("notif:seen", notifications)
+  }
   const inChat =
     (location.pathname === "/chat" || /^\/chat\/[^/]+$/.test(location.pathname)) &&
     isMobile;
@@ -121,6 +124,7 @@ const NavBar: React.FC = () => {
                 className="size-8 hover:text-blue-700 cursor-pointer max-sm:hidden"
                 onClick={() => {
                   setShowNotifs(true);
+                  notifIsseen(),
                   setUnreadCount(0);
                 }}
               />

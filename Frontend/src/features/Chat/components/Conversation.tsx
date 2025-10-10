@@ -39,9 +39,7 @@ const Conversation: FC<ConversationProps> = ({
   const [showInvBlock, setShowInvBlock] = useState<boolean>(false);
   const [showInvBlockMenu, setShowInvBlockmenu] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [messageToDelete, setMessageToDelete] = useState<
-    string | number | null
-  >(null);
+  const [messageToDelete, setMessageToDelete] = useState< string | number | null >(null);
   const [allBlocked, setAllBlocked] = useState<User[]>([]);
 
   useEffect(() => {

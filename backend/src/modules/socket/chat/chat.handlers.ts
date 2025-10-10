@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import { FastifyInstance } from "fastify";
 import { Server as IOServer } from "socket.io";
 import { AuthenticatedSocket } from "../pong/interfaces";
-import { Console } from "console";
+
 
 interface handleChatEventsProps {
   fastify: FastifyInstance;
@@ -18,6 +18,19 @@ interface Message {
   timestamp?: string;
   blocked?: boolean;
 }
+
+interface Notification {
+  id: number,
+  id_sender: number;
+  id_receiver: number;
+  sender: string;
+  receiver: string;
+  type: string;
+  text: string;
+  seen: boolean;
+  timestamp: string;
+}
+
 
 export const userSockets = new Map<number, string>();
 
@@ -43,9 +56,9 @@ export default function handleChatEvents({
   socket,
 }: handleChatEventsProps) {
   const db = fastify.db;
-
+  
   console.log;
-
+  
   const userData = socket.user;
   if (userData) {
     userSockets.set(userData.userid, socket.id);
@@ -58,12 +71,12 @@ export default function handleChatEvents({
       console.log(`Socket unmapped: ${userData.username}`);
     }
   });
-
+  
   socket.on("chat:message", (data: Message) => {
     const { senderId, recipientId, text } = data;
-
+    
     if (!senderId || !recipientId || !text) return;
-
+    
     db.get(
       "SELECT 1 FROM blocked_users WHERE (blocker = ? AND blocked = ?) OR (blocker = ? AND blocked = ?)",
       [senderId, recipientId, recipientId, senderId],
@@ -72,7 +85,7 @@ export default function handleChatEvents({
           console.log("row : ", row);
           return;
         }
-
+        
         console.log(
           "before inserting : ",
           senderId,
@@ -91,7 +104,7 @@ export default function handleChatEvents({
               );
               return;
             }
-
+            
             const messageData: Message = {
               id: this.lastID,
               senderId,
@@ -99,32 +112,43 @@ export default function handleChatEvents({
               text,
               timestamp: new Date().toISOString(),
             };
-
+            
             const senderRow: any = await getNameById(fastify, senderId);
             const receiverRow: any = await getNameById(fastify, recipientId);
-
+            
             const sender = senderRow?.username;
             const receiver = receiverRow?.username;
-
-            const notification = {
+            
+            // id: number;
+            // id_sender: number;
+            // id_receiver: number;
+            // sender: string;
+            // receiver: string;
+            // type: string;
+            // text: string;
+            // seen: boolean;
+            // timestamp: string;
+            const notification: Notification = {
+              id: this.lastID,
               type: "New message",
-              senderId,
-              recipientId,
+              id_sender: senderId,
+              id_receiver: recipientId,
               sender,
               receiver,
-              message: text,
+              seen: false,
+              text: text,
               timestamp: new Date().toISOString(),
             };
-
+            
             db.run(
               "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
               [
-                notification.senderId,
-                notification.recipientId,
+                notification.id_sender,
+                notification.id_receiver,
                 notification.sender,
                 notification.receiver,
                 notification.type,
-                notification.message,
+                notification.text,
                 notification.timestamp,
               ],
               (err) => {
@@ -141,7 +165,7 @@ export default function handleChatEvents({
 
             const senderSocketId = userSockets.get(senderId);
             const recipientSocketId = userSockets.get(recipientId);
-
+            
             if (senderSocketId) {
               io.to(senderSocketId).emit("chat:message", messageData);
             }
@@ -155,9 +179,38 @@ export default function handleChatEvents({
     );
   });
 
+  socket.on("notif:seen", (notifications) => {
+    
+    console.log("---> : notifications : ", notifications);
+    if (!notifications || notifications.length === 0) {
+      console.log("Notif is empty");
+      return;
+    }
+
+    notifications.forEach( (notif: any) => {
+
+      if (!notif.id)
+      {
+        console.log("---> : notifications id is emptyyyy  : ", notif.id);
+        return ; 
+      }
+        
+        db.run( `UPDATE notification SET seen = ? WHERE id = ?  AND id_sender = ? AND id_receiver = ?`, [1, notif.id, notif.id_sender, notif.id_receiver],
+          (err: any) => {
+              if (err) {
+                console.log(`Err updating notification ${notif.id}:`, err.message);
+                return;
+              }
+              console.log(`Notification ${notif.id} marked as seen`);
+          }
+        )
+    })
+    
+  })
+  
   socket.on("notification:insert", (notif) => {
     console.log("heeey im in the notification:insert", notif);
-
+    
     if (!notif) {
       console.log("Err : notif id empty");
       return;
