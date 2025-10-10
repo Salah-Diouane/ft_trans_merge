@@ -1,15 +1,7 @@
-FROM node:18-alpine
+FROM prom/alertmanager:v0.27.0
 
-WORKDIR /app
+COPY alertmanager.yml /etc/alertmanager/alertmanager.yml
 
-COPY package*.json ./
+EXPOSE 9093
 
-RUN npm cache clean --force
-
-RUN npm install
-
-COPY . .
-
-EXPOSE 5173
-
-CMD ["npm", "run", "dev"]
+CMD ["--web.external-url=http://localhost:9093", "--config.file=/etc/alertmanager/alertmanager.yml"]
