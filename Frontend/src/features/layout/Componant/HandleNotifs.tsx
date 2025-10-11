@@ -30,7 +30,7 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
   );
 
 
-
+  console.log("notifications---> : ", notifications);
   return (
     <div
       className="absolute top-16 right-24 flex flex-col w-[380px] max-h-[500px] bg-[#222831] bg-opacity-90 text-black rounded-2xl shadow-2xl border border-gray-700 z-[99999] overflow-hidden  custom-scroll"
@@ -107,7 +107,7 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
                   </p>
 
                   <p className="text-xs text-gray-500">
-                    {notif.type === "New message"
+                    {notif.type === "message"
                       ? t("sent_u_a_msg")
                       : notif.type === "friend_request"
                       ? t("want_to_be_friend")

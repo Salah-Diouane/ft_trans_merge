@@ -73,7 +73,8 @@ export default function handleChatEvents({
   socket.on("chat:message", (data: Message) => {
     const { senderId, recipientId, text } = data;
     
-    if (!senderId || !recipientId || !text) return;
+    if (!senderId || !recipientId || !text)
+      return;
     
     db.get(
       "SELECT 1 FROM blocked_users WHERE (blocker = ? AND blocked = ?) OR (blocker = ? AND blocked = ?)",
