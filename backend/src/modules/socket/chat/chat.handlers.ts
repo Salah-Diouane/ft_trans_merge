@@ -3,7 +3,6 @@ import { FastifyInstance } from "fastify";
 import { Server as IOServer } from "socket.io";
 import { AuthenticatedSocket } from "../pong/interfaces";
 
-
 interface handleChatEventsProps {
   fastify: FastifyInstance;
   io: IOServer;
@@ -30,7 +29,6 @@ interface Notification {
   seen: boolean;
   timestamp: string;
 }
-
 
 export const userSockets = new Map<number, string>();
 
@@ -119,15 +117,6 @@ export default function handleChatEvents({
             const sender = senderRow?.username;
             const receiver = receiverRow?.username;
             
-            // id: number;
-            // id_sender: number;
-            // id_receiver: number;
-            // sender: string;
-            // receiver: string;
-            // type: string;
-            // text: string;
-            // seen: boolean;
-            // timestamp: string;
             const notification: Notification = {
               id: this.lastID,
               type: "New message",
@@ -139,29 +128,36 @@ export default function handleChatEvents({
               text: text,
               timestamp: new Date().toISOString(),
             };
-            
+
             db.run(
               "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)",
-              [
-                notification.id_sender,
-                notification.id_receiver,
-                notification.sender,
-                notification.receiver,
-                notification.type,
-                notification.text,
-                notification.timestamp,
-              ],
-              (err) => {
+              [senderId, recipientId, sender, receiver, "message", text, new Date().toISOString()],
+              function (err: Error | null) { 
                 if (err) {
-                  console.error(
-                    "Error inserting message notification:",
-                    err.message
-                  );
+                  console.error("Error inserting message notification:", err.message);
                   return;
                 }
-                console.log(" Message notification inserted successfully");
+            
+                const notification = {
+                  id: this.lastID,
+                  id_sender: senderId,
+                  id_receiver: recipientId,
+                  sender,
+                  receiver,
+                  type: "message",
+                  text,
+                  seen: false,
+                  timestamp: new Date().toISOString(),
+                };
+            
+                const recipientSocketId = userSockets.get(recipientId);
+                if (recipientSocketId)
+                  io.to(recipientSocketId).emit("notification", notification);
+            
+                console.log(" Message notification emitted:", notification);
               }
             );
+            
 
             const senderSocketId = userSockets.get(senderId);
             const recipientSocketId = userSockets.get(recipientId);
@@ -171,7 +167,7 @@ export default function handleChatEvents({
             }
             if (recipientSocketId) {
               io.to(recipientSocketId).emit("chat:message", messageData);
-              io.to(recipientSocketId).emit("notification", notification);
+              // io.to(recipientSocketId).emit("notification", notification);
             }
           }
         );
@@ -180,34 +176,47 @@ export default function handleChatEvents({
   });
 
   socket.on("notif:seen", (notifications) => {
-    
-    console.log("---> : notifications : ", notifications);
-    if (!notifications || notifications.length === 0) {
-      console.log("Notif is empty");
-      return;
-    }
-
-    notifications.forEach( (notif: any) => {
-
-      if (!notif.id)
-      {
-        console.log("---> : notifications id is emptyyyy  : ", notif.id);
-        return ; 
-      }
-        
-        db.run( `UPDATE notification SET seen = ? WHERE id = ?  AND id_sender = ? AND id_receiver = ?`, [1, notif.id, notif.id_sender, notif.id_receiver],
-          (err: any) => {
-              if (err) {
-                console.log(`Err updating notification ${notif.id}:`, err.message);
-                return;
-              }
-              console.log(`Notification ${notif.id} marked as seen`);
-          }
-        )
-    })
-    
-  })
+    console.log("Received notif:seen", notifications);
   
+    if (!notifications?.length)
+      return;
+  
+    notifications.forEach((notif: any) => {
+      if (!notif.id) {
+        console.log("⚠️ Notification has no ID:", notif);
+        return;
+      }
+  
+      db.run(
+        `UPDATE notification SET seen = 1 WHERE id = ?`,
+        [notif.id],
+        (err) => {
+          if (err)
+            console.error(` Error updating notif ${notif.id}:`, err.message);
+          else
+          console.log(` Notification ${notif.id} marked as seen`);
+        }
+      );
+    });
+  });
+
+  socket.on("notification:count", (userId) => {
+    db.get(
+      `SELECT COUNT(*) AS unseenCount FROM notification WHERE id_receiver = ? AND seen = 0`,
+      [userId],
+      (err, row: any) => {
+        if (err) {
+          console.error("Error counting unseen notifications:", err.message);
+          return;
+        }
+  
+        const count = row?.unseenCount || 0;
+        console.log("count :", count)
+        socket.emit("notification:getcount", count);  
+      }
+    );
+  });
+
   socket.on("notification:insert", (notif) => {
     console.log("heeey im in the notification:insert", notif);
     

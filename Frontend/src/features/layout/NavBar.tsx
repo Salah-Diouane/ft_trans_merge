@@ -30,8 +30,8 @@ const NavBar: React.FC = () => {
   const isMobile = window.innerWidth < 1024;
 
   useEffect ( () => {
-    if (!socket.connect())
-        socket.connect();
+    if (!socket.connected)
+      socket.connect();
   }, [])
 
   //  hooks for socket events
