@@ -8,9 +8,10 @@ export const home = {
       win: "Win",
       draw: "Draw",
       lose: "Lose",
-      level: "Level"
+      level: "Level",
+      search: "Search ..."
     },
-  
+    
     fr: {
       LeaderBoard: "Classement",
       History: "Historique",
@@ -21,8 +22,9 @@ export const home = {
       draw: "Égalité",
       lose: "Perdre",
       level: "Niveau",
+      search: "Rechercher ..."
     },
-  
+    
     es: {
       LeaderBoard: "Clasificación",
       History: "Historial",
@@ -33,6 +35,7 @@ export const home = {
       draw: "Empate",
       lose: "Perder",
       level: "Nivel",
+      search: "Buscar ..."
     },
   };
   

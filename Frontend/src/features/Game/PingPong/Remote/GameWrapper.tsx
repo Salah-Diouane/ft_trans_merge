@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import socket from '../../../Chat/services/socket';
+import { useTranslation } from "react-i18next";
 
 const baseWidth = 600;
 const baseHeight = 400;
@@ -16,7 +17,7 @@ interface Score {
 
 interface GameWrapperProps {
   playerName: string;
-  playerDisplayName?: string; // Add optional display name prop
+  playerDisplayName?: string;
   onGameEnd?: (winner: string | null) => void;
 }
 
@@ -29,13 +30,21 @@ interface displayNamesProps {
   left: string;
   right: string;
 }
+
 interface usersImagesProps {
   id: string;
   user_image: string;
 }
 
+interface GameSettings {
+  ball_color: string;
+  paddle_color: string;
+  table_color: string;
+}
+
 const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName, onGameEnd }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const {t} = useTranslation();
 
   const [canvasSize, setCanvasSize] = useState({ width: baseWidth, height: baseHeight });
   const scaleRef = useRef(1);
@@ -53,13 +62,20 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
   const [gameOver, setGameOver] = useState(false);
   const [gameInProgress, setGameInProgress] = useState(false);
   const [playerSide, setPlayerSide] = useState<'left' | 'right' | null>(null);
-  const [winner, setWinner] = useState<string | null>(null); // Changed to string for username
+  const [winner, setWinner] = useState<string | null>(null);
   const [roomId, setRoomId] = useState<'' | null>(null);
   const [playersNames, setPlayersNames] = useState<playersDataProps | null>(null);
   const [playersDisplayNames, setPlayersDisplayNames] = useState<displayNamesProps | null>(null);
   const [usersImages, setUserImages] = useState<usersImagesProps[] | null>(null);
+  const isTournamentRef = useRef(false);
+  
+  // Game settings state
+  const [gameSettings, setGameSettings] = useState<GameSettings>({
+    ball_color: '#ff0',
+    paddle_color: '#0ff',
+    table_color: '#0f0f0f'
+  });
 
-  // Add single ref to track if player data has been fetched
   const playerDataFetchedRef = useRef(false);
   const usernamesCacheRef = useRef<Record<string, string>>({});
 
@@ -77,7 +93,37 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     down: false,
   });
 
-  // REFACTORED: Single optimized function
+  // Fetch game settings
+  const fetchGameSettings = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/settings/gameinfo`, {
+        credentials: "include",
+        method: "GET",
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Game settings fetched:', data);
+        
+        setGameSettings({
+          ball_color: data.ball_color || '#ff0',
+          paddle_color: data.paddle_color || '#0ff',
+          table_color: data.table_color || '#0f0f0f'
+        });
+      } else {
+        console.error('Failed to fetch game settings:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching game settings:', error);
+    }
+  };
+
+  // Fetch game settings on component mount
+  useEffect(() => {
+    fetchGameSettings();
+  }, []);
+
   const fetchPlayerData = async (playerIds: string[]) => {
     if (playerDataFetchedRef.current) {
       return;
@@ -86,9 +132,32 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     playerDataFetchedRef.current = true;
   
     try {
-      // Make both calls simultaneously
+      // Check if this is a tournament game
+      const urlParams = new URLSearchParams(window.location.search);
+      const pathSegments = window.location.pathname.split('/');
+      const tournamentIndex = pathSegments.indexOf('tournament');
+      const tournamentId = tournamentIndex !== -1 ? pathSegments[tournamentIndex + 1] : null;
+  
+      let isTournamentGame = false;
+  
+      if (tournamentId) {
+        // Verify this is a tournament game
+        const tournamentCheckResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/tournament-game`, {
+          credentials: "include",
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            tournamentId, 
+            playerId: playerName 
+          }),
+        });
+  
+        if (tournamentCheckResponse.ok)
+          isTournamentRef.current = true;
+      }
+  
       const [usernamesResponse, imagesResponse] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
+        fetch(`${import.meta.env.VITE_API_URL}/api/${isTournamentRef.current ? 'display-names' : 'users'}`, {
           credentials: "include",
           method: "POST",
           headers: { 'Content-Type': 'application/json' },
@@ -102,7 +171,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
         })
       ]);
   
-      // Process responses
       if (usernamesResponse.ok) {
         const { users: fetchedUsers } = await usernamesResponse.json();
         playerIds.forEach((id, index) => {
@@ -124,7 +192,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
       console.error("Error fetching player data:", error);
       playerDataFetchedRef.current = false;
       
-      // Fallback
       if (playerIds.length === 2) {
         setPlayersDisplayNames({
           left: playerIds[0],
@@ -193,10 +260,9 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     sendPaddleMovement(touchStateRef.current.lastDirection, 'stop', playerName);
   };
 
-  // Resize handler
   const updateCanvasSize = () => {
-    const maxWidth = window.innerWidth * 0.9;
-    const maxHeight = window.innerHeight * 0.7;
+    const maxWidth = window.innerWidth * 0.7;
+    const maxHeight = window.innerHeight * 0.5;
 
     let scale = Math.min(maxWidth / baseWidth, maxHeight / baseHeight);
     scale = Math.max(scale, 0.5);
@@ -224,22 +290,10 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     const paddleW = paddleWidthRef.current;
     const paddleH = paddleHeightRef.current;
     const ballR = ballRadiusRef.current;
-
-    // Background gradient
-    const gradient = ctx.createRadialGradient(
-      cw / 2,
-      ch / 2,
-      10 * scaleRef.current,
-      cw / 2,
-      ch / 2,
-      400 * scaleRef.current
-    );
-    gradient.addColorStop(0, '#0f0f0f');
-    gradient.addColorStop(1, '#1a1a1a');
-    ctx.fillStyle = gradient;
+    
+    ctx.fillStyle = gameSettings.table_color;
     ctx.fillRect(0, 0, cw, ch);
 
-    // Center line
     ctx.setLineDash([6, 6]);
     ctx.strokeStyle = '#444';
     ctx.beginPath();
@@ -248,37 +302,40 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Paddles
-    ctx.fillStyle = '#0ff';
-    ctx.shadowBlur = 10 * scaleRef.current;
-    ctx.shadowColor = '#0ff';
+    ctx.fillStyle = gameSettings.paddle_color;
+
     ctx.fillRect(20 * scaleRef.current, leftY, paddleW, paddleH);
     ctx.fillRect(cw - 20 * scaleRef.current - paddleW, rightY, paddleW, paddleH);
 
-    // Ball
     ctx.beginPath();
     ctx.arc(x, y, ballR, 0, Math.PI * 2);
-    ctx.fillStyle = '#ff0';
-    ctx.shadowColor = '#ff0';
+    ctx.fillStyle = gameSettings.ball_color;
     ctx.fill();
     ctx.closePath();
 
     ctx.shadowBlur = 0;
   };
 
-  const sendScoreUpdate = (score: Score) => {
-    console.log("Scored", score);
-    socket.emit('scoreUpdate', {
-      roomId,
-      score
-    });
-  };
-
-  const handleRematch = () => {
-    setScore({ left: 0, right: 0 });
-    setGameOver(false);
-    setGameInProgress(false);
-    socket.emit('rematch', { roomId });
+  // Helper function to adjust color brightness
+  const adjustColorBrightness = (color: string, amount: number): string => {
+    const usePound = color[0] === "#";
+    let col = color;
+    
+    if (usePound) {
+      col = col.slice(1);
+    }
+    
+    const num = parseInt(col, 16);
+    let r = (num >> 16) + amount;
+    let g = ((num >> 8) & 0x00FF) + amount;
+    let b = (num & 0x0000FF) + amount;
+    
+    r = Math.max(Math.min(255, r), 0);
+    g = Math.max(Math.min(255, g), 0);
+    b = Math.max(Math.min(255, b), 0);
+    
+    return (usePound ? "#" : "") + 
+      ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
   };
 
   const sendPaddleMovement = (direction: number, state: 'start' | 'stop', playerName: string) => {
@@ -345,16 +402,16 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     };
     render();
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
 
     
     return () => {
       cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [gameOver, score, canvasSize, playerSide, playerName]);
+  }, [gameOver, score, canvasSize, playerSide, playerName, gameSettings]);
 
   useEffect(() => {
     socket.on('init', ({ player }) => {
@@ -394,10 +451,9 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
     socket.on('gameOver', async (playerWin) => {
       console.log('Game Over winner:', playerWin);
       
-      // Get winner display name from cache or fetch if needed
       let winnerDisplayName = usernamesCacheRef.current[playerWin.winner];
       if (!winnerDisplayName) {
-        const usernamesMap = await fetchPlayerData([playerWin.winner]);
+        await fetchPlayerData([playerWin.winner]);
         winnerDisplayName = usernamesCacheRef.current[playerWin.winner] || playerWin.winner;
       }
       
@@ -428,7 +484,6 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('unload', handleBeforeUnload);
       
-      // Reset the fetch flag when component unmounts
       playerDataFetchedRef.current = false;
       usernamesCacheRef.current = {};
     };
@@ -436,38 +491,40 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
 
   return (
     <div className="flex flex-col items-center justify-center text-white">
-      <h1 className="text-3xl mb-4 font-bold font-mono tracking-wide">Pong</h1>
+      <h1 className="text-3xl mb-4 font-bold font-mono tracking-wide">{t("pong")}</h1>
       {gameOver && (
         <div className="text-2xl font-bold text-yellow-400 mb-4">
-          Game Over! {winner} Wins!
+          {t("game_over")} {winner} {t("wins")}
         </div>
       )}
       <div className="mb-2 text-xl font-mono flex items-center">
         <span className="text-cyan-400 flex items-center gap-2">
-          <div className="relative flex flex-col items-center group">
+          <div className="relative flex flex-row justify-center items-center group gap-1">
+            <span className="relative text-sm text-gray-300">{playersDisplayNames?.left || playersNames?.left}</span>
             <img src={usersImages && usersImages[0]?.user_image || ""}
             alt="" className='rounded-full bg-cover w-12 h-12' />
-            <div className="absolute top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
+            {/* <div className="relative top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
               <div className="w-3 h-3 -mb-2 rotate-45 bg-black"></div>
               <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">
                 {playersDisplayNames?.left || playersNames?.left}
               </span>
-            </div>
+            </div> */}
           </div>
           {winner === (playersDisplayNames?.left || playersNames?.left) && score.left === 6 ? 7 : score.left}
         </span>
         <span className="mx-4 text-gray-500">|</span>
         <span className="text-pink-400 flex items-center gap-2">
           {winner === (playersDisplayNames?.right || playersNames?.right) && score.right === 6 ? 7 : score.right}
-          <div className="relative flex flex-col items-center group">
+          <div className="relative flex flex-row justify-center items-center group gap-1">
             <img src={(usersImages && (playersNames?.right === usersImages[1]?.id ? usersImages[1]?.user_image : usersImages[0]?.user_image) || "")}
             alt="" className='rounded-full bg-cover w-12 h-12' />
-            <div className="absolute top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
+            <span className="relative text-sm text-gray-300">{playersDisplayNames?.right || playersNames?.right}</span>
+            {/* <div className="absolute top-6 flex flex-col items-center hidden mt-6 group-hover:flex">
               <div className="w-3 h-3 -mb-2 rotate-45 bg-black"></div>
               <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">
                 {playersDisplayNames?.right || playersNames?.right}
               </span>
-            </div>
+            </div> */}
           </div>
         </span>
       </div>

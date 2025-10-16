@@ -3,8 +3,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import socket from "../../../Chat/services/socket";
 import type { Tournament, Game, UserPlayer } from "./types";
+import { useTranslation } from "react-i18next";
 
 const TournamentJoin: React.FC = () => {
+  const {t} = useTranslation();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const userRef = useRef<UserPlayer | null>(null);
@@ -181,13 +183,13 @@ const TournamentJoin: React.FC = () => {
       <div className="relative w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black tracking-tight">
             <span className="bg-gradient-to-r from-blue-500 via-[#318cf1] to-[#7fb4ed] bg-clip-text text-transparent">
-              Tournament Arena
+              {t("Tournament_Arena")}
             </span>
           </h1>
           <p className="text-white/60 text-lg mt-2">
-            Join competitive tournaments and prove your skills
+            {t("join_parag")}
           </p>
         </div>
 
@@ -198,28 +200,28 @@ const TournamentJoin: React.FC = () => {
               <span className="text-2xl sm:text-3xl">🏆</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
-              No Tournaments Available
+              {t("no_tourn")}
             </h3>
-            <p className="text-white/60">Check back later for new tournaments</p>
+            <p className="text-white/60">{t("check_back_later_par")}</p>
           </div>
         ) : (
           <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 pb-16">
-            {tournaments.map((t) => {
-              const isJoined = (!!userId && t.players.includes(userId));
-              const isOwner = !!userId && t.owner === userId;
-              const isFull = t.currentPlayers >= t.maxPlayers;
-              const canJoin = !isJoined && !isFull && t.status === "waiting" && !playerJoinedTournament;
-              const canLeave = isJoined && t.status === "waiting";
+            {tournaments.map((to) => {
+              const isJoined = (!!userId && to.players.includes(userId));
+              const isOwner = !!userId && to.owner === userId;
+              const isFull = to.currentPlayers >= to.maxPlayers;
+              const canJoin = !isJoined && !isFull && to.status === "waiting" && !playerJoinedTournament;
+              const canLeave = isJoined && to.status === "waiting";
 
               const statusConfig = {
                 waiting: { color: 'text-yellow-400', bg: 'bg-yellow-400/10', dot: 'bg-yellow-400' },
                 in_progress: { color: 'text-blue-400', bg: 'bg-blue-400/10', dot: 'bg-blue-400' },
                 completed: { color: 'text-green-400', bg: 'bg-green-400/10', dot: 'bg-green-400' },
-              }[t.status] || { color: 'text-gray-400', bg: 'bg-gray-400/10', dot: 'bg-gray-400' };
+              }[to.status] || { color: 'text-gray-400', bg: 'bg-gray-400/10', dot: 'bg-gray-400' };
 
               return (
                 <div
-                  key={t.id}
+                  key={to.id}
                   className="group relative backdrop-blur-xl border border-white/20 rounded-3xl p-4 sm:p-6 hover:border-white/30 transition-all duration-500"
                   style={{ backgroundColor: '#383e4500' }}
                 >
@@ -228,7 +230,7 @@ const TournamentJoin: React.FC = () => {
                     <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${statusConfig.bg} ${statusConfig.color}`}>
                       <div className={`w-2 h-2 rounded-full ${statusConfig.dot}`}></div>
                       <span className="text-xs font-medium capitalize">
-                        {t.status.replace('_', ' ')}
+                        {to.status.replace('_', ' ')}
                       </span>
                     </div>
                   </div>
@@ -236,17 +238,17 @@ const TournamentJoin: React.FC = () => {
                   {/* Tournament Header */}
                   <div className="mb-4 sm:mb-6 pr-16 sm:pr-20">
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2 truncate">
-                      {t.name}
+                      {to.name}
                     </h3>
                     <div className="flex flex-wrap items-center gap-2">
                       {isOwner && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-yellow-400/10 text-yellow-400 text-xs font-medium">
-                          👑 Owner
+                          👑 {t("owner")}
                         </span>
                       )}
                       {isJoined && !isOwner && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-green-400/10 text-green-400 text-xs font-medium">
-                          ✓ Joined
+                          ✓ {t("Joined")}
                         </span>
                       )}
                     </div>
@@ -256,24 +258,24 @@ const TournamentJoin: React.FC = () => {
                   <div className="flex items-center justify-between mb-4 sm:mb-6 p-3 rounded-lg" style={{ backgroundColor: '#21283000' }}>
                     <div className="flex items-center gap-2">
                       <span className="text-blue-400">👥</span>
-                      <span className="text-white font-medium text-sm sm:text-base">Players</span>
+                      <span className="text-white font-medium text-sm sm:text-base">{t("Players")}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-white font-bold text-sm sm:text-base">
-                        {t.currentPlayers}/{t.maxPlayers}
+                        {to.currentPlayers}/{to.maxPlayers}
                       </span>
                       {isFull && (
                         <span className="px-2 py-1 bg-red-400/10 text-red-400 text-xs rounded-lg">
-                          Full
+                          {t("Full")}
                         </span>
                       )}
                     </div>
                   </div>
 
                   {/* Description */}
-                  {t.description && (
+                  {to.description && (
                     <p className="text-white/60 text-sm mb-4 sm:mb-6 line-clamp-2">
-                      {t.description}
+                      {to.description}
                     </p>
                   )}
 
@@ -283,7 +285,7 @@ const TournamentJoin: React.FC = () => {
                       {/* Join/Leave Button */}
                       {!isJoined ? (
                         <button
-                          onClick={() => handleJoin(t)}
+                          onClick={() => handleJoin(to)}
                           disabled={!canJoin}
                           className={`flex-1 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-medium text-sm transition-all duration-200 ${
                             canJoin
@@ -291,11 +293,11 @@ const TournamentJoin: React.FC = () => {
                               : "bg-gray-700/50 text-gray-400 cursor-not-allowed"
                           }`}
                         >
-                          {isFull ? "Full" : "Join Tournament"}
+                          {isFull ? t("Full") : t("Join_Tournament")}
                         </button>
                       ) : (
                         <button
-                          onClick={() => handleLeave(t)}
+                          onClick={() => handleLeave(to)}
                           disabled={!canLeave}
                           className={`flex-1 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl font-medium text-sm transition-all duration-200 ${
                             canLeave
@@ -303,16 +305,16 @@ const TournamentJoin: React.FC = () => {
                               : "bg-gray-700/50 text-gray-400 cursor-not-allowed"
                           }`}
                         >
-                          Leave
+                          {t("Leave")}
                         </button>
                       )}
 
                       {/* View Button */}
                       <Link
-                        to={`/game/ping-pong/tournament-game/tournament/${t.id}/view`}
+                        to={`/game/ping-pong/tournament-game/tournament/${to.id}/view`}
                         className="flex justify-center items-center sm:flex-none py-2.5 sm:py-3 px-3 sm:px-4 bg-gradient-to-r from-purple-500/20 to-purple-600/20 text-white rounded-xl font-medium text-sm transition-all duration-200 hover:scale-[1.02] text-center border border-purple-500/30"
                       >
-                        View Board
+                        {t("View_Board")}
                       </Link>
                     </div>
 
@@ -320,9 +322,9 @@ const TournamentJoin: React.FC = () => {
                     {!canJoin && !isJoined && (
                       <div className="text-center py-2 px-3 rounded-lg" style={{ backgroundColor: '#21283000' }}>
                         <span className="text-white/60 text-xs">
-                          {isFull ? "Tournament is full" : 
-                          t.status !== "waiting" ? "Already started" :
-                          playerJoinedTournament ? "Already in another tournament" : "Cannot join"}
+                          {isFull ? t("Tournament_is_full"): 
+                          to.status !== "waiting" ? t("Already_started") :
+                          playerJoinedTournament ? t("Already_in_another_tournament") : t("Cannot_join")}
                         </span>
                       </div>
                     )}

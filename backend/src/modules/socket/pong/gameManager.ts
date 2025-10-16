@@ -1,6 +1,7 @@
 // gameManager.ts
 
 export const games = new Map<string, Game>();
+export const paddleDirections = new Map();
 
 interface GameState {
   ball: {
@@ -98,11 +99,4 @@ export function addPlayerToGame({ roomId, playerName, socketId }: AddPlayerToGam
     sockId: socketId,
   });
   return true;
-}
-
-/**
- * Remove a game completely by roomId
- */
-export function removeGame(roomId: string): void {
-  games.delete(roomId);
 }

@@ -31,9 +31,12 @@ const Messages: React.FC<Messageprops> = ({
   const [visibleMessages, setVisibleMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const {t} = useTranslation();
+  
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView();
   }, [visibleMessages]);
+
   useEffect(() => {
     const start = Math.max(messages.length - page * pageSize, 0);
     const end = messages.length;

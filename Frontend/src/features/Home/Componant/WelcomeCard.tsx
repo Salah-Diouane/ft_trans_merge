@@ -1,21 +1,37 @@
 import { FaPlay } from "react-icons/fa";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { useStore } from "../../../store/store";
-import { useTranslation } from "react-i18next";;
+import { useTranslation } from "react-i18next";
+import TextType from "../TextType";
+
 const WelcomeCard: React.FC = () => {
   const store = useStore();
   const navigate = useNavigate();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <div className="z-10 relative w-full h-auto bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-hidden ">
       <div className=" flex flex-col gap-8 2xl:gap-5 xl:gap-4 lg:gap-4 md:gap-3 sm:gap-4 p-4">
         <div className="">
           <h1 className="font-russo text-2xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white animate-pulse">
-            {t("welcome_back")}
+            <TextType
+              text={t("welcome_back")}
+              typingSpeed={75}
+              pauseDuration={1500}
+              showCursor={false}
+              cursorCharacter="."
+            />
+            {/* {t("welcome_back")} */}
           </h1>
           <h2 className="font-russo text-1xl sm:text-4xl md:text-4xl  sm_md:bg-green-600 2xl:text-6xl text-white mt-1 animate-pulse">
-            {store.username.toUpperCase()}
+            <TextType
+              text={store.username.toUpperCase()}
+              typingSpeed={75}
+              pauseDuration={1500}
+              showCursor={false}
+              cursorCharacter="."
+            />
+            {/* {store.username.toUpperCase()} */}
           </h2>
         </div>
         <button
@@ -35,31 +51,32 @@ const WelcomeCard: React.FC = () => {
           />
         </div>
       </div>
-      <div className="sm:absolute sm:transform sm:-translate-x-1/2  sm:-bottom-4 sm:left-1/2 h-[80%] sm:justify-center hidden  sm:flex">
-        <svg
-          viewBox="0 0 207 110"
-          // xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M102.267 0.434814C132.402 0.434814 156.831 24.8643 156.831 54.9993C156.831 59.7291 156.229 64.3183 155.098 68.6946C155.021 69.5379 154.981 70.389 154.981 71.2463C154.982 92.1843 178.085 109.197 206.771 109.556V109.565H0.228516V109.484C27.7613 108.213 49.5513 91.5806 49.5518 71.2463C49.5518 70.389 49.511 69.5379 49.4346 68.6946C48.3034 64.3184 47.7021 59.729 47.7021 54.9993C47.7021 24.8643 72.1317 0.434882 102.267 0.434814Z"
-            fill="#222831"
+ 
+
+
+      <div className="sm:absolute sm:transform sm:-translate-x-1/2 sm:-bottom-4 sm:left-1/2 h-[80%] sm:justify-center hidden sm:flex">
+        <div className="relative w-full h-full">
+          <svg viewBox="0 0 207 110" className="w-full h-full">
+            <path
+              d="M102.267 0.434814C132.402 0.434814 156.831 24.8643 156.831 54.9993C156.831 59.7291 156.229 64.3183 155.098 68.6946C155.021 69.5379 154.981 70.389 154.981 71.2463C154.982 92.1843 178.085 109.197 206.771 109.556V109.565H0.228516V109.484C27.7613 108.213 49.5513 91.5806 49.5518 71.2463C49.5518 70.389 49.511 69.5379 49.4346 68.6946C48.3034 64.3184 47.7021 59.729 47.7021 54.9993C47.7021 24.8643 72.1317 0.434882 102.267 0.434814Z"
+              fill="#222831"
+            />
+          </svg>
+          <img
+            src={store.image_url}
+            alt="Player Avatar"
+            className="absolute rounded-full object-cover"
+            style={{
+              width: "48%",
+              height: "82%",
+              left: "26%",
+              top: "9%",
+              clipPath: "circle(45% at 50% 50%)",
+            }}
           />
-          <image
-            href={store.image_url}
-            x="53.5"
-            y="10"
-            width="100"
-            height="90"
-            clipPath="url(#circleClip)"
-            preserveAspectRatio="xMidYMid slice"
-          />
-          <defs>
-            <clipPath id="circleClip">
-              <circle cx="103.5" cy="55" r="45" />
-            </clipPath>
-          </defs>
-        </svg>
+        </div>
       </div>
+
       <div className="sm:absolute sm:top-0 sm:right-0 sm:z-20 sm:h-full sm md:w-[30%] xl:w-[20%] sm:w-[40%] sm:justify-end hidden sm:flex ">
         <svg
           className="h-full w-full"

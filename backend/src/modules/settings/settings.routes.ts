@@ -4,16 +4,15 @@ import fastify, { FastifyInstance } from "fastify"
 import { get, request } from "http"
 import { resolve } from "path"
 import { profile_setting, game_setting, security_settings, tictac_setting } from './settings.schema'
-import { getuser, getuserid } from "../../utils/userauth.utils"
+import { getuser, getuserid, getUserLanguage } from "../../utils/userauth.utils"
 import { type User } from "../../utils/userauth.utils"
-import { UpdateProfile } from "../../utils/settings.utils"
+import { UpdateProfile, getdisplay_name } from "../../utils/settings.utils"
 import { v2 as cloudinary } from 'cloudinary';
-import { getgameinfo, UpdateGame, UpdateTicTac, getTicTacinfo } from "../../utils/settings.utils"
+import { getgameinfo, UpdateGame, UpdateTicTac, getTicTacinfo, isDisplayNameTaken } from "../../utils/settings.utils"
 import type { gameinfo, securityinfo, ticTacinfo } from "../../utils/settings.utils";
 import { setpassword } from "../../utils/settings.utils"
 import { settwoFA } from "../../utils/settings.utils"
 import { generateAccessToken, generateRefreshToken } from "../userauth/userauth.services"
-
 
 export const profile = async (fastify: FastifyInstance) => {
 	fastify.put('/profile', {
@@ -22,16 +21,37 @@ export const profile = async (fastify: FastifyInstance) => {
 		}
 	}, async (request, reply) => {
 		console.log('PUT /profile route called');
-		try {``
+		try {
+			``
 			const token = request.cookies.accessToken;
 			if (!token) {
 				return reply.code(401).send({ userinfo: false, message: "No access token in cookies", accesstoken: false, refreshtoken: true });
 			}
-			const decodetoken = fastify.jwt.decode(token) as { username: string };
+			const decodetoken = fastify.jwt.decode(token) as { username: string, display_name: string };
+			console.log("##### decodetoken.display_name  : ", decodetoken);
 			const newuser = request.body as User;
 			const user = await getuser(fastify, newuser.username);
-			if (user && user.username !== decodetoken.username) {
-				return reply.code(400).send({ message: 'this username already token !', type: 'username', login: false });
+			const DisplayNameistaken = await isDisplayNameTaken(fastify, newuser.display_name);
+			const usernameDisplayNameTakenErrors: any = {
+				en: {
+					username_taken_error: "This username is already taken!",
+					display_name_taken_error: "This display name is already taken!",
+				},
+				fr: {
+					username_taken_error: "Ce nom d'utilisateur est déjà pris !",
+					display_name_taken_error: "Ce nom d'affichage est déjà pris !",
+				},
+				es: {
+					username_taken_error: "¡Este nombre de usuario ya está en uso!",
+					display_name_taken_error: "¡Este nombre para mostrar ya está en uso!",
+				},
+			};
+			console.log("#### : ", user?.Language);
+			const lang = await getUserLanguage(fastify, decodetoken.username);
+			if (user && (user.username !== decodetoken.username)) {
+				return reply.code(400).send({ message: `${usernameDisplayNameTakenErrors[lang || 'en']?.username_taken_error}`, type: 'username', login: false , errorexplain: true});
+			} else if (DisplayNameistaken && newuser.display_name !== decodetoken.display_name) {
+				return reply.code(400).send({ message: `${usernameDisplayNameTakenErrors[lang || 'en']?.display_name_taken_error}`, type: `display_name`, login: false , errorexplain: true});
 			}
 			await UpdateProfile(fastify, newuser, decodetoken.username);
 			const userinfo = await getuser(fastify, newuser.username);
@@ -113,7 +133,6 @@ export const GetGameInfo = async (fastify: FastifyInstance) => {
 	})
 }
 
-
 //TIC TAC
 export const TicTacSettings = async (fastify: FastifyInstance) => {
 	fastify.put('/tictac', {
@@ -148,7 +167,7 @@ export const GetTicTacInfo = async (fastify: FastifyInstance) => {
 			const id = await getuserid(fastify, decodetoken.username) || 0;
 			const ticTacinfo = await getTicTacinfo(fastify, id);
 			console.log("====> : ticTacinfo : ", ticTacinfo);
-			return reply.send({ x_color: ticTacinfo?.x_color, o_color: ticTacinfo?.o_color, grid_color: ticTacinfo?.grid_color, board_color: ticTacinfo?.board_color });
+			return reply.send({ x_color: ticTacinfo?.x_color, o_color: ticTacinfo?.o_color, grid_color: ticTacinfo?.grid_color, board_color: ticTacinfo?.board_color, errorexplain: true });
 		} catch (err) {
 			reply.code(500).send({ message: (err as Error).message });
 		}
@@ -168,15 +187,26 @@ export const UpateSecurity = async (fastify: FastifyInstance) => {
 				return reply.code(401).send({ userinfo: false, message: "No access token in cookies", accesstoken: false, refreshtoken: true });
 			const decodetoken = fastify.jwt.decode(token) as { username: string };
 			const user = await getuser(fastify, decodetoken.username);
+			const passwordUpdateErrors: any = {
+				en: {
+					incorrect_old_password: "The current password you entered is incorrect. Please try again.",
+					password_mismatch: "New password and confirmation do not match. Please check and try again."
+				},
+				fr: {
+					incorrect_old_password: "Le mot de passe actuel que vous avez saisi est incorrect. Veuillez réessayer.",
+					password_mismatch: "Le nouveau mot de passe et la confirmation ne correspondent pas. Veuillez vérifier et réessayer."
+				},
+				es: {
+					incorrect_old_password: "La contraseña actual que ingresaste es incorrecta. Por favor, inténtalo de nuevo.",
+					password_mismatch: "La nueva contraseña y su confirmación no coinciden. Por favor, verifica e inténtalo de nuevo."
+				}
+			};
+			const lang = await getUserLanguage(fastify, decodetoken.username);
 			if (body.password !== undefined) {
-				console.log("the password : ", user?.password);
-				console.log("old password : ", body.oldpassowrd);
-				console.log("the current password : ", body.password);
-				console.log("the confure passowrd : ", body.confirmpassword);
 				if (user?.password !== body.oldpassowrd)
-					return (reply.code(400).send({ type: "oldpassowrd", message: "the current password is invalid" }));
+					return (reply.code(400).send({ type: "oldpassowrd", message: `${passwordUpdateErrors[lang || 'en']?.incorrect_old_password}` , errorexplain: true}));
 				else if (body.password !== body.confirmpassword)
-					return (reply.code(400).send({ type: 'confirmpassword', message: 'password and confirmpassword are not the same !' }));
+					return (reply.code(400).send({ type: 'confirmpassword', message: `${passwordUpdateErrors[lang || 'en']?.password_mismatch}` , errorexplain: true}));
 				await setpassword(fastify, user.username, body.password);
 			}
 			if (body.twoFA !== undefined) {

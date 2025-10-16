@@ -10,7 +10,8 @@ const WaitingScreen: React.FC<Props> = ({ onCancel }) => {
   const {t} = useTranslation();
   return (
     <>
-      <div className="bg-[#393e46] rounded-2xl p-8 shadow-2xl w-[900px] max-w-2xl mx-auto border border-gray-600">
+      {/* <div className="bg-[#393e46] rounded-2xl p-8 shadow-2xl w-auto lg:w-[900px] max-w-2xl mx-auto border border-gray-600"> */}
+      <div className="bg-[#393e46] rounded-2xl p-8 shadow-2xl w-full max-w-2xl mx-auto border border-gray-600">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-[#222831] rounded-full flex items-center justify-center mb-4 mx-auto border border-gray-600">
             <RiPingPongFill className="w-6 h-6 text-white" />

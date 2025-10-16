@@ -21,7 +21,7 @@ const Friends: React.FC = () => {
   }, []);
 
   return (
-    <div className="pt-10 flex justify-center">
+    <div className=" m-auto pt-10 flex justify-center">
       <div className="mx-auto h-full w-full 2xl:w-[70%] xl:w-[60%] lg:w-[80%] md:w-[90%] flex flex-col rounded-2xl p-2 bg-[#393E46]">
         <div className="sticky top-0 z-30 h-12 flex flex-row justify-center gap-4 items-center bg-[#393E46]">
           {tabs.map(({ key, label, icon }) => (

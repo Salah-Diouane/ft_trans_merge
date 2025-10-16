@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../../../Chat/services/socket";
 import { UserPlayer } from "./types";
+import { useTranslation } from "react-i18next";
 
 const TournamentCreate: React.FC = () => {
+  const {t} = useTranslation();
   const [name, setName] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(4);
   const [ownerPlays, setOwnerPlays] = useState(true);
@@ -57,10 +59,10 @@ const TournamentCreate: React.FC = () => {
   
   return (
     <div className="min-h-[70vh] w-full max-w-xl mx-auto p-6">
-      <h2 className="text-2xl font-bold text-white mb-6">Create Tournament</h2>
+      <h2 className="text-2xl font-bold text-white mb-6">{t("create_trn")}</h2>
       <form onSubmit={handleSubmit} className="space-y-5">
         <label className="block">
-          <span className="text-gray-300">Name</span>
+          <span className="text-gray-300">{t("name")}</span>
           <input
             className="mt-1 w-full rounded-lg bg-[#2b2f36] text-white p-3 outline-none border border-white/10"
             placeholder="Weekend Cup"
@@ -69,21 +71,8 @@ const TournamentCreate: React.FC = () => {
           />
         </label>
 
-        {/* <label className="block">
-          <span className="text-gray-300">Max Players:   </span>
-          <select
-            value={maxPlayers}
-            onChange={(e) => setMaxPlayers(parseInt(e.target.value))}
-            className="mt-1 w-full rounded-lg bg-[#2b2f36] text-white p-3 outline-none border border-white/10"
-          >
-            <option value={2}>2</option>
-            <option value={4}>4</option>
-            <option value={8}>8</option>
-            <option value={16}>16</option>
-          </select>
-        </label> */}
         <span className="flex items-center gap-3">
-          <label className="text-gray-300">Max Players: {maxPlayers}</label>
+          <label className="text-gray-300">{t("max_players")} {maxPlayers}</label>
         </span>
 
         <label className="flex items-center gap-3">
@@ -92,7 +81,7 @@ const TournamentCreate: React.FC = () => {
             checked={ownerPlays}
             onChange={(e) => setOwnerPlays(e.target.checked)}
           />
-          <span className="text-gray-300">Owner plays</span>
+          <span className="text-gray-300">{t("own_player")}</span>
         </label>
 
         <button
@@ -100,7 +89,7 @@ const TournamentCreate: React.FC = () => {
           disabled={loading}
           className="w-full rounded-lg bg-[#0077FF] hover:bg-blue-600 text-white font-semibold p-3 disabled:opacity-50"
         >
-          {loading ? "Creating..." : "Create"}
+          {loading ? t("creating") : t("Create")}
         </button>
       </form>
     </div>

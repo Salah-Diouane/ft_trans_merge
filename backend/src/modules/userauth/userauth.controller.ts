@@ -7,14 +7,16 @@ import { env } from '../../plugins/env.plugin';
 import { setdefaultgame } from "../../utils/settings.utils";
 import { addNewPlayerState } from '../../utils/profile.utils';
 import { setTwoFACountById } from '../../utils/userauth.utils'
+import bcrypt from 'bcrypt';
 
 export async function handle_Signin(fastify: FastifyInstance, request: FastifyRequest, reply: FastifyReply, user: User) {
 	const userinfo: User | null = await getuser(fastify, user.username);
 
 	if (!userinfo)
-		return reply.code(400).send({ message: 'User not found !', type: 'username', login: false });
-	else if (userinfo.password !== user.password)
-		return reply.code(400).send({ message: 'invalid password !', type: 'password', login: false });
+		return reply.code(400).send({ message: 'User not found !', type: 'username', login: false , TypeError : 'errorUserNotFound'});
+	const passwordMatch = await bcrypt.compare(user.password, userinfo.password);
+	if (!passwordMatch)
+		return reply.code(400).send({ message: 'invalid password !', type: 'password', login: false , TypeError: 'errorInvalidPassword'});
 	if (userinfo?.twoFA) {
 		await sendemail(fastify, userinfo);
 		return reply.code(201).send({ message: `send 2FA to ${userinfo.email}`, login: true, twofa: true });
@@ -29,16 +31,16 @@ export async function handel_verifytwofa(fastify: FastifyInstance, request: Fast
 	const userinfo: User | null = await getuser(fastify, username);
 
 	if (userinfo === null)
-		return reply.code(400).send({ message: "user not found", login: false , twofa: true});
+		return reply.code(400).send({ message: "user not found", login: false, twofa: true });
 	else {
 		if (userinfo?.twoFA_code !== twofa) {
 			if (userinfo.twoFA_count !== 3) {
 				console.log("###!@#@#@ userinfo.id", userinfo.id);
 				await setTwoFACountById(fastify, userinfo.id || 0, userinfo.twoFA_count + 1);
-				return reply.code(400).send({ message: "your 2fa code not correct try again !", login: false , twofa: true});
+				return reply.code(400).send({ message: "your 2fa code not correct try again !", login: false, twofa: true , type: 'errorInvalidCode'});
 			} else {
 				await setTwoFACountById(fastify, userinfo.id || 0, 0);
-				return reply.code(400).send({ message: "For your security, you have up to three attempts to enter the 2FA code.", login: false , twofa: false});
+				return reply.code(400).send({ message: "For your security, you have up to three attempts to enter the 2FA code.", login: false, twofa: false , type : 'errorMaxAttempts'});
 			}
 		}
 		else {
@@ -60,7 +62,7 @@ export async function handle_googlesign(fastify: FastifyInstance, request: Fasti
 	const user = await getuser_email(fastify, userInfo.email);
 	if (!user) {
 		const username = generateusername(userInfo.email);
-		const newuser: User = { username: username, email: userInfo.email, family_name: userInfo.family_name, first_name: userInfo.given_name }
+		const newuser: User = { username: username, display_name: username, email: userInfo.email, family_name: userInfo.family_name, first_name: userInfo.given_name }
 		await addNewUser(fastify, newuser);
 		const id = await getuserid(fastify, newuser.username) || 0;
 		await setdefaultgame(fastify, id);

@@ -121,7 +121,7 @@ const RemoteGame: React.FC = () => {
     }
   };
   return (
-    <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4">
+    <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4 overflow-auto">
       {!gameStarted && !usersJoin ? (
         waitingForPlayer ? (
           <WaitingScreen onCancel={handleLeaveGame} />
@@ -129,8 +129,8 @@ const RemoteGame: React.FC = () => {
           <Choose onChoose={handleJoinGame} />
         )
       ) : (
-        <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
-          <h1 className="text-5xl font-extrabold text-white mb-6">
+        <div className="flex flex-col items-center space-y-4 w-full max-w-2xl h-[80%]">
+          <h1 className="text-5xl font-extrabold text-white ">
             Tic Tac Toe
           </h1>
 

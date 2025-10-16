@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useStore } from "../../store/store";
 import meProfile from "../Assets/me.jpeg";
-import logo from "../Assets/logo.png";
+import logo from "../Assets/pp.jpeg";
 import { LiaUserFriendsSolid } from "react-icons/lia";
 import NavBar from "./NavBar";
 
@@ -60,7 +60,7 @@ const Layout: React.FC = () => {
               <img
                 src={logo}
                 alt="Logo"
-                className="rounded-full cursor-pointer mt-2 hidden lg:block"
+                className="rounded-full cursor-pointer mt-2 hidden lg:block "
               />
             </div>
 

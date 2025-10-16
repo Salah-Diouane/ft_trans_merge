@@ -16,7 +16,7 @@ export const generateRefreshToken = async (fastify: FastifyInstance, reply: Fast
 }
 
 export const generateAccessToken = async (fastify: FastifyInstance, reply: FastifyReply, user: User): Promise<string> => {
-	const token = await fastify.jwt.sign({ userid: user.id, username: user.username, email: user.email }, { expiresIn: '1h' });
+	const token = await fastify.jwt.sign({ userid: user.id, username: user.username, display_name: user.display_name}, { expiresIn: '1h' });
 	reply.setCookie('accessToken', token, {
 		path: '/',
 		secure: false,
@@ -39,7 +39,7 @@ export const sendemail = async (fastify: FastifyInstance, userinfo: User) => {
 	const mailOptions = {
 		from: env.GMAIL_ACCOUNT,
 		to: `${userinfo.email}`,
-		subject: '2fa from my web project',
+		subject: '2fa from ft_transcendence(imik n lweb, ya rayak)',
 		html: `
 		<div style="
 		  font-family: Arial, sans-serif; 

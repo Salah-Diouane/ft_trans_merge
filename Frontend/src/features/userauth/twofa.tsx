@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, Navigate, Link } from "react-router-dom";
 import { useStore } from "../../store/store";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export default function TwoFA() {
 	const [numbers, setNumbers] = useState(["", "", "", "", "", ""]);
@@ -14,6 +15,7 @@ export default function TwoFA() {
 		| { username: string; password: string }
 		| undefined;
 	const store = useStore();
+	const {t} = useTranslation();
 
 	if (!state) {
 		return <Navigate to="/login/Signin" replace />;
@@ -40,13 +42,13 @@ export default function TwoFA() {
 					body: JSON.stringify(body),
 					credentials: "include",
 				}
-			).then((res) => res.json())) as { message: string; login: boolean , twofa: boolean};
+			).then((res) => res.json())) as { message: string; login: boolean, twofa: boolean , type: string};
 
 			if (!response.login) {
 				if (response.twofa)
-					seterros(response.message);
+					seterros(response.type ? t(`${response.type}`) : t('pongSettingsError'));
 				else {
-					toast.error(response.message);
+					toast.error(response.type ? t(`${response.type}`) : t('pongSettingsError'));
 					navigate('/login/Signin');
 				}
 			} else {
@@ -54,7 +56,8 @@ export default function TwoFA() {
 				navigate("/");
 			}
 		} catch (err: any) {
-			alert(err.message || "2FA failed.");
+			toast.error(`${t('pongSettingsError')}`);
+			
 		}
 	};
 	const inputClass = () => {
@@ -79,9 +82,9 @@ export default function TwoFA() {
 		<>
 			<br />
 			<h1 className="mb-4 text-xl font-russo  font-semibold">
-				Two-Factor Auth
+				{t('twoFactorAuthTitle')}
 			</h1>
-			<h6 className="text-xs">We Send a code to your email ****@gmail.com </h6>
+			<h6 className="text-xs">{t('emailSentMessage')} </h6>
 			<br />
 			<div className="flex flex-col">
 				<div className="flex space-x-2 mb-4">
@@ -123,7 +126,7 @@ export default function TwoFA() {
 						className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
 					>
 						{" "}
-						Verify{" "}
+						{t('verifyButton')}{" "}
 					</button>
 				</div>
 			</div>

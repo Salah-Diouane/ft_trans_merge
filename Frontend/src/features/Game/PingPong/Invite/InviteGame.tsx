@@ -3,8 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import GameWrapper from '../Remote/GameWrapper';
 import socket from '../../../Chat/services/socket';
 import { RiPingPongFill } from 'react-icons/ri';
+import { useTranslation } from "react-i18next";
 
 const InviteGame: React.FC = () => {
+  const {t} = useTranslation();
   const { roomId } = useParams<{ roomId: string }>();
   const [playerName, setPlayerName] = useState<string>('');
   const [playerDisplayName, setPlayerDisplayName] = useState<string>('');
@@ -35,7 +37,7 @@ const InviteGame: React.FC = () => {
           throw new Error("Game not found.");
         }
         return response.ok;
-      } catch (error:any) {   
+      } catch (error:any) {
         console.error("Error fetching users:", error);
         setError("Game not found.");
         return {};
@@ -112,13 +114,13 @@ const InviteGame: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#222831] text-white">
         <div className="text-center p-8 bg-[#393E46] rounded-xl border border-red-500/30">
-          <h1 className="text-2xl font-bold text-red-400 mb-4">Game Error</h1>
+          <h1 className="text-2xl font-bold text-red-400 mb-4">{t("game_err")}</h1>
           <p className="text-white/80 mb-6">{error}</p>
           <button
             onClick={handleGoBack}
             className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-colors"
           >
-            Go Back to Chat
+            {t("go_back_to_chat")}
           </button>
         </div>
       </div>
@@ -129,13 +131,13 @@ const InviteGame: React.FC = () => {
     return (
          <div className="flex flex-col items-center justify-center text-white">
            <h1 className="text-5xl font-extrabold text-blue-500 drop-shadow-lg mb-6 animate-pulse">
-             The Player Left The Game!
+             {t("palyer_left")}
            </h1>
            <button
              onClick={() => navigate('/chat')}
              className="mt-6 px-6 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-200"
            >
-             Back to Chat
+             {t("back_to_chat")}
            </button>
          </div>
        );
@@ -146,8 +148,8 @@ const InviteGame: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-[#222831] text-white">
         <div className="text-center">
           <RiPingPongFill className="w-20 h-20 mx-auto text-blue-400 mb-6" />
-          <h1 className="text-4xl font-bold text-blue-400 mb-4">Get Ready!</h1>
-          <p className="text-xl text-white/80 mb-8">Game starts in:</p>
+          <h1 className="text-4xl font-bold text-blue-400 mb-4">{t("get_ready")}</h1>
+          <p className="text-xl text-white/80 mb-8">{t("game_start_in")}</p>
           <div className="text-8xl font-mono text-blue-300 font-bold animate-pulse">
             {countdown}
           </div>
@@ -161,13 +163,13 @@ const InviteGame: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-[#222831] text-white">
         <div className="text-center p-8 bg-[#393E46] rounded-xl">
           <RiPingPongFill className="w-16 h-16 mx-auto text-blue-400 mb-4 animate-spin" />
-          <h1 className="text-2xl font-bold mb-4">Waiting for Game...</h1>
-          <p className="text-white/70">Setting up your Pong match</p>
+          <h1 className="text-2xl font-bold mb-4">{t("waiting_for_game")}</h1>
+          <p className="text-white/70">{t("setting_up")}</p>
           <button
             onClick={handleGoBack}
             className="mt-6 px-4 py-2 text-sm bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
           >
-            Cancel
+            {t("cancel")}
           </button>
         </div>
       </div>
@@ -175,13 +177,13 @@ const InviteGame: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#222831]">
+    <div className="min-h-screen flex bg-[#222831]">
       <div className="p-4">
         <button
           onClick={handleGoBack}
           className="mb-4 px-4 py-2 text-sm bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
         >
-          ← Back to Chat
+          {t("f_back_to_chat")}
         </button>
       </div>
       <GameWrapper 

@@ -2,11 +2,14 @@ import { rejects } from 'assert';
 import { FastifyInstance } from 'fastify';
 import { resolve } from 'path';
 
+type Game = "Pong" | "Tic-tac"
+
 type home_history = {
-	user_avatar: string;
-	opponent_avatar: string;
-	Score: string;
-	result: string;
+    user_avatar: string;
+    opponent_avatar: string;
+    Score: string;
+    result: string;
+    Game?: Game;
 }
 
 type Leaderboard = {
@@ -18,32 +21,35 @@ type Leaderboard = {
 
 
 export function getHistoryHome(fastify: FastifyInstance, userid: number, limit: number = 10): Promise<home_history[]> {
-	return new Promise((resolve, reject) => {
-		const query: string = `
-			SELECT
-				ua.image_url AS user_avatar,
-				opp.image_url AS opponent_avatar,
-				gh.Score AS Score,
-				CASE
-					WHEN gh.draw = 1 THEN 'Draw'
-					WHEN gh.Winnerid = ua.id THEN 'Win'
-					WHEN gh.Loserid = ua.id THEN 'Lose'
-				END AS result
-			FROM game_history gh
-			JOIN user_authentication ua ON (ua.id = gh.Winnerid OR ua.id = gh.Loserid)
-			JOIN user_authentication opp ON 
-				((gh.Winnerid = ua.id AND gh.Loserid = opp.id) OR
-				(gh.Loserid = ua.id AND gh.Winnerid = opp.id))
-			WHERE ua.id = ?
-			ORDER BY gh.Date DESC
-			LIMIT ?;
-		`;
+    return new Promise((resolve, reject) => {
+        const query: string = 
+            `
+				SELECT
+					ua.image_url AS user_avatar,
+					opp.image_url AS opponent_avatar,
+					gh.Score AS Score,
+					gh.Game AS Game,
+					CASE
+						WHEN gh.draw = 1 THEN 'Draw'
+						WHEN gh.Winnerid = ua.id THEN 'Win'
+						WHEN gh.Loserid = ua.id THEN 'Lose'
+					END AS result
+				FROM game_history gh
+				JOIN user_authentication ua ON (ua.id = gh.Winnerid OR ua.id = gh.Loserid)
+				JOIN user_authentication opp ON 
+					((gh.Winnerid = ua.id AND gh.Loserid = opp.id) OR
+					(gh.Loserid = ua.id AND gh.Winnerid = opp.id))
+				WHERE ua.id = ?
+				ORDER BY gh.Date DESC
+				LIMIT ?;
+			`
+        ;
 
-		fastify.db.all(query, [userid, limit], (err, rows: home_history[]) => {
-			if (err) return reject(err);
-			resolve(rows || []);
-		});
-	});
+        fastify.db.all(query, [userid, limit], (err, rows: home_history[]) => {
+            if (err) return reject(err);
+            resolve(rows || []);
+        });
+    });
 }
 
 

@@ -212,7 +212,6 @@ export default function handleChatEvents({
         }
   
         const count = row?.unseenCount || 0;
-        console.log("count :", count)
         socket.emit("notification:getcount", count);  
       }
     );

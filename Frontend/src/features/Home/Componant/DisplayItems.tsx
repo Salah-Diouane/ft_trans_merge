@@ -18,6 +18,7 @@ interface DisplayItemProps {
   user_avatar?: string;
   opponent_avatar?: string;
   score?: string;
+  game?: string,
 }
 
 const DisplayItem: React.FC<DisplayItemProps> = ({
@@ -30,6 +31,7 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
   user_avatar,
   opponent_avatar,
   score,
+  game,
 }) => {
   const level_int = level ? parseFloat(level.toString()) : 0;
   const progress = (level_int % 1) * 100;
@@ -47,22 +49,17 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
         return <span className="text-cyan-200 font-bold text-lg">{rank}</span>;
     }
   };
-
+  let Pong_score: string[] | undefined = score?.split("-");
   let color: string;
-  if (stat === "Draw"){
-    color = "text-[#469CFD]";
-  }
-  else if (stat === "Lose"){
-    color = "text-[#F85761]";
-  }
-  else{
-    color = "text-[#3AA64B]";
-  }
-  
-  
+  console.log("Pong_score : ", Pong_score )
+
+  if (stat === "Draw") color = "text-[#469CFD]";
+  else if (stat === "Lose") color = "text-[#F85761]";
+  else color = "text-[#3AA64B]";
+
   let user_score: number = 1;
   let opp_score: number = 1;
-  
+
   if (stat === "Win") {
     stat = t("win");
     user_score = 1;
@@ -74,6 +71,12 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
   } else {
     stat = t("draw");
   }
+
+  if (game === "Pong" && Pong_score) {
+    user_score = parseInt(Pong_score?.[0]) || 0;
+    opp_score = parseInt(Pong_score?.[1]) || 0;
+  }
+
 
   const getStatElement = (stat?: string, color?: string) => {
     switch (stat?.toLowerCase()) {

@@ -5,6 +5,7 @@ import { resolve } from 'path';
 export interface User {
 	id?: number;
 	username: string;
+	display_name: string;
 	email: string;
 	first_name: string;
 	family_name: string;
@@ -18,13 +19,26 @@ export interface User {
 	Language?: string;
 }
 
+export async function getUserLanguage(fastify: FastifyInstance, username: string): Promise<string | null> {
+	return new Promise((resolve, reject) => {
+		fastify.db.get(
+			`SELECT Language FROM user_authentication WHERE username = ?`,
+			[username],
+			(err: Error, row: { Language: string }) => {
+				if (err) return reject(err);
+				resolve(row?.Language || null);
+			}
+		);
+	});
+}
+
 export async function setTwoFACountById(fastify: FastifyInstance, id: number, value: number): Promise<void> {
 	return new Promise((resolve, reject) => {
 		fastify.db.run(
 			`UPDATE user_authentication
        SET twoFA_count = ?
        WHERE id = ?`,
-			[value, id], // <-- Corrected: both values in one array
+			[value, id],
 			function (err: Error | null) {
 				if (err) return reject(err);
 				resolve();
@@ -92,9 +106,10 @@ export async function getuser(fastify: FastifyInstance, username: string): Promi
 export async function addNewUser(fastify: FastifyInstance, newuser: User): Promise<void> {
 	return new Promise((resolve, reject) => {
 		fastify.db.run(
-			`INSERT INTO user_authentication (username, email, first_name, family_name, password)
-		 VALUES (?, ?, ?, ?, ?)`,
+			`INSERT INTO user_authentication (username, display_name , email, first_name, family_name, password)
+		 VALUES (?, ?, ?, ?, ?, ?)`,
 			[
+				newuser.username,
 				newuser.username,
 				newuser.email,
 				newuser.first_name,

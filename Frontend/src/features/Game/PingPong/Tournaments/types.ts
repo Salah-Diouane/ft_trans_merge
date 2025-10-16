@@ -17,7 +17,7 @@ export interface Match {
   id: string;
   round: number;
   players: [string | null, string | null];
-  status: MatchStatus;
+  status: MatchStatus | string;
   winner?: string | null;
   roomId?: string;
   score?: Record<string, number>;

@@ -1,5 +1,7 @@
 import { formatTime, getNotificationColor, getType } from "../../layout/Utils/NotificationUtils";
 import { useTranslation } from "react-i18next";
+// import gf2 from "../Assets/giphy1.gif";
+import gf2 from "../../Home/Assets/giphy1.gif";
 
 interface HandleNotifsProps {
     notifications: any[];
@@ -12,9 +14,9 @@ const HandleNotifs: React.FC<HandleNotifsProps> = ({
   }) => {
     const {t} = useTranslation();
     return (
-      <div className="w-full max-w-7xl mx-auto rounded-3xl overflow-hidden shadow-2xl bg-gray-900 border border-gray-700">
+      <div className="w-full  mx-auto rounded-lg overflow-hidden shadow-2xl ">
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 bg-gray-800 border-b border-gray-700">
+        <div className="flex justify-between items-center px-6 py-4 bg-[#393E46] border-b border-gray-700">
           <div>
             <h2 className="text-2xl font-extrabold text-white">{t("Notifications")}</h2>
             <p className="text-sm font-light text-gray-400 mt-1">

@@ -1,32 +1,41 @@
 import { games } from './gameManager';
-import { paddleDirections } from './pong.game.handlers';
-import { resetBall, handleScoring, clamp, checkPaddleCollision } from './gameUtils';
+import { paddleDirections } from './gameManager';
+import { handleScoring, clamp, checkPaddleCollision } from './gameUtils';
 import { pongGameEventProps } from './interfaces';
 import { tournaments } from './tournamentStore';
 
+const baseWidth = 600;
+const baseHeight = 400;
+const paddleW = 12;
+const paddleH = 70;
+const ballR = 10;
+const paddleOffset = 20;
+const maxBallSpeed = 20;
+const initialBallSpeed = 3;
+const speed = 10;
+
 export function startGameLoop(pongGameEvent: pongGameEventProps) {
   const io = pongGameEvent.io;
-  const baseWidth = 600;
-  const baseHeight = 400;
-  const paddleW = 12;
-  const paddleH = 70;
-  const ballR = 10;
-  const paddleOffset = 20;
-  const maxBallSpeed = 20;
-  const initialBallSpeed = 3;
 
+  // Precompute constants
+  const paddleLeftX = paddleOffset;
+  const paddleRightX = baseWidth - paddleOffset - paddleW;
 
+  // Preallocate reusable objects
+  const paddleMovement = { left: 0, right: 0 };
+  const leftPaddleRect = { top: 0, bottom: 0, left: paddleLeftX, right: paddleLeftX + paddleW };
+  const rightPaddleRect = { top: 0, bottom: 0, left: paddleRightX, right: paddleRightX + paddleW };
 
   setInterval(() => {
     for (const [roomId, game] of games.entries()) {
-      if (game.players.length !== 2) continue;
-      if (!game.ready) continue;
-      
+      if (game.players.length !== 2 || !game.ready) continue;
+
       const state = game.state;
       const inputs = paddleDirections.get(roomId) || new Map();
-      const speed = 10;
 
-      const paddleMovement = { left: 0, right: 0 };
+      // Reset paddle movement
+      paddleMovement.left = 0;
+      paddleMovement.right = 0;
 
       // Handle paddle movement
       for (const [, input] of inputs.entries()) {
@@ -49,6 +58,12 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
         }
       }
 
+      // Update paddle rectangles
+      leftPaddleRect.top = state.paddles.left;
+      leftPaddleRect.bottom = state.paddles.left + paddleH;
+      rightPaddleRect.top = state.paddles.right;
+      rightPaddleRect.bottom = state.paddles.right + paddleH;
+
       const ball = state.ball;
       const prevBallX = ball.x;
       const prevBallY = ball.y;
@@ -57,53 +72,13 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
       ball.x += ball.dx;
       ball.y += ball.dy;
 
-      // Ball collision with top/bottom walls
+      // Ball collision with top/bottom walls (Edge collision detection)
       if (ball.y - ballR <= 0 || ball.y + ballR >= baseHeight) {
-        ball.dy *= -1;
-        ball.y = clamp(ball.y, ballR, baseHeight - ballR);
+        ball.dy *= -1; // Reverse vertical direction
+        ball.y = clamp(ball.y, ballR, baseHeight - ballR); // Clamp position within bounds
       }
 
-      // Paddle positions
-      const paddleLeftX = paddleOffset;
-      const paddleLeftY = state.paddles.left;
-      const paddleRightX = baseWidth - paddleOffset - paddleW;
-      const paddleRightY = state.paddles.right;
-
-      const leftPaddleRect = {
-        top: paddleLeftY,
-        bottom: paddleLeftY + paddleH,
-        left: paddleLeftX,
-        right: paddleLeftX + paddleW,
-      };
-
-      const rightPaddleRect = {
-        top: paddleRightY,
-        bottom: paddleRightY + paddleH,
-        left: paddleRightX,
-        right: paddleRightX + paddleW,
-      };
-
-      // Paddle collisions
-      if (
-        ball.dx < 0 &&
-        checkPaddleCollision(prevBallX, ball.x, ball.y, ballR, leftPaddleRect, true)
-      ) {
-        ball.x = leftPaddleRect.right + ballR;
-        const relativeIntersectY = (ball.y - paddleLeftY) / paddleH - 0.5;
-        ball.dy = relativeIntersectY * 8;
-        ball.dx = Math.min(Math.abs(ball.dx) * 1.1, maxBallSpeed);
-      }
-      else if (
-        ball.dx > 0 &&
-        checkPaddleCollision(prevBallX, ball.x, ball.y, ballR, rightPaddleRect, false)
-      ) {
-        ball.x = rightPaddleRect.left - ballR;
-        const relativeIntersectY = (ball.y - paddleRightY) / paddleH - 0.5;
-        ball.dy = relativeIntersectY * 8;
-        ball.dx = -Math.min(Math.abs(ball.dx) * 1.1, maxBallSpeed);
-      }
-
-      // Vertical paddle collisions (top/bottom edges)
+      // Left paddle edge collision detection
       const hitLeftEdgeVertically =
         ball.x + ballR >= leftPaddleRect.left &&
         ball.x - ballR <= leftPaddleRect.right &&
@@ -113,28 +88,32 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
         );
 
       if (paddleMovement.left === 0 && hitLeftEdgeVertically) {
-        ball.dy *= -1;
+        ball.dy *= -1; // Reverse vertical direction
         ball.y = ball.y < leftPaddleRect.top
           ? leftPaddleRect.top - ballR
-          : leftPaddleRect.bottom + ballR;
+          : leftPaddleRect.bottom + ballR; // Adjust ball position
       }
 
-      const hitRightEdgeVertically =
-        ball.x + ballR >= rightPaddleRect.left &&
-        ball.x - ballR <= rightPaddleRect.right &&
-        (
-          (prevBallY + ballR <= rightPaddleRect.top && ball.y + ballR >= rightPaddleRect.top) ||
-          (prevBallY - ballR >= rightPaddleRect.bottom && ball.y - ballR <= rightPaddleRect.bottom)
-        );
-
-      if (paddleMovement.right === 0 && hitRightEdgeVertically) {
-        ball.dy *= -1;
-        ball.y = ball.y < rightPaddleRect.top
-          ? rightPaddleRect.top - ballR
-          : rightPaddleRect.bottom + ballR;
+      // Paddle collisions
+      if (
+        ball.dx < 0 &&
+        checkPaddleCollision(prevBallX, ball.x, ball.y, ballR, leftPaddleRect, true)
+      ) {
+        ball.x = leftPaddleRect.right + ballR;
+        const relativeIntersectY = (ball.y - leftPaddleRect.top) / paddleH - 0.5;
+        ball.dy = relativeIntersectY * 8;
+        ball.dx = Math.min(Math.abs(ball.dx) * 1.1, maxBallSpeed);
+      } else if (
+        ball.dx > 0 &&
+        checkPaddleCollision(prevBallX, ball.x, ball.y, ballR, rightPaddleRect, false)
+      ) {
+        ball.x = rightPaddleRect.left - ballR;
+        const relativeIntersectY = (ball.y - rightPaddleRect.top) / paddleH - 0.5;
+        ball.dy = relativeIntersectY * 8;
+        ball.dx = -Math.min(Math.abs(ball.dx) * 1.1, maxBallSpeed);
       }
 
-      // Fallback: Ball inside paddle protection
+      // Anti-stuck protection
       const ballInsideLeft =
         ball.x + ballR > leftPaddleRect.left &&
         ball.x - ballR < leftPaddleRect.right &&
@@ -157,7 +136,7 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
         ball.x = rightPaddleRect.left - ballR;
       }
 
-      // Handle scoring with single function
+      // Handle scoring
       const gameEnded = handleScoring(
         pongGameEvent.fastify,
         ball,
@@ -173,10 +152,9 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
         paddleDirections
       );
 
-      if (gameEnded) {
-        continue;
-      }
+      if (gameEnded) continue;
 
+      // Emit game state to players (batch updates if needed)
       io.to(roomId).emit('gameState', {
         ball,
         paddles: state.paddles,
@@ -184,6 +162,28 @@ export function startGameLoop(pongGameEvent: pongGameEventProps) {
         players: game.players,
         roomId,
       });
+
+      // Tournament updates (optimize lookups)
+      if (game.gameType === "tournament") {
+        const tournament = Object.values(tournaments).find((t: any) =>
+          t.matches.some((m: any) => m.roomId === roomId)
+        );
+
+        if (tournament) {
+          const match = (tournament as any).matches.find((m: any) => m.roomId === roomId);
+          if (match && match.state) {
+            match.state.score = state.score;
+          }
+
+          io.to(`tournament:${(tournament as any).id}`).emit('tournament-match-update', {
+            tournamentId: (tournament as any).id,
+            roomId: roomId,
+            score: state.score,
+            players: game.players,
+            status: 'in_progress',
+          });
+        }
+      }
     }
   }, 1000 / 60);
 }

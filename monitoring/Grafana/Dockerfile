@@ -1,9 +1,14 @@
-FROM grafana/grafana:11.2.0
+FROM node:18-alpine
 
-COPY provisioning /etc/grafana/provisioning
-COPY dashboards /var/lib/grafana/dashboards
+WORKDIR /app
 
-ENV GF_SECURITY_ADMIN_USER=admin
-ENV GF_SECURITY_ADMIN_PASSWORD=admin
+COPY package*.json ./
 
-EXPOSE 3000
+RUN npm cache clean --force
+RUN npm install
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]

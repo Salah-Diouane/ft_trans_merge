@@ -6,6 +6,8 @@ import  handleGameEvents  from "../modules/socket/tictactoe/game.handlers";
 import handleUserEvents from "../modules/socket/userdata/user.handlers"
 import pongGameHandlers from "../modules/socket/pong/pong.game.handlers";
 import tournamentHandlers from "../modules/socket/pong/tournamentHandlers";
+// import inviteGameHandlers from "../modules/socket/pong/inviteGameHandlers";
+import inviteGameHandlers from "../modules/socket/pong/inviteGameHandlers";
 
 import { startGameLoop } from "../modules/socket/pong/gameLoop";
 
@@ -17,12 +19,14 @@ export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
     io.use(authMiddleware);
 
     io.on("connection", (socket) => {
-      
+      // console.log("===============================> start : ", socket)
+      // console.log("===============================> end : ")
       handleUserEvents({fastify, io, socket});
       handleChatEvents({fastify, io, socket});
       handleGameEvents({fastify, io, socket});
       pongGameHandlers({fastify, io, socket});
       tournamentHandlers({ fastify, io, socket});
+      inviteGameHandlers({ fastify, io, socket});
       
       socket.on("disconnect", () => {
         console.log("---------------> User disconnected:", socket.id);

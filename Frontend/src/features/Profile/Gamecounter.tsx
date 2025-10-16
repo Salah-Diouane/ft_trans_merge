@@ -30,7 +30,8 @@ export default function Gamecounter({ username }: { username: string }) {
       } else console.error(`the error : ${JSON.stringify(data)}`);
     };
     getdata();
-  }, []);
+    console.log('data gamescounter : ', gamescounter)
+  }, [username]);
   const data = {
     labels: ["Pong", "Tic Tac Toe"],
     datasets: [

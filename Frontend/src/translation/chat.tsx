@@ -19,7 +19,8 @@ export const chat = {
       date_conv: "en-GB",
       Delete_Message: "Delete Message?",
       block_user: "Block this User?",
-      You_have_blocked_this_user: "You have blocked this user."
+      You_have_blocked_this_user: "You have blocked this user.",
+      no_contact_found: "No contacts found",
     },
     fr: {
       online: "En ligne",
@@ -41,7 +42,8 @@ export const chat = {
       date_conv: "fr-FR",
       Delete_Message: "Supprimer le message ?",
       block_user: "Bloquer cet utilisateur ?",
-      You_have_blocked_this_user: "Vous avez bloqué cet utilisateur."
+      You_have_blocked_this_user: "Vous avez bloqué cet utilisateur.",
+      no_contact_found: "Aucun contact trouvé",
     },
     es: {
       online: "En línea",
@@ -63,7 +65,8 @@ export const chat = {
       date_conv: "es-ES",
       Delete_Message: "¿Eliminar mensaje?",
       block_user: "¿Bloquear a este usuario?",
-      You_have_blocked_this_user: "Has bloqueado a este usuario."
+      You_have_blocked_this_user: "Has bloqueado a este usuario.",
+      no_contact_found: "No se encontraron contactos",
     },
   };
   

@@ -25,7 +25,7 @@ const RemotePong = lazy(() => import('../features/Game/PingPong/Remote/RemotePon
 const GameSettings = lazy(() => import('../features/Settings/Game'));
 const ProfileSetting = lazy(() => import('../features/Settings/Profile'));
 const SecurtitySettings = lazy(() => import('../features/Settings/Security'));
-// const Friends = lazy(() => import('../features/Friends/Friends'));
+const Friends = lazy(() => import('../features/Friends/Friends'));
 const Notification = lazy(() => import('../features/Notifications/Notification'));
 const TournamentPong = lazy(() => import('../features/Game/PingPong/Tournaments/TournamentPong'));
 const TournamentCreate = lazy(() => import('../features/Game/PingPong/Tournaments/TournamentCreate'));
@@ -33,7 +33,7 @@ const TournamentJoin = lazy(() => import('../features/Game/PingPong/Tournaments/
 const TournamentBoard = lazy(() => import('../features/Game/PingPong/Tournaments/TournamentBoard'));
 const TournamentGameStart = lazy(() => import('../features/Game/PingPong/Tournaments/TournamentGameStart'));
 const InviteGame = lazy( () => import('../features/Game/PingPong/Invite/InviteGame'))
-import Friends from "../features/Friends/Friends"
+import NotFound from "../features/NotFound/NotFound";
 export const routes = [
   {
     path: "/login",
@@ -102,6 +102,11 @@ export const routes = [
       { path: "notification", element: <Notification /> },
       { path: "logout", element: <Logout /> },
       { path: "profile/:user?", element: <Profile /> },
+      // { path: "*", element: <NotFound /> },
     ],
+  },
+  {
+    path: "*",
+    element: <ProtectedRoute><NotFound /></ProtectedRoute>
   },
 ];

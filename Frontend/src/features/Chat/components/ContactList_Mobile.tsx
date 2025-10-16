@@ -54,7 +54,7 @@ const ContactList_Mobile: FC<ContactListMobileProps> = ({
       {/* contact lits */}
       <div className="flex-1 overflow-y-auto custom-scroll">
         {users.length === 0 ? (
-          <p className="text-white mt-4">No contacts found.</p>
+          <p className="text-white mt-4">{t("no_contact_found")}</p>
         ) : (
           users.map((user) => {
             const userMessages = messages[user.id] || [];

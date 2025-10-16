@@ -1,4 +1,14 @@
-FROM prom/node-exporter:v1.8.2
+FROM node:18-alpine
 
-EXPOSE 9100
-CMD ["--web.listen-address=:9100"]
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm cache clean --force
+RUN npm install
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]

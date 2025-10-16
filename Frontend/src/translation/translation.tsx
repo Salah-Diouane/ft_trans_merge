@@ -7,6 +7,9 @@ import Game from "./game"
 import friend from "./friends"
 import home from "./home"
 import notifs from "./notif"
+import validationErrors from './validitionerror'
+import userauth from "./userauth";
+
 const resources = {
   en: {
     translation: {
@@ -16,6 +19,8 @@ const resources = {
       ...friend.en,
       ...home.en,
       ...notifs.en,
+      ...validationErrors.en,
+      ...userauth.en
     },
   },
   fr: {
@@ -26,6 +31,8 @@ const resources = {
       ...friend.fr,
       ...home.fr,
       ...notifs.fr,
+      ...validationErrors.fr,
+      ...userauth.fr
     },
   },
   es: {
@@ -36,6 +43,8 @@ const resources = {
       ...friend.es,
       ...home.es,
       ...notifs.es,
+      ...validationErrors.es,
+      ...userauth.es
     },
   },
 };

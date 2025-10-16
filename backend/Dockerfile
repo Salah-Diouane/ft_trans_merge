@@ -4,7 +4,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 
-RUN apk add --no-cache 
+RUN apk add --no-cache python3 make g++
 
 
 COPY package*.json ./
@@ -19,3 +19,4 @@ EXPOSE 3000
 
 CMD ["npm", "run", "dev"]
 
+# 413 Request Entity Too Large

@@ -23,23 +23,54 @@ export interface securityinfo {
 	confirmpassword: string;
 };
 
-export async function getuserid(fastify: FastifyInstance, username: string) : Promise<number | null> {
+export async function getdisplay_name(fastify: FastifyInstance, id: number): Promise<string | null> {
+	return new Promise((resolve, rejects) => {
+		fastify.db.get(
+			`SELECT display_name from user_authentication WHERE id = ? `,
+			[
+				id
+			], (err: Error | null, row: { display_name: string }) => {
+				if (err) rejects(err);
+				if (!row) {
+					console.warn(` No user found for username: ${id}`);
+					return resolve(null);
+				}
+				resolve(row.display_name);
+			}
+		)
+	})
+}
+
+export async function getuserid(fastify: FastifyInstance, username: string): Promise<number | null> {
 	return new Promise((resolve, rejects) => {
 		fastify.db.get(
 			`SELECT id from user_authentication WHERE username = ? `,
 			[
 				username
 			],
-			(err : Error | null, row: { id: number}) => {
+			(err: Error | null, row: { id: number }) => {
 				if (err) rejects(err);
 				if (!row) {
 					console.warn(` No user found for username: ${username}`);
 					return resolve(null);
-				  }
+				}
 				resolve(row.id);
 			}
 		);
 	})
+}
+
+export async function isDisplayNameTaken(fastify: FastifyInstance, displayName: string): Promise<boolean> {
+	return new Promise((resolve, reject) => {
+		fastify.db.all(
+			`SELECT display_name FROM user_authentication WHERE display_name = ?`,
+			[displayName],
+			(err: Error | null, rows: any[]) => {
+				if (err) return reject(err);
+				resolve(rows.length > 0);
+			}
+		);
+	});
 }
 
 export async function updateImage(fastify: FastifyInstance, username: string, newImage: string): Promise<void> {
@@ -78,9 +109,10 @@ export async function updateCover(fastify: FastifyInstance, username: string, ne
 export async function UpdateProfile(fastify: FastifyInstance, user: User, username: string): Promise<void> {
 	return new Promise((resolve, reject) => {
 		fastify.db.run(
-			'UPDATE user_authentication SET  username = ?, first_name = ?, family_name = ?, Language = ?, image_url = ?, cover_url = ?  WHERE username = ?',
+			'UPDATE user_authentication SET  username = ?, display_name = ?, first_name = ?, family_name = ?, Language = ?, image_url = ?, cover_url = ?  WHERE username = ?',
 			[
 				user.username,
+				user.display_name,
 				user.first_name,
 				user.family_name,
 				user.Language,
@@ -168,7 +200,7 @@ export async function getTicTacinfo(fastify: FastifyInstance, id: number): Promi
 		console.log("username : ", id)
 		fastify.db.get('SELECT * FROM ticTac_settings_table where id = ? ', [id],
 			async (err: Error | null, rows: ticTacinfo) => {
-				if (err){
+				if (err) {
 					console.log("err in the getTicTacinfo !!!!!")
 					rejects(err);
 					return;
@@ -181,7 +213,7 @@ export async function getTicTacinfo(fastify: FastifyInstance, id: number): Promi
 					resolve({// return default values
 						x_color: "#FF0000",
 						o_color: "#0000FF",
-						grid_color: "#EEEEEE", 
+						grid_color: "#EEEEEE",
 						board_color: "#EEEEEE"
 					});
 				} else {
@@ -201,7 +233,7 @@ export async function setdefaultTictac(fastify: FastifyInstance, id: number): Pr
 			[
 				id,
 				"#FF0000",
-				"#0000FF", 
+				"#0000FF",
 				"#EEEEEE",
 				"#EEEEEE"
 			],

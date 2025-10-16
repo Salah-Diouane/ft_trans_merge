@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useTranslation } from "react-i18next";
 
 const baseWidth = 600;
 const baseHeight = 400;
@@ -9,6 +10,7 @@ const baseBallRadius = 10;
 const baseInitialBallSpeed = 3;
 
 const GameWrapper: React.FC = () => {
+  const {t} = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [canvasSize, setCanvasSize] = useState({ width: baseWidth, height: baseHeight });
@@ -27,6 +29,11 @@ const GameWrapper: React.FC = () => {
   const [gameOver, setGameOver] = useState(false);
   const [gameInProgress, setGameInProgress] = useState(false);
 
+  const [ballColor, setBallColor] = useState("#FF0000");
+  const [paddleColor, setPaddleColor] = useState("#0000FF");
+  const [tableColor, setTableColor] = useState("#EEEEEE");
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+
   // Touch controls state
   const [isMobile, setIsMobile] = useState(false);
   const touchStateRef = useRef({
@@ -41,6 +48,33 @@ const GameWrapper: React.FC = () => {
     down: false,
   });
 
+  // Fetch game settings on component mount (before game starts)
+  useEffect(() => {
+    const fetchGameSettings = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/settings/gameinfo`, {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const data = await response.json() as { 
+            ball_color: string; 
+            paddle_color: string; 
+            table_color: string;
+          };
+          setBallColor(data.ball_color || "#FF0000");
+          setPaddleColor(data.paddle_color || "#0000FF");
+          setTableColor(data.table_color || "#EEEEEE");
+        }
+      } catch (err) {
+        console.error("Failed to fetch game settings:", err);
+      } finally {
+        setSettingsLoaded(true);
+      }
+    };
+
+    fetchGameSettings();
+  }, []);
+
   // Detect if device supports touch
   useEffect(() => {
     const checkMobile = () => {
@@ -53,8 +87,8 @@ const GameWrapper: React.FC = () => {
   }, []);
 
   const updateCanvasSize = () => {
-    const maxWidth = window.innerWidth * 0.9;
-    const maxHeight = window.innerHeight * 0.7;
+    const maxWidth = window.innerWidth * 0.7;
+    const maxHeight = window.innerHeight * 0.5;
 
     let scale = Math.min(maxWidth / baseWidth, maxHeight / baseHeight);
     scale = Math.max(scale, 0.5);
@@ -80,7 +114,7 @@ const GameWrapper: React.FC = () => {
 
   // Touch event handlers
   const handleTouchStart = (e: React.TouchEvent, side: 'left' | 'right') => {
-    e.preventDefault();
+    // e.preventDefault();
     if (side === 'left') {
       touchStateRef.current.leftTouching = true;
     } else {
@@ -89,7 +123,7 @@ const GameWrapper: React.FC = () => {
   };
 
   const handleTouchMove = (e: React.TouchEvent, side: 'left' | 'right') => {
-    e.preventDefault();
+    // e.preventDefault();
     if (!gameInProgress || gameOver) return;
 
     const touch = e.touches[0];
@@ -100,7 +134,6 @@ const GameWrapper: React.FC = () => {
     const paddleH = paddleHeightRef.current;
     const canvasHeight = canvasSize.height;
 
-    // Calculate paddle position based on touch (center paddle on finger)
     const paddleY = Math.max(0, Math.min(canvasHeight - paddleH, touchY - paddleH / 2));
 
     if (side === 'left' && touchStateRef.current.leftTouching) {
@@ -130,17 +163,8 @@ const GameWrapper: React.FC = () => {
     const paddleH = paddleHeightRef.current;
     const ballR = ballRadiusRef.current;
 
-    const gradient = ctx.createRadialGradient(
-      cw / 2,
-      ch / 2,
-      10 * scaleRef.current,
-      cw / 2,
-      ch / 2,
-      400 * scaleRef.current
-    );
-    gradient.addColorStop(0, '#0f0f0f');
-    gradient.addColorStop(1, '#1a1a1a');
-    ctx.fillStyle = gradient;
+    // Use tableColor for background
+    ctx.fillStyle = tableColor;
     ctx.fillRect(0, 0, cw, ch);
 
     ctx.setLineDash([6, 6]);
@@ -151,20 +175,17 @@ const GameWrapper: React.FC = () => {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#0ff';
-    ctx.shadowBlur = 10 * scaleRef.current;
-    ctx.shadowColor = '#0ff';
+    // Use paddleColor for paddles
+    ctx.fillStyle = paddleColor;
     ctx.fillRect(20 * scaleRef.current, leftY, paddleW, paddleH);
     ctx.fillRect(cw - 20 * scaleRef.current - paddleW, rightY, paddleW, paddleH);
 
+    // Use ballColor for ball
     ctx.beginPath();
     ctx.arc(x, y, ballR, 0, Math.PI * 2);
-    ctx.fillStyle = '#ff0';
-    ctx.shadowColor = '#ff0';
+    ctx.fillStyle = ballColor;
     ctx.fill();
     ctx.closePath();
-
-    ctx.shadowBlur = 0;
   };
 
   const update = () => {
@@ -184,7 +205,6 @@ const GameWrapper: React.FC = () => {
     const maxBallSpeed = 20 * scaleRef.current;
     const paddleSpeed = 10 * scaleRef.current;
   
-    // Paddle movement (only apply keyboard controls if not touching)
     if (!touchStateRef.current.leftTouching) {
       if (keys.w) left.y -= paddleSpeed;
       if (keys.s) left.y += paddleSpeed;
@@ -200,17 +220,14 @@ const GameWrapper: React.FC = () => {
     const prevBallX = ball.x;
     const prevBallY = ball.y;
   
-    // Update ball position
     ball.x += ball.dx;
     ball.y += ball.dy;
   
-    // Bounce on top and bottom walls
     if (ball.y - ballR <= 0 || ball.y + ballR >= ch) {
       ball.dy *= -1;
       ball.y = Math.max(ballR, Math.min(ch - ballR, ball.y));
     }
   
-    // Paddle rectangles
     const leftPaddleRect = {
       top: left.y,
       bottom: left.y + paddleH,
@@ -225,7 +242,6 @@ const GameWrapper: React.FC = () => {
       right: cw - paddleOffset,
     };
   
-    // Helper to check paddle collision (horizontal pass + vertical overlap)
     const checkPaddleCollision = (
       prevX: number,
       currX: number,
@@ -244,7 +260,6 @@ const GameWrapper: React.FC = () => {
       return passedFront && withinY;
     };
   
-    // Left paddle collision
     if (
       ball.dx < 0 &&
       checkPaddleCollision(prevBallX, ball.x, ball.y, ballR, leftPaddleRect, true)
@@ -255,7 +270,6 @@ const GameWrapper: React.FC = () => {
       ball.dx = Math.min(Math.abs(ball.dx) * 1.1, maxBallSpeed);
     }
   
-    // Right paddle collision
     else if (
       ball.dx > 0 &&
       checkPaddleCollision(prevBallX, ball.x, ball.y, ballR, rightPaddleRect, false)
@@ -266,7 +280,6 @@ const GameWrapper: React.FC = () => {
       ball.dx = -Math.min(Math.abs(ball.dx) * 1.1, maxBallSpeed);
     }
   
-    // Vertical bounce on paddle edges (updated to include touch state)
     const leftPaddleMoving = touchStateRef.current.leftTouching || keys.w || keys.s;
     const rightPaddleMoving = touchStateRef.current.rightTouching || keys.up || keys.down;
 
@@ -292,7 +305,6 @@ const GameWrapper: React.FC = () => {
       ball.y = ball.y < rightPaddleRect.top ? rightPaddleRect.top - ballR : rightPaddleRect.bottom + ballR;
     }
   
-    // Fallback: Ball stuck inside paddle (edge case)
     const ballInsideLeft =
       ball.x + ballR > leftPaddleRect.left &&
       ball.x - ballR < leftPaddleRect.right &&
@@ -315,7 +327,6 @@ const GameWrapper: React.FC = () => {
       ball.x = rightPaddleRect.left - ballR;
     }
   
-    // Scoring
     if (ball.x < 0) {
       setScore((prev) => {
         const newRight = prev.right + 1;
@@ -345,6 +356,7 @@ const GameWrapper: React.FC = () => {
   };
 
   const handleStart = () => {
+    if (!settingsLoaded) return;
     setGameOver(false);
     setScore({ left: 0, right: 0 });
     setGameInProgress(true);
@@ -376,7 +388,7 @@ const GameWrapper: React.FC = () => {
     render();
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [canvasSize, gameOver, gameInProgress, score]);
+  }, [canvasSize, gameOver, gameInProgress, score, ballColor, paddleColor, tableColor]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -406,11 +418,11 @@ const GameWrapper: React.FC = () => {
 
   return (
     <div className="px-4 sm:px-8 md:px-16 lg:px-32 xl:px-72 w-full flex flex-col justify-center items-center h-full">
-      <h1 className="text-3xl text-white mb-4 font-bold font-mono tracking-wide">Pong</h1>
+      <h1 className="text-3xl text-white mb-4 font-bold font-mono tracking-wide">{t("pong")}</h1>
 
       {gameOver && (
         <div className="text-2xl font-bold text-yellow-400 mb-4">
-          Game Over! {score.left === 7 ? 'Left Player Wins!' : 'Right Player Wins!'}
+          {t("game_over")} {score.left === 7 ? t("left_player_win") : t("right_player_win")}
         </div>
       )}
 
@@ -429,10 +441,8 @@ const GameWrapper: React.FC = () => {
           style={{ maxWidth: '100%', height: 'auto' }}
         />
 
-        {/* Touch Controls for Mobile/Tablet */}
         {isMobile && (
           <>
-            {/* Left Player Touch Area */}
             <div
               className="absolute top-0 left-0 w-1/2 h-full"
               onTouchStart={(e) => handleTouchStart(e, 'left')}
@@ -441,7 +451,6 @@ const GameWrapper: React.FC = () => {
               style={{ touchAction: 'none' }}
             />
 
-            {/* Right Player Touch Area */}
             <div
               className="absolute top-0 right-0 w-1/2 h-full"
               onTouchStart={(e) => handleTouchStart(e, 'right')}
@@ -454,15 +463,20 @@ const GameWrapper: React.FC = () => {
       </div>
 
       <p className="mt-4 text-sm text-gray-400 font-mono">
-        {isMobile ? 'Touch left/right sides to move paddles or use W/S and ↑/↓' : 'W/S and ↑/↓ to move'}
+        {isMobile ? t("touch_right") : t("ws")}
       </p>
 
       {!gameInProgress && !gameOver && (
         <button
           onClick={handleStart}
-          className="mt-6 px-6 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-200"
+          disabled={!settingsLoaded}
+          className={`mt-6 px-6 py-2 text-lg font-bold text-white rounded-lg transition duration-200 ${
+            settingsLoaded 
+              ? 'bg-blue-500 hover:bg-blue-600 cursor-pointer' 
+              : 'bg-gray-500 cursor-not-allowed opacity-50'
+          }`}
         >
-          Start Game
+          {settingsLoaded ? t("start_game") : t("loading")}
         </button>
       )}
 
@@ -471,7 +485,7 @@ const GameWrapper: React.FC = () => {
           onClick={handleRematch}
           className="mt-6 px-6 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-200"
         >
-          Rematch
+          {t("rematch")}
         </button>
       )}
     </div>

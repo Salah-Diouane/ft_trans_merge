@@ -56,7 +56,7 @@ const LocalGame: React.FC = () => {
   const gameOver = winner || isDraw;
   const { t } = useTranslation(); 
   return (
-    <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4 max-lg:bg-black max-sm:bg-white ">
+    <div className="h-full w-full flex items-center justify-center bg-[#222831] p-4 overflow-auto ">
       {!gameStarted ? (
         <Choose
           onChoose={(playerName, choice, currentUser) => {
@@ -71,21 +71,14 @@ const LocalGame: React.FC = () => {
           }}
         />
       ) : (
-        <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
-          <div className="bg-[#393E46] p-4 rounded-xl shadow-md w-full text-white flex justify-around">
-            <div
-              className={`text-center ${
-                xIsNext ? "bg-blue-600 w-1/3" : ""
-              } rounded-xl`}
-            >
+        <div className="flex flex-col items-center space-y-6 w-full max-w-2xl h-[80%] ">
+
+          <div className="bg-[#393E46] p-4 rounded-xl shadow-md w-full text-white flex justify-around ">
+            <div className={`text-center ${ xIsNext ? "bg-blue-600 w-1/3" : "" } rounded-xl`} >
               <p className="font-bold">{playerXName}</p>
               <p>X</p>
             </div>
-            <div
-              className={`text-center ${
-                !xIsNext ? "bg-green-600 w-1/3" : ""
-              } rounded-xl`}
-            >
+            <div className={`text-center ${ !xIsNext ? "bg-green-600 w-1/3" : "" } rounded-xl`} >
               <p className="font-bold">{playerOName}</p>
               <p>O</p>
             </div>

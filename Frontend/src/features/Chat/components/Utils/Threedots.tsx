@@ -57,7 +57,7 @@ const Threedots: React.FC<threedotsProps> = ({
       </button>
 
       {showInvBlock && (
-        <div className={`absolute   right-20 `}>
+        <div className={`absolute   right-20 z-[999]`}>
           <div className="bg-[#393E46] rounded-lg shadow-lg border-1 border-gray-900 min-w-[120px]">
             {!isBlocked ? (
               <button

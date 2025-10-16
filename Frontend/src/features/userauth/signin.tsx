@@ -4,6 +4,8 @@ import TwoFA from "./twofa";
 import { useNavigate } from "react-router-dom";
 import GoogleSign from "./googlesign";
 import { useStore } from "../../store/store";
+import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 
 export default function Signin() {
 	const username: any = useRef(null);
@@ -11,9 +13,10 @@ export default function Signin() {
 	const navigate: any = useNavigate();
 	const [erros, seterros] = useState<{ [key: string]: string }>({});
 	const store = useStore();
+	const { t } = useTranslation();
 
-	const sendData = async (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
+	const sendData = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+		e?.preventDefault();
 		const body = {
 			username: username.current?.value || "",
 			password: password.current?.value || "",
@@ -30,7 +33,7 @@ export default function Signin() {
 			);
 			const data = await response.json();
 			if (!data.login) {
-				seterros({ [data.type]: data.message });
+				seterros({ [data.type]: data.TypeError ? t(`${data.TypeError }`) : t(`${data.type}_error`) });
 				console.log(`the erros ${data.type} |  ${data.message} `);
 			} else if (data.twofa) {
 				navigate("/login/Twofa", {
@@ -44,7 +47,7 @@ export default function Signin() {
 				navigate("/");
 			}
 		} catch (err: any) {
-			alert(JSON.stringify(err));
+			toast.error(t('pongSettingsError'));
 		}
 	};
 	const inputClass = (fieldName: any) => {
@@ -71,49 +74,47 @@ export default function Signin() {
 			return updated;
 		});
 	};
+	const handleKeyDown = (
+		event: React.KeyboardEvent<HTMLInputElement>,
+		nextRef: React.RefObject<HTMLInputElement> | null
+	) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			if (nextRef && nextRef.current) {
+				nextRef.current.focus();
+			} else {
+				sendData();
+			}
+		}
+	};
 
 	return (
 		<>
 			{/* <br /> */}
 			<h1 className="font-russo text-3xl sm:text-4xl md:text-5xl text-[#222831] text-center lg:text-left">
-				Login
+				{t('loginTitle')}
 			</h1>
 			<br />
 			<GoogleSign />
 			<div className="flex items-center justify-center my-6">
 				<div className="w-8 sm:w-10 md:w-14 lg:w-16 h-px bg-black"></div>
 				<h1 className="mx-2 text-black text-base sm:text-lg md:text-xl lg:text-2xl font-medium">
-					or
+					{t('orText')}
 				</h1>
 				<div className="w-8 sm:w-10 md:w-14 lg:w-16 h-px bg-black"></div>
 			</div>
 			<div className="w-full px-4 sm:px-10 md:px-20 lg:px-0 lg:w-80 mx-auto">
-				<input
-					type="text"
-					placeholder="Username"
-					className={inputClass("username")}
-					ref={username}
-					onFocus={() => clearError("username")}
-				/>{" "}
+				<input type="text" placeholder={t('usernamePlaceholder')} className={inputClass("username")} ref={username} onFocus={() => clearError("username")} onKeyDown={(e) => handleKeyDown(e, password)} />{" "}
 				{writeError("username")}
-				<input
-					type="password"
-					placeholder="Password"
-					className={inputClass("password")}
-					ref={password}
-					onFocus={() => clearError("password")}
-				/>{" "}
+				<input type="password" placeholder={t('passwordPlaceholder')} className={inputClass("password")} ref={password} onFocus={() => clearError("password")} onKeyDown={(e) => handleKeyDown(e, null)} />{" "}
 				{writeError("password")}
-				<button
-					className="font-russo w-full bg-blue-500 text-white py-2 sm:py-3 md:py-4 rounded-[10px] mb-4 hover:shadow-[0px_0px_8px_rgba(0,0,0,0.4)] transition-all"
-					onClick={sendData}
-				>
-					Login
+				<button className="font-russo w-full bg-blue-500 text-white py-2 sm:py-3 md:py-4 rounded-[10px] mb-4 hover:shadow-[0px_0px_8px_rgba(0,0,0,0.4)] transition-all" onClick={sendData}>
+					{t('loginButton')}
 				</button>
 				<h6 className="text-center text-xs sm:text-sm">
-					Don't have an account?{" "}
+					{t('dontHaveAccount')}{" "}
 					<Link className="text-blue-600 underline" to="/login/Signup">
-						Sign-up
+						{t('signUpLink')}
 					</Link>
 				</h6>
 			</div>

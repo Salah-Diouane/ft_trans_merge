@@ -195,7 +195,7 @@ export function getPlayerHistory(fastify: FastifyInstance, userId: number): Prom
 			JOIN user_authentication ua_loser ON gh.Loserid = ua_loser.id
 			WHERE ? IN (gh.Winnerid, gh.Loserid)
 			ORDER BY gh.Date DESC
-			LIMIT 7;
+			LIMIT 6;
 	  `;
 		fastify.db.all(query, [userId, userId, userId, userId], (err, rows: PlayerHistory[]) => {
 			if (err) return reject(err);

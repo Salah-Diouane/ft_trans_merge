@@ -11,6 +11,7 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 		CREATE TABLE IF NOT EXISTS user_authentication (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			username VARCHAR(25) UNIQUE NOT NULL,
+			display_name VARCHAR(25) NOT NULL,
 			email VARCHAR(25) UNIQUE NOT NULL,
 			first_name VARCHAR(25),
 			family_name VARCHAR(25),
@@ -35,17 +36,23 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 	  	);
 	`;
 
+	// const [xColor, setXColor] = useState("#FF0000");
+	// const [oColor, setOColor] = useState("#0000FF");
+	// const [gridColor, setGridColor] = useState("#000000");
+	// const [boardColor, setBoardColor] = useState("#FFFFFF");
+
 	const ticTac_settings_table: string = `
-		CREATE TABLE IF NOT EXISTS ticTac_settings_table (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			username VARCHAR(25),
-			x_color VARCHAR(25) DEFAULT '#06b6d4',
-			o_color VARCHAR(25) DEFAULT '#2dd4bf',
-			grid_color VARCHAR(25) DEFAULT '#6366f1',
-			board_color VARCHAR(25) DEFAULT '#e2e8f0',
-			FOREIGN KEY(username) REFERENCES user_authentication(username)
-		)
-	`;
+	CREATE TABLE IF NOT EXISTS ticTac_settings_table (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		username VARCHAR(25),
+		x_color VARCHAR(25) DEFAULT '#06b6d4',
+		o_color VARCHAR(25) DEFAULT '#2dd4bf',
+		grid_color VARCHAR(25) DEFAULT '#6366f1',
+		board_color VARCHAR(25) DEFAULT '#e2e8f0',
+		FOREIGN KEY(username) REFERENCES user_authentication(username)
+	)
+`;
+
 	const createBlockedUsersTable = `
 		CREATE TABLE IF NOT EXISTS blocked_users (
 			blocker TEXT NOT NULL,
@@ -53,6 +60,17 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			UNIQUE(blocker, blocked)
 		);
 	`;
+
+	// const createMessageTable: string = `
+	// 	CREATE TABLE IF NOT EXISTS messages (
+	// 		id INTEGER PRIMARY KEY AUTOINCREMENT,
+	// 		sender TEXT NOT NULL,
+	// 		recipient TEXT NOT NULL,
+	// 		text TEXT NOT NULL,
+	// 		timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+	// 	);
+	// `;
+
 
 	const createMessageTable: string = `
 		CREATE TABLE IF NOT EXISTS messages (

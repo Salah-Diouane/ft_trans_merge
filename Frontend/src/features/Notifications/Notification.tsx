@@ -27,6 +27,7 @@ const Notification: React.FC = () => {
       clearTimeout(timeout);
       window.removeEventListener("resize", handleResize);
     };
+    
   }, []);
 
   useEffect(() => {
@@ -83,7 +84,7 @@ const Notification: React.FC = () => {
 
   return (
     <div
-      className="w-full min-h-screen p-4 bg-[#222831]"
+      className="w-ful bg-[#222831]"
       onClick={handleNotifClick}
     >
       {showNotifs ? (

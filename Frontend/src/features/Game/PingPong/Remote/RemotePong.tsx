@@ -5,8 +5,10 @@ import socket, { joinGame, onReady } from '../../../Chat/services/socket';
 import { FiUsers } from 'react-icons/fi';
 import { RiPingPongFill } from 'react-icons/ri';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 const RemotePong: React.FC = () => {
+  const {t} = useTranslation();
   const [name, setName] = useState('');
   const [displayName, setDisplayName] = useState(''); // Add display name state
   const [joined, setJoined] = useState(false);
@@ -102,11 +104,9 @@ const RemotePong: React.FC = () => {
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('unload', handleBeforeUnload);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('unload', handleBeforeUnload);
     };
   }, []);
 
@@ -130,22 +130,22 @@ const RemotePong: React.FC = () => {
       {playerLeft ? (
         <div className="flex flex-col items-center justify-center text-white">
           <h1 className="text-5xl font-extrabold text-blue-500 drop-shadow-lg mb-6 animate-pulse">
-            The Player Left The Game!
+            {t("palyer_left")}
           </h1>
           <button
           onClick={handleAnotherGame}
           className="mt-6 px-6 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-200"
         >
-          Another Game
+          {t("another_game")}
         </button>
         </div>
       ) : countdown !== null ? (
         <div className="flex flex-col items-center justify-center text-white">
           <h1 className="text-5xl font-extrabold text-blue-400 drop-shadow-lg mb-6 animate-pulse">
-            MATCH FOUND!
+            {t("match_found")}
           </h1>
           <p className="text-lg text-gray-300 mb-4 tracking-wide uppercase">
-            Game starts in
+            {t("game_start_in")}
           </p>
           <div className="text-8xl font-mono text-blue-300 drop-shadow-xl animate-scaleUp">
             {countdown}
@@ -157,8 +157,8 @@ const RemotePong: React.FC = () => {
             <div className="w-16 h-16 bg-[#222831] rounded-full flex items-center justify-center mb-4 mx-auto border border-gray-600">
               <RiPingPongFill className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Finding Match</h1>
-            <p className="text-gray-300">Connecting you with an opponent...</p>
+            <h1 className="text-2xl font-bold text-white mb-2">{t("finding_match")}</h1>
+            <p className="text-gray-300">{t("connecting_u_with_an_opp")}</p>
           </div>
 
           <div className="relative mb-8">
@@ -190,7 +190,7 @@ const RemotePong: React.FC = () => {
                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   </div>
                 </div>
-                <span className="text-sm text-gray-400 font-medium">Opponent</span>
+                <span className="text-sm text-gray-400 font-medium">{t("opponant")}</span>
               </div>
             </div>
           </div>
@@ -198,13 +198,13 @@ const RemotePong: React.FC = () => {
           <div className="text-center mb-6">
             <div className="inline-flex items-center space-x-3 bg-[#222831] px-6 py-3 rounded-full border border-gray-600">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
-              <span className="text-gray-300 font-medium">Searching for players</span>
+              <span className="text-gray-300 font-medium">{t("search_for_players")}</span>
             </div>
           </div>
 
           <div className="pt-6 border-t border-gray-600">
             <p className="text-sm text-gray-400 text-center">
-              Get some water while waiting for the other player
+              {t("get_some_water")}
             </p>
           </div>
         </div>

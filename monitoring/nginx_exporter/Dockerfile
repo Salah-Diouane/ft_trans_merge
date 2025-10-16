@@ -1,5 +1,14 @@
-FROM nginx/nginx-prometheus-exporter:1.3.0
+FROM node:18-alpine
 
-EXPOSE 9113
+WORKDIR /app
 
-CMD ["--nginx.scrape-uri=http://nginx/stub_status", "--web.listen-address=:9113"]
+COPY package*.json ./
+
+RUN npm cache clean --force
+RUN npm install
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]

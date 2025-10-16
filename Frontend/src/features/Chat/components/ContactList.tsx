@@ -68,7 +68,7 @@ const ContactList: FC<ContactListProps> = ({
           <div className="p-4">
             {users.length === 0 ? (
               <p className="text-gray-400 mt-4 text-center">
-                No contacts found.
+                {t("no_contact_found")}
               </p>
             ) : (
               sortedUsers.map((user, index) => {

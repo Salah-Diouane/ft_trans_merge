@@ -11,6 +11,7 @@ import HandleNotifs from "./Componant/HandleNotifs";
 import useHandleNotifications from "./Hooks/useHandleNotifications";
 import useHandlePongInvites from "./Hooks/useHandlePongInvites";
 import Profile from "./Componant/Profile";
+import { useTranslation } from "react-i18next";;
 
 const NavBar: React.FC = () => {
   const [showSearch, setShowSearch] = useState(false);
@@ -21,8 +22,8 @@ const NavBar: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [showProfileDropdown, setShowProfileDropdown] = useState<boolean>(false);
-
+  const [showProfileDropdown, setShowProfileDropdown] =useState<boolean>(false);
+  const {t} = useTranslation();
   const store = useStore();
   const { users, currentUserRef } = useUsers();
   const location = useLocation();
@@ -56,8 +57,7 @@ const NavBar: React.FC = () => {
 
   // filter users based on search query
   useEffect(() => {
-    if (!query.trim())
-      return setResult([]);
+    if (!query.trim()) return setResult([]);
     const filtered = users.filter(
       (user) =>
         user.username.toLowerCase().includes(query.toLowerCase()) &&
@@ -86,14 +86,13 @@ const NavBar: React.FC = () => {
     setNotifications([]);
     setUnreadCount(0);
   };
-  const notifIsseen = () => {
-    console.log("===> : in notifIsseen", notifications)
-    socket.emit("notif:seen", notifications)
-  }
-  const inChat =
-    (location.pathname === "/chat" || /^\/chat\/[^/]+$/.test(location.pathname)) &&
-    isMobile;
 
+  const inChat = (location.pathname === "/chat" ||
+      /^\/chat\/[^/]+$/.test(location.pathname)) &&
+    isMobile;
+    const notifIsseen = () => {
+      socket.emit("notif:seen", notifications)
+    }
   return (
     <>
       {!inChat && (
@@ -109,13 +108,13 @@ const NavBar: React.FC = () => {
               <input
                 type="text"
                 value={query}
-                placeholder="Search..."
+                placeholder={t("search")}
                 className="flex-grow bg-transparent text-white placeholder-blue-200 outline-none h-7 max-sm:w-full"
                 onFocus={() => setShowSearch(true)}
                 onChange={(e) => setQuery(e.target.value)}
               />
-            </div>     
-            <HandleSearch showSearch={showSearch} result={result} />
+            </div>
+            <HandleSearch showSearch={showSearch} setShowSearch={setShowSearch} result={result} />
           </div>
 
           <div className="relative flex items-center gap-6 w-1/3 justify-end max-lg:hidden">
@@ -124,7 +123,7 @@ const NavBar: React.FC = () => {
                 className="size-8 hover:text-blue-700 cursor-pointer max-sm:hidden"
                 onClick={() => {
                   setShowNotifs(true);
-                  notifIsseen(),
+                  notifIsseen()
                   setUnreadCount(0);
                 }}
               />

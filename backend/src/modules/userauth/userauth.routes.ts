@@ -8,6 +8,7 @@ import { generateAccessToken, generateRefreshToken } from './userauth.services'
 import { env } from "../../plugins/env.plugin";
 import { setdefaultgame } from "../../utils/settings.utils";
 import { addNewPlayerState } from "../../utils/profile.utils";
+import bcrypt from 'bcrypt';
 
 export const SignUp = async (fastify: FastifyInstance) => {
 	fastify.post('/signup', {
@@ -18,8 +19,10 @@ export const SignUp = async (fastify: FastifyInstance) => {
 		const user = request.body as User;
 		try {
 			if (user.password !== user.confirmpassword)
-				throw ({ message: 'the password  and confirm password are not the same !', type: "confirmpassword", singup: false });
+				throw ({ message: 'the password  and confirm password are not the same !', type: "confirmpassword", singup: false , TypeError: 'passwordMismatch'});
 			else {
+				user.password = await bcrypt.hash(user.password, 10);
+				delete user.confirmpassword;
 				await addNewUser(fastify, user);
 				const id = await getuserid(fastify, user.username) || 0;
 				await setdefaultgame(fastify, id);
@@ -30,9 +33,9 @@ export const SignUp = async (fastify: FastifyInstance) => {
 			if (err instanceof Error && "message" in err) {
 				const msg = err.message.toLowerCase();
 				if (msg.includes("user_authentication.username")) {
-					reply.code(400).send({ message: "Username is already taken", type: "username", signup: false });
+					reply.code(400).send({ message: "Username is already taken", type: "username", signup: false , TypeError: 'usernameTaken'});
 				} else if (msg.includes("user_authentication.email")) {
-					reply.code(400).send({ message: "Email is already in use", type: "email", signup: false });
+					reply.code(400).send({ message: "Email is already in use", type: "email", signup: false , TypeError: 'emailInUse'});
 				} else {
 					reply.code(400).send({ message: err.message, signup: false });
 				}
