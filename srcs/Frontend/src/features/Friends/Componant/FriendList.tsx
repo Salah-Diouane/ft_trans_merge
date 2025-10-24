@@ -86,7 +86,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({
         myAllfriends();
       if (status === "request")
         allRecvReq();
-      if (status === "blocked")
+      // if (status === "blocked")
         allBlocked();
     }, [status, dataUpdate]);
   
@@ -137,7 +137,18 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({
       setDataUpdate(true);
     };
 
-  
+    const blockedUserIds = new Map<number, string>();
+    allUsers.forEach(users => {
+      allBlocked.forEach(blocked => {
+        if (users.id === blocked.id){
+          console.log(users.username, blocked.username)
+          blockedUserIds.set(users.id, users.username)
+        }
+      });
+    });
+
+    console.log("-----> blockedUserIds : ", blockedUserIds)
+
     return (
       <div className="flex flex-col font-russo text-base sm:text-lg ">
         <div className="sticky top-12 z-20 px-14 pt-4 pb-4 bg-[#393E46]">
@@ -167,6 +178,7 @@ const FriendList: React.FC<{ status: FriendCardProps["status"] }> = ({
           ) : status === "all" && allUsers.length > 0 ? (
             allUsers.map((user) => (
               <FriendCard
+                blockedUserIds={blockedUserIds}
                 key={user.username}
                 name={user.username}
                 id={user.id}

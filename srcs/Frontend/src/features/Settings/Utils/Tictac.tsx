@@ -172,7 +172,7 @@ const TicTac: React.FC = () => {
 					{t('resetDefault')}
 				</button>
 				<button
-					className="w-full px-5 py-3 sm:w-[133px]  border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition"
+					className=" px-5 py-3  border border-transparent bg-blue-600 rounded-[10px] hover:text-[#0077FF] hover:bg-transparent hover:border-[#0077FF] transition"
 					onClick={sendTicTacData}
 				>
 					{t('save')}

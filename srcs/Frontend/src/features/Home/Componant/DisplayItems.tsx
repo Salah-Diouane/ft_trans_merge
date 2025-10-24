@@ -1,11 +1,4 @@
-import {
-  FaCrown,
-  FaMedal,
-  FaTrophy,
-  FaBolt,
-  FaStar,
-  FaGamepad,
-} from "react-icons/fa";
+import {FaCrown, FaMedal, FaTrophy, FaBolt, FaStar, FaGamepad} from "react-icons/fa";
 import { useTranslation } from "react-i18next";;
 interface DisplayItemProps {
   type: "level" | "stat";
@@ -33,6 +26,7 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
   score,
   game,
 }) => {
+  
   const level_int = level ? parseFloat(level.toString()) : 0;
   const progress = (level_int % 1) * 100;
   const {t} = useTranslation();
@@ -53,9 +47,12 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
   let color: string;
   console.log("Pong_score : ", Pong_score )
 
-  if (stat === "Draw") color = "text-[#469CFD]";
-  else if (stat === "Lose") color = "text-[#F85761]";
-  else color = "text-[#3AA64B]";
+  if (stat === "Draw")
+    color = "text-[#469CFD]";
+  else if (stat === "Lose")
+    color = "text-[#F85761]";
+  else
+    color = "text-[#3AA64B]";
 
   let user_score: number = 1;
   let opp_score: number = 1;
@@ -63,7 +60,7 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
   if (stat === "Win") {
     stat = t("win");
     user_score = 1;
-    opp_score = 0;
+    opp_score = 0; 
   } else if (stat === "Lose") {
     stat = t("lose");
     user_score = 0;
@@ -73,8 +70,13 @@ const DisplayItem: React.FC<DisplayItemProps> = ({
   }
 
   if (game === "Pong" && Pong_score) {
-    user_score = parseInt(Pong_score?.[0]) || 0;
-    opp_score = parseInt(Pong_score?.[1]) || 0;
+    if (stat === "Win"){
+      user_score = parseInt(Pong_score?.[0]) || 0;
+      opp_score = parseInt(Pong_score?.[1]) || 0;
+    } else {
+      user_score = parseInt(Pong_score?.[1]) || 0;
+      opp_score = parseInt(Pong_score?.[0]) || 0;
+    }
   }
 
 

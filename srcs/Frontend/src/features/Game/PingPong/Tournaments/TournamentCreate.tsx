@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import socket from "../../../Chat/services/socket";
 import { UserPlayer } from "./types";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-hot-toast";
 
 const TournamentCreate: React.FC = () => {
   const {t} = useTranslation();
@@ -39,19 +40,22 @@ const TournamentCreate: React.FC = () => {
           name,
           maxPlayers,
           ownerPlays,
-          ownerName,
         }),
       });
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error);
+        if (err.error === "Tournament name and at least 4 players are required.")
+          throw new Error(t("trn_name_4p_required"));
+        else if (err.error === "Player already in a tournament.")
+          throw new Error(t("player_in_trn"));
       }
       
       navigate("/game/ping-pong/tournament-game/tournament-join");
     } catch (err: Error | any) {
       console.log(err);
-      alert(err);
+      // alert(err);
+      toast.error(err.message || "Failed to create tournament.");
     } finally {
       setLoading(false);
     }

@@ -13,6 +13,7 @@ export default function ProtectedRoute({ children }: Props) {
 
   useEffect(() => {
     const check = async () => {
+      console.log(`#### : ${JSON.stringify(import.meta.env.VITE_API_HOST)}`,)
       try {
         const response = (await fetch(
           `${import.meta.env.VITE_API_URL}/api/hello`,
@@ -41,7 +42,7 @@ export default function ProtectedRoute({ children }: Props) {
         if (!store.hasFetchedUser) await store.fetchUserInfo();
         setIsAuthenticated(true);
       } catch (err) {
-        await fetch("http://e3r11p2.1337.ma:3000/logout");
+        await fetch("http://e3r11p8.1337.ma:3000/logout");
         navigate("/login/Signin");
       }
     };

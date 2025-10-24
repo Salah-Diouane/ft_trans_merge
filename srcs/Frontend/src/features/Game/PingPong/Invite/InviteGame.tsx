@@ -4,6 +4,8 @@ import GameWrapper from '../Remote/GameWrapper';
 import socket from '../../../Chat/services/socket';
 import { RiPingPongFill } from 'react-icons/ri';
 import { useTranslation } from "react-i18next";
+import { BrowserRouter } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const InviteGame: React.FC = () => {
   const {t} = useTranslation();
@@ -18,6 +20,7 @@ const InviteGame: React.FC = () => {
 
   useEffect(() => {
     console.log("SPAMMING ROOM ID -----> ", roomId);
+    setError('');
     if (!roomId) {
       setError('Invalid room ID');
       return;
@@ -25,9 +28,9 @@ const InviteGame: React.FC = () => {
 
     const fetchGame = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/invite/:gameid`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/invite/${roomId}`, {
           credentials: "include",
-          method: "POST",
+          method: "GET",
           headers: {
             'Content-Type': 'application/json',
           },
@@ -39,8 +42,9 @@ const InviteGame: React.FC = () => {
         return response.ok;
       } catch (error:any) {
         console.error("Error fetching users:", error);
-        setError("Game not found.");
-        return {};
+        setError(error.message || 'Failed to fetch game data.');
+        toast.error("Game Not Found.");
+        navigate('/chat');
       }
     };
     fetchGame();
@@ -80,11 +84,16 @@ const InviteGame: React.FC = () => {
     });
 
     socket.on('playerLeft', (leftPlayer: string) => {
-        console.log(`Player ${leftPlayer} left the game.`);
         setPlayerLeft(true);
+        console.log(`Player ${leftPlayer} left the game.`);
+        setTimeout(() => {
+          navigate('/chat');
+        }, 1000);
     });
 
     return () => {
+      if (gameReady)
+        socket.emit('playerLeft', playerName);
       socket.off('profile-data');
       socket.off('countdown');
       socket.off('ready');
@@ -92,6 +101,7 @@ const InviteGame: React.FC = () => {
       socket.off('roomId');
       socket.off('error');
       socket.off('playerLeft');
+      socket.disconnect();
     };
   }, [roomId]);
 

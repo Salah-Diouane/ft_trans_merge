@@ -39,7 +39,7 @@ interface Notification {
 	text: string;
 	seen: boolean;
 	timestamp: string;
-  }
+}
 export const sendRequest: FastifyPluginCallback<SendRequestOptions> = (
 	fastify,
 	opts,
@@ -62,6 +62,7 @@ export const sendRequest: FastifyPluginCallback<SendRequestOptions> = (
 				if (id_receiver === null)
 					return reply.code(400).send({ message: "Receiver not found" });
 
+				// console.log("id_receiver : id_receiver", id_receiver , " : ", decode.userid);
 				await addNewFriendReq(fastify, decode.userid, id_receiver);
 				const sender_name = await getNameById(fastify, decode.userid);
 				const received_name = await getNameById(fastify, id_receiver);
@@ -75,44 +76,44 @@ export const sendRequest: FastifyPluginCallback<SendRequestOptions> = (
 
 				if (io) {
 					const timestamp = new Date().toISOString();
-				  
+
 					fastify.db.run(
-					  "INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, seen, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-					  [
-						decode.userid,
-						id_receiver,
-						sender,
-						receiver,
-						"friend_request",
-						false,
-						"Friend Request",
-						timestamp,
-					  ],
-					  function (this: { lastID: number }, err: Error | null) {
-						if (err) {
-						  console.error("Notification insert error:", err);
-						  return;
+						"INSERT INTO notification (id_sender, id_receiver, sender, receiver, type, seen, text, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+						[
+							decode.userid,
+							id_receiver,
+							sender,
+							receiver,
+							"friend_request",
+							false,
+							"Friend Request",
+							timestamp,
+						],
+						function (this: { lastID: number }, err: Error | null) {
+							if (err) {
+								console.error("Notification insert error:", err);
+								return;
+							}
+
+							const notification: Notification = {
+								id: this.lastID,  // here `this.lastID` is valid
+								type: "friend_request",
+								id_sender: decode.userid,
+								id_receiver: id_receiver,
+								sender,
+								receiver,
+								seen: false,
+								text: "Friend Request",
+								timestamp,
+							};
+
+							const recipientSocketId = userSockets.get(id_receiver);
+							if (recipientSocketId) {
+								io.to(recipientSocketId).emit("notification", notification);
+							}
 						}
-				  
-						const notification: Notification = {
-						  id: this.lastID,  // here `this.lastID` is valid
-						  type: "friend_request",
-						  id_sender: decode.userid,
-						  id_receiver: id_receiver,
-						  sender,
-						  receiver,
-						  seen: false,
-						  text: "Friend Request",
-						  timestamp,
-						};
-				  
-						const recipientSocketId = userSockets.get(id_receiver);
-						if (recipientSocketId) {
-						  io.to(recipientSocketId).emit("notification", notification);
-						}
-					  }
 					);
-				  }
+				}
 
 				return reply.send({ message: "Friend request sent successfully." });
 			} catch (err) {
@@ -139,8 +140,8 @@ export const acceptRequest: FastifyPluginCallback<AcceptRequestOptions> = (
 		},
 		async (req, reply) => {
 			try {
-				console.log("===> : friend_request");
-				console.log(friend_request);
+				// console.log("===> : friend_request");
+				// console.log(friend_request);
 				const token = req.cookies.accessToken;
 				if (!token)
 					return reply
@@ -158,6 +159,7 @@ export const acceptRequest: FastifyPluginCallback<AcceptRequestOptions> = (
 						.code(400)
 						.send({ message: "Username of the receiver not found!" });
 				await setFriendReq(fastify, id_receiver, decode.userid, true);
+				await setFriendReq(fastify, decode.userid, id_receiver, true);
 				const sender_name = await getNameById(fastify, decode.userid);
 				const received_name = await getNameById(fastify, id_receiver);
 
@@ -167,56 +169,56 @@ export const acceptRequest: FastifyPluginCallback<AcceptRequestOptions> = (
 				if (!sender || !receiver) {
 					return reply.code(500).send({ message: "User data not found" });
 				}
-				console.log("SENDER : ", sender);
-				console.log("RECEIVER : ", receiver);
+				// console.log("SENDER : ", sender);
+				// console.log("RECEIVER : ", receiver);
 
 				if (io) {
 
 
 					fastify.db.run(
-					  "INSERT INTO notification (id_sender, id_receiver, sender, receiver, seen,  type , text, timestamp) VALUES (?, ?, ?,  ?, ?, ?, ?, ?)",
-					  [
-						decode.userid,
-						id_receiver,
-						sender,
-						receiver,
-						false,
-						"friend_request_accepted",
-						"Request Accepted",
-						new Date().toISOString(),
-					  ],
-					  
-					  function (this: { lastID: number }, err: Error | null) {
-						if (err) {
-						  console.error("Notification insert error:", err);
-						  return;
+						"INSERT INTO notification (id_sender, id_receiver, sender, receiver, seen,  type , text, timestamp) VALUES (?, ?, ?,  ?, ?, ?, ?, ?)",
+						[
+							decode.userid,
+							id_receiver,
+							sender,
+							receiver,
+							false,
+							"friend_request_accepted",
+							"Request Accepted",
+							new Date().toISOString(),
+						],
+
+						function (this: { lastID: number }, err: Error | null) {
+							if (err) {
+								console.error("Notification insert error:", err);
+								return;
+							}
+
+							const notification: Notification = {
+								id: this.lastID,
+								type: "friend_request_accepted",
+								id_sender: decode.userid, // who accepted
+								id_receiver: id_receiver, // sender
+								sender: sender,
+								receiver: receiver,
+								text: "Request Accepted",
+								seen: false,
+								timestamp: new Date().toISOString(),
+							};
+
+							const recipientSocketId = userSockets.get(id_receiver);
+							if (recipientSocketId) {
+								io.to(recipientSocketId).emit("notification", notification);
+							}
 						}
-				  
-						const notification: Notification = {
-						  id: this.lastID,
-						  type: "friend_request_accepted",
-						  id_sender: decode.userid, // who accepted
-						  id_receiver: id_receiver, // sender
-						  sender: sender,
-						  receiver: receiver,
-						  text: "Request Accepted",
-						  seen: false,
-						  timestamp: new Date().toISOString(),
-						};
-				  
-						const recipientSocketId = userSockets.get(id_receiver);
-						if (recipientSocketId) {
-						  io.to(recipientSocketId).emit("notification", notification);
-						}
-					  }          
-			   
-					  
-					  // const recipientSocketId = userSockets.get(id_receiver);
-					  // if (recipientSocketId)
+
+
+						// const recipientSocketId = userSockets.get(id_receiver);
+						// if (recipientSocketId)
 						//   io.to(recipientSocketId).emit("notification", notification);
-					  );
-				  }
-				  
+					);
+				}
+
 
 				return reply.send({ message: "friend request is accepted !" });
 			} catch (err) {
@@ -240,7 +242,7 @@ export const allsendreq = async (fastify: FastifyInstance) => {
 						refreshtoken: true,
 					});
 			const decode = fastify.jwt.decode(token) as { userid: number };
-			console.log("decode : in friends : ", decode);
+			// console.log("decode : in friends : ", decode);
 			const allrequets = await getSentFriendReqUsernames(
 				fastify,
 				decode.userid
@@ -291,10 +293,10 @@ export const allfriends = async (fastify: FastifyInstance) => {
 						refreshtoken: true,
 					});
 			const decode = fastify.jwt.decode(token) as { userid: number };
-			console.log("decode user : ", decode);
-			console.log("decode userid : ", decode.userid);
+			// console.log("decode user : ", decode);
+			// console.log("decode userid : ", decode.userid);
 			const friends = await getFriends(fastify, decode.userid);
-			console.log("--> : friends : ", friends);
+			// console.log("--> : friends : ", friends);
 
 			// const friend_online_status = friends.map((user) => ({
 			// 	...user,
@@ -304,16 +306,16 @@ export const allfriends = async (fastify: FastifyInstance) => {
 
 			const friend_online_status = friends.map((user) => {
 				const online = user.id ? onlineUsers.has(user.id) : false;
-				console.log(`-------------> id: ${user.id}`);
-				console.log("-------------> online : ", online);
-				console.log(
-					`-------------> Friend ${user.username} (id: ${user.id}) online?`,
-					online
-				);
+				// console.log(`-------------> id: ${user.id}`);
+				// console.log("-------------> online : ", online);
+				// console.log(
+				// 	`-------------> Friend ${user.username} (id: ${user.id}) online?`,
+				// 	online
+				// );
 				return { ...user, online };
 			});
 
-			console.log("--> : friend_online_status : ", friend_online_status);
+			// console.log("--> : friend_online_status : ", friend_online_status);
 
 			return reply.send(friend_online_status);
 		} catch (err) {
@@ -375,8 +377,8 @@ export const blockReq = async (fastify: FastifyInstance) => {
 			const decode = fastify.jwt.decode(token) as { userid: number };
 			const blockedUsers = await getBlockUser(fastify, decode.userid);
 
-			console.log("---------------> allblockreq");
-			console.log(blockedUsers);
+			// console.log("---------------> allblockreq");
+			// console.log(blockedUsers);
 
 			return reply.send(blockedUsers);
 		} catch (err) {
@@ -444,7 +446,7 @@ export const deleteFriend = async (fastify: FastifyInstance) => {
 						});
 				const decode = fastify.jwt.decode(token) as { userid: number };
 				const reqdata = req.body as { frined_username: string; type: string };
-				console.log("--> : reqdata.frined_username", reqdata.frined_username);
+				// console.log("--> : reqdata.frined_username", reqdata.frined_username);
 				const friend_id = await getuserid(fastify, reqdata.frined_username);
 				if (!friend_id)
 					return resp.code(400).send({ message: "Username not found !!!" });

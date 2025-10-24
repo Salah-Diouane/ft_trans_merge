@@ -9436,7 +9436,7 @@ Error generating stack: ` +
     return L;
   }
   function C0(t, i = !1) {
-    let r = "http://e3r11p2.1337.ma";
+    let r = "http://e3r11p8.1337.ma";
     typeof window < "u" &&
       (r =
         window.location.origin !== "null"
@@ -12416,7 +12416,7 @@ Please change the parent <Route path="${B}"> to <Route path="${
         r.hostname && !r.port && (r.port = this.secure ? "443" : "80"),
         (this.hostname =
           r.hostname ||
-          (typeof location < "u" ? location.hostname : "e3r11p2.1337.ma")),
+          (typeof location < "u" ? location.hostname : "e3r11p8.1337.ma")),
         (this.port =
           r.port ||
           (typeof location < "u" && location.port
@@ -12462,7 +12462,7 @@ Please change the parent <Route path="${B}"> to <Route path="${
               this._beforeunloadEventListener,
               !1
             )),
-          this.hostname !== "e3r11p2.1337.ma" &&
+          this.hostname !== "e3r11p8.1337.ma" &&
             ((this._offlineEventListener = () => {
               this._onClose("transport close", {
                 description: "network connection lost",

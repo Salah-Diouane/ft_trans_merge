@@ -24,7 +24,7 @@ interface History {
 const Home: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [history, setHistory] = useState<History[]>([]);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   useEffect(() => {
     if (!socket.connect())
       socket.connect();
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetch_Leaderboard = async () => {
       const resp = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/home/Leaderboard/10`,
+        `${import.meta.env.VITE_API_URL}/api/home/Leaderboard/12`,
         {
           credentials: "include",
           method: "GET",
@@ -56,7 +56,7 @@ const Home: React.FC = () => {
     fetch_HistoryHome();
     fetch_Leaderboard();
   }, []);
-  console.log("history : ", history)
+
   return (
     <div className="m-auto w-full h-full flex flex-col 2xl:flex-row   p-5 gap-5  max-sm:p-1  max-[375px]:p-1 max-[390px]:w-[95%] max-[375px]:w-[90%] max-[360px]:w-[87%] max-[344px]:w-[60%]">
       <div className="w-full flex flex-col gap-4 2xl:w-[70%]">
@@ -80,8 +80,8 @@ const Home: React.FC = () => {
           )}
         </div>
       </div>
-      <div className="w-full 2xl:w-[30%]  flex flex-col ">
-        <div className="flex-1  bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll ">
+      <div className="w-full 2xl:w-[30%]  flex flex-col">
+        <div className="flex-1  bg-[#393E46]  rounded-3xl text-[#EEEEEE] overflow-auto custom-scroll pb-3">
           <div className="sticky top-0 z-10 font-russo p-5 h-16 text-2xl size-auto bg-[#393E46]">
             {t("History")}
           </div>

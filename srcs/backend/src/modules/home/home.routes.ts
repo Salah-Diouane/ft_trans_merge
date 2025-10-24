@@ -22,7 +22,7 @@ export const HistoryHome = async (fastify: FastifyInstance) => {
 			const limit = parseInt(params.limit) || 10;
 
 			const history = await getHistoryHome(fastify, decodetoken.userid, limit);
-			console.log("history : ", history, " ", decodetoken.userid);
+			// console.log("history : ", history, " ", decodetoken.userid);
 			reply.send(history);
 		} catch (err) {
 			reply.code(500).send(err);

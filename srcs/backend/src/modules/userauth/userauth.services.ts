@@ -16,7 +16,7 @@ export const generateRefreshToken = async (fastify: FastifyInstance, reply: Fast
 }
 
 export const generateAccessToken = async (fastify: FastifyInstance, reply: FastifyReply, user: User): Promise<string> => {
-	const token = await fastify.jwt.sign({ userid: user.id, username: user.username, display_name: user.display_name}, { expiresIn: '1h' });
+	const token = await fastify.jwt.sign({ userid: user.id, username: user.username, display_name: user.display_name }, { expiresIn: '1h' });
 	reply.setCookie('accessToken', token, {
 		path: '/',
 		secure: false,

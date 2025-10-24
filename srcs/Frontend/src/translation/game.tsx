@@ -172,6 +172,13 @@ export const Game = {
     touch_right:
       "Touch left/right sides to move paddles or use W/S and ↑/↓",
     ws: "W/S and ↑/↓ to move",
+    Failed_to_start_tournament: "Failed to start tournament",
+    Failed_to_fetch_users: "Failed to fetch users",
+    Failed_to_load_tournament: "Failed to load tournament",
+    Failed_to_delete_tournament: "Failed to delete tournament",
+    trn_name_4p_required: "Tournament name and at least 4 players are required.",
+    player_in_trn: "Player already in a tournament.",
+    Failed_to_load_user_profile: "Failed to load user profile",
   },
 
   fr: {
@@ -347,6 +354,14 @@ export const Game = {
     touch_right:
       "Touchez les côtés gauche/droit pour déplacer les raquettes ou utilisez W/S et ↑/↓",
     ws: "W/S et ↑/↓ pour bouger",
+    Failed_to_start_tournament: "Échec du démarrage du tournoi",
+    Failed_to_fetch_users: "Échec de la récupération des utilisateurs",
+    Failed_to_load_tournament: "Échec du chargement du tournoi",
+    Failed_to_delete_tournament: "Échec de la suppression du tournoi",
+    trn_name_4p_required: "Le nom du tournoi et au moins 4 joueurs sont requis.",
+    player_in_trn: "Le joueur est déjà dans un tournoi.",
+    Failed_to_load_user_profile: "Échec du chargement du profil utilisateur",
+
   },
 
   es: {
@@ -522,6 +537,14 @@ export const Game = {
     touch_right:
       "Toca los lados izquierdo/derecho para mover las paletas o usa W/S y ↑/↓",
     ws: "W/S y ↑/↓ para moverte",
+    Failed_to_start_tournament: "Error al iniciar el torneo",
+    Failed_to_fetch_users: "Error al obtener usuarios",
+    Failed_to_load_tournament: "Error al cargar el torneo",
+    Failed_to_delete_tournament: "Error al eliminar el torneo",
+    trn_name_4p_required: "Se requiere el nombre del torneo y al menos 4 jugadores.",
+    player_in_trn: "El jugador ya está en un torneo.",
+    Failed_to_load_user_profile: "Error al cargar el perfil del usuario",
+    
   },
 };
 

@@ -7,7 +7,7 @@ import { Tournament } from "./tournamentStore";
 import { addNewHistory } from "../../../utils/profile.utils";
 
 export function handleTournamentCompletion(io: IOServer, tournament: any) {
-	let completionCountdown = 60;
+	let completionCountdown = 30;
 	tournament.countdown = completionCountdown;
 	tournament.status = 'completed';
 

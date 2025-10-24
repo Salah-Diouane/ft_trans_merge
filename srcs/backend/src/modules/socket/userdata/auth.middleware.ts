@@ -26,15 +26,11 @@ export default function createAuthMiddleware(fastify: FastifyInstance) {
         throw new Error("No access token.");
       }
 
-      const decodedToken = await fastify.jwt.verify(token);
-      console.log("----> : decodedToken : ", decodedToken);
+      const decodedToken = await fastify.jwt.decode(token);
+      console.log("=================> : google user : ", decodedToken)
       socket.user = decodedToken;
       socket.online = true;
       onlineUsers.set(socket.user.userid, socket);
-      console.log("--> : onlineUsers : socket.user ");
-      console.log(socket.user);
-      // console.log("--> :socket.user.userid")
-      // console.log(socket.user.userid)
       next();
     } catch (error) {
       console.log("Authentication failed:", error);

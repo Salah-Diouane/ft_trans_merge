@@ -13,6 +13,7 @@ import type { gameinfo, securityinfo, ticTacinfo } from "../../utils/settings.ut
 import { setpassword } from "../../utils/settings.utils"
 import { settwoFA } from "../../utils/settings.utils"
 import { generateAccessToken, generateRefreshToken } from "../userauth/userauth.services"
+import bcrypt from 'bcrypt';
 
 export const profile = async (fastify: FastifyInstance) => {
 	fastify.put('/profile', {
@@ -187,6 +188,10 @@ export const UpateSecurity = async (fastify: FastifyInstance) => {
 				return reply.code(401).send({ userinfo: false, message: "No access token in cookies", accesstoken: false, refreshtoken: true });
 			const decodetoken = fastify.jwt.decode(token) as { username: string };
 			const user = await getuser(fastify, decodetoken.username);
+			if (!user){
+				throw 'user not found';
+				return;
+			}
 			const passwordUpdateErrors: any = {
 				en: {
 					incorrect_old_password: "The current password you entered is incorrect. Please try again.",
@@ -202,11 +207,16 @@ export const UpateSecurity = async (fastify: FastifyInstance) => {
 				}
 			};
 			const lang = await getUserLanguage(fastify, decodetoken.username);
+			console.log("#### the body : => ", request.body);
 			if (body.password !== undefined) {
-				if (user?.password !== body.oldpassowrd)
+				const passwordMatch = await bcrypt.compare(body.oldpassowrd, user?.password);
+				if (!passwordMatch) {
+					console.log("### passwordMatch", body.password, " " ,user?.password)
 					return (reply.code(400).send({ type: "oldpassowrd", message: `${passwordUpdateErrors[lang || 'en']?.incorrect_old_password}` , errorexplain: true}));
+				}
 				else if (body.password !== body.confirmpassword)
 					return (reply.code(400).send({ type: 'confirmpassword', message: `${passwordUpdateErrors[lang || 'en']?.password_mismatch}` , errorexplain: true}));
+				body.password= await bcrypt.hash(body.password, 10);
 				await setpassword(fastify, user.username, body.password);
 			}
 			if (body.twoFA !== undefined) {
@@ -219,3 +229,12 @@ export const UpateSecurity = async (fastify: FastifyInstance) => {
 		}
 	})
 }
+//oldpassowrd → oldpassword
+
+// the body : =>  {
+// 	srcs-backend-1  |   oldpassowrd: '123456789',
+// 	srcs-backend-1  |   password: 'yassine20022002',
+// 	srcs-backend-1  |   confirmpassword: 'yassine2002002'
+// 	srcs-backend-1  | }
+
+//he body : =>  { password: '123456789', confirmpassword: '123456789' }

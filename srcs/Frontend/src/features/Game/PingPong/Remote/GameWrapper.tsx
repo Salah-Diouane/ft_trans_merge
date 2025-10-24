@@ -155,19 +155,19 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ playerName, playerDisplayName
         if (tournamentCheckResponse.ok)
           isTournamentRef.current = true;
       }
-  
+
       const [usernamesResponse, imagesResponse] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL}/api/${isTournamentRef.current ? 'display-names' : 'users'}`, {
           credentials: "include",
           method: "POST",
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids: playerIds }),
+          body: JSON.stringify({ ids: playerIds.map(id => parseInt(id, 10)) }),
         }),
         fetch(`${import.meta.env.VITE_API_URL}/api/user-image`, {
           credentials: "include",
           method: "POST",
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids: playerIds }),
+          body: JSON.stringify({ ids: playerIds.map(id => parseInt(id, 10)) }),
         })
       ]);
   

@@ -41,6 +41,7 @@ export default function Profile() {
 	const [allfriends, setAllfriends] = useState<User[]>([]);
 	const [allfriendsRequestPending, setAllfriendsRequestPending] = useState<User[]>([]);
 	if (!user) user = store.username;
+	console.log('##### :user ', user);
 	useEffect(() => {
 		const getdata = async () => {
 			const targetUser = user || store.username;

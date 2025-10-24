@@ -35,8 +35,10 @@ export function setFriendReq(fastify: FastifyInstance, id_sender: number, id_rec
 				id_sender,
 				id_receiver
 			],
-			(err) => {
+			function (this: any, err: Error | null) {
 				if (err) return reject(err);
+				// if (this.changes === 0)
+				// 	return reject(new Error('Friendship row does not exist'));
 				resolve();
 			}
 		);
@@ -129,7 +131,7 @@ export function deleteFriendReq(fastify: FastifyInstance, id_sender: number, id_
 	});
 }
 
-export function getBlockUser(fastify: FastifyInstance,blockerId: number): Promise<{ blocker: number, blocked: number }[]> {
+export function getBlockUser(fastify: FastifyInstance, blockerId: number): Promise<{ blocker: number, blocked: number }[]> {
 	return new Promise((resolve, reject) => {
 		fastify.db.all(
 			`SELECT u.id, u.username, u.first_name, u.family_name, u.image_url
@@ -143,13 +145,13 @@ export function getBlockUser(fastify: FastifyInstance,blockerId: number): Promis
 					return;
 				}
 				console.log("===> : Blocked rows:", rows);
-				resolve(rows); 
+				resolve(rows);
 			}
 		);
 	});
 }
 
-export function getBlockUsers(fastify: FastifyInstance,blockerId: number): Promise<{ blocker: number, blocked: number }[]> {
+export function getBlockUsers(fastify: FastifyInstance, blockerId: number): Promise<{ blocker: number, blocked: number }[]> {
 	return new Promise((resolve, reject) => {
 		fastify.db.all(
 			`SELECT u.id FROM blocked_users f
@@ -161,7 +163,7 @@ export function getBlockUsers(fastify: FastifyInstance,blockerId: number): Promi
 					reject(err);
 					return;
 				}
-				resolve(rows); 
+				resolve(rows);
 			}
 		);
 	});
@@ -185,37 +187,36 @@ export function unblockUser_utils(fastify: FastifyInstance, blocker: number, blo
 
 export function getNameById(fastify: FastifyInstance, id: number): Promise<User[]> {
 	return new Promise((resolve, reject) => {
-	  fastify.db.all(
-		`
+		fastify.db.all(
+			`
 		SELECT username, first_name, family_name, image_url
 		FROM user_authentication
 		WHERE id = ?
 		`,
-		[id],
-		(err: Error | null, rows: User[]) => {
-		  if (err) {
-			reject(err);
-			return;
-		  }
-		  resolve(rows);
-		}
-	  );
+			[id],
+			(err: Error | null, rows: User[]) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+				resolve(rows);
+			}
+		);
 	});
 }
 
 
 export function removeFriend(fastify: FastifyInstance, id_sender: number, id_receiver: number): Promise<void> {
 	return new Promise((resolve, reject) => {
-	  fastify.db.run(
-		`DELETE FROM friendship 
+		fastify.db.run(
+			`DELETE FROM friendship 
 		 WHERE (id_sender = ? AND id_receiver = ?) 
 			OR (id_sender = ? AND id_receiver = ?)`,
-		[id_sender, id_receiver, id_receiver, id_sender],
-		(err: Error | null) => {
-		  if (err) return reject(err);
-		  resolve();
-		}
-	  )
+			[id_sender, id_receiver, id_receiver, id_sender],
+			(err: Error | null) => {
+				if (err) return reject(err);
+				resolve();
+			}
+		)
 	})
-  }
-  
+}

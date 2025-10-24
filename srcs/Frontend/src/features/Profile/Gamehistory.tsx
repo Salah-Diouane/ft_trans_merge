@@ -18,6 +18,7 @@ export default function Gamehistory({ username }: { username: string }) {
 			if (response.ok) {
 				const data = await response.json();
 				setplayerhistory(data);
+				console.log("###data data : ", data)
 			} else {
 				toast.error("Failed to load history");
 			}
@@ -61,7 +62,7 @@ export default function Gamehistory({ username }: { username: string }) {
 								className="hover:bg-[#2e333c] transition-colors duration-200"
 							>
 								<td className="px-6 py-4">{e.game_type}</td>
-								<td className="px-6 py-4">{e.date}</td>
+								<td className="px-6 py-4">{e.date.split('T')[0]}</td>
 								<td className="px-6 py-4">{e.opponent_name}</td>
 								<td className="px-6 py-4">
 									<span
@@ -90,7 +91,7 @@ export default function Gamehistory({ username }: { username: string }) {
 						</div>
 						<div className="flex justify-between text-sm mb-2">
 							<span className="font-semibold">{t('date')}:</span>
-							<span>{e.date}</span>
+							<span>{e.date.split('T')[0]}</span>
 						</div>
 						<div className="flex justify-between text-sm mb-2">
 							<span className="font-semibold">{t('opponent')}:</span>
@@ -116,3 +117,4 @@ export default function Gamehistory({ username }: { username: string }) {
 		</motion.div>
 	);
 }
+//date: today.toISOString().split('T')[0]

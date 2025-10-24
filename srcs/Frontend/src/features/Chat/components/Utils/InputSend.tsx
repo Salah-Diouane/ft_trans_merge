@@ -3,9 +3,7 @@ import { VscSend } from "react-icons/vsc";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { useTranslation } from "react-i18next";
-import { number } from "framer-motion";
-import { P } from "framer-motion/dist/types.d-DsEeKk6G";
-import { useEffect } from "react";
+
 
 interface InputSendProps {
   input: string;

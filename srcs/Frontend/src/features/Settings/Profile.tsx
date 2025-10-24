@@ -51,7 +51,7 @@ export default function Profile() {
 				} else {
 					const data = await res.json() as { message: string, type: string };
 					console.log(`error :  ${data.message}}`);
-					toast.error(`${data.message}`);
+					toast.error(t('errorGeneral'));
 					seterros({ [data.type]: data.message });
 				}
 			} catch (err) {

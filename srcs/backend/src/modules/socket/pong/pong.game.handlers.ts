@@ -44,6 +44,8 @@ export default function pongGameHandlers({ fastify, io, socket }: pongGameHandle
           existingPlayer.sockId = socket.id;
         }
 
+        if (game.gameType === "tournament")
+          return;
         roomId = id;
         isReconnecting = true;
         break;

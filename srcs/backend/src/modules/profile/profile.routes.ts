@@ -89,15 +89,15 @@ export const UserPlayerStats = async (fastify: FastifyInstance) => {
 			request: FastifyRequest<{ Params: { username?: string } }>,
 			reply
 		) => {
-			console.log("=== UserPlayerStats called ===");
-			console.log("Params:", request.params);
+			// console.log("=== UserPlayerStats called ===");
+			// console.log("Params:", request.params);
 
 			try {
 				const { username } = request.params;
 				let userid: number | null = null;
 
 				if (!username) {
-					console.log("No username provided, checking token...");
+					// console.log("No username provided, checking token...");
 					const token = request.cookies.accessToken;
 					if (!token) {
 						return reply
@@ -111,23 +111,23 @@ export const UserPlayerStats = async (fastify: FastifyInstance) => {
 					}
 					const decodetoken = fastify.jwt.decode(token) as { userid: number };
 					userid = decodetoken.userid;
-					console.log("User ID from token:", userid);
+					// console.log("User ID from token:", userid);
 				} else {
-					console.log("Username provided:", username);
+					// console.log("Username provided:", username);
 					userid = await getuserid(fastify, username);
-					console.log("User ID from username:", userid);
+					// console.log("User ID from username:", userid);
 
 					if (!userid) {
 						return reply.code(404).send({ message: "user not found !" });
 					}
 				}
 
-				console.log("Fetching player state for userid:", userid);
+				// console.log("Fetching player state for userid:", userid);
 				const player_state: PlayerState | null = await getPlayerState(
 					fastify,
 					userid
 				);
-				console.log("Player state result:", player_state);
+				// console.log("Player state result:", player_state);
 
 				if (!player_state) {
 					return reply.code(404).send({ message: "player_state not found !" });
@@ -190,7 +190,7 @@ export const PlayerHistory = async (fastify: FastifyInstance) => {
 				const playerHistory = await getPlayerHistory(fastify, userid);
 				return reply.send(playerHistory);
 			} catch (err) {
-				console.log("###  : ", err);
+				// console.log("###  : ", err);
 				return reply.code(400).send(err);
 			}
 		}
@@ -260,7 +260,7 @@ export const CountGames = async (fastify: FastifyInstance) => {
 				const result = await countGames(fastify, userid);
 				return reply.send(result);
 			} catch (err) {
-				console.log(err);
+				// console.log(err);
 				reply.code(500).send(err);
 			}
 		}

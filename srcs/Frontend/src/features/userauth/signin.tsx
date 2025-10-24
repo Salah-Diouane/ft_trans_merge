@@ -15,10 +15,13 @@ export default function Signin() {
 	const store = useStore();
 	const { t } = useTranslation();
 
+	const cleanUpString = (input: any) => {
+		return input.trim().replace(/\s+/g, ' ');
+	}
 	const sendData = async (e?: React.MouseEvent<HTMLButtonElement>) => {
 		e?.preventDefault();
 		const body = {
-			username: username.current?.value || "",
+			username: cleanUpString(username.current?.value) || "",
 			password: password.current?.value || "",
 		};
 		try {
@@ -33,12 +36,12 @@ export default function Signin() {
 			);
 			const data = await response.json();
 			if (!data.login) {
-				seterros({ [data.type]: data.TypeError ? t(`${data.TypeError }`) : t(`${data.type}_error`) });
+				seterros({ [data.type]: data.TypeError ? t(`${data.TypeError}`) : t(`${data.type}_error`) });
 				console.log(`the erros ${data.type} |  ${data.message} `);
 			} else if (data.twofa) {
 				navigate("/login/Twofa", {
 					state: {
-						username: body.username,
+						username: cleanUpString(body.username),
 						password: body.password,
 					},
 				});

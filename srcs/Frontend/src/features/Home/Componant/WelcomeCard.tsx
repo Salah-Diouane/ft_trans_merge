@@ -2,7 +2,7 @@ import { FaPlay } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../../store/store";
 import { useTranslation } from "react-i18next";
-import TextType from "../TextType";
+import TextType from "../Utils/TextType";
 
 const WelcomeCard: React.FC = () => {
   const store = useStore();

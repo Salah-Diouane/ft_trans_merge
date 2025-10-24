@@ -67,7 +67,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch users");
+        throw new Error(t("Failed to fetch users"));
       }
 
       const responseData = await response.json();
@@ -81,7 +81,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       setIdToUsernameMap(prev => ({ ...prev, ...mapping }));
       return mapping;
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error(error);
       return {};
     }
   };
@@ -130,6 +130,8 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       }
 
       const data = JSON.parse(text);
+
+      console.log("Tournament data received:", data);
       
       if (!data.tournament) {
         throw new Error("Tournament data missing from response");
@@ -176,7 +178,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
 
       if (data.tournament?.status === 'completed' && data.tournament?.countdown === 0) {
         console.log("Tournament completed");
-        socket.emit('game:over', data.tournament.id);
+        // socket.emit('game:over', data.tournament.id);
         setCompletionCountdown(data.tournament.countdown);
       }
       
@@ -203,7 +205,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
           fetchTournament();
         }, delay);
       } else {
-        setError(err.message || "Failed to load tournament");
+        setError(t("Failed to load tournament"));
         setLoading(false);
         fetchingRef.current = false;
       }
@@ -288,7 +290,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
 
         if (updatedTournament?.status === 'completed' && updatedTournament?.countdown === 0) {
           console.log("Tournament completed");
-          socket.emit('game:over', updatedTournament.id);
+          // socket.emit('game:over', updatedTournament.id);
           setCompletionCountdown(updatedTournament.countdown);
         }
       }
@@ -413,14 +415,14 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
       });
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Failed to start tournament");
+        throw new Error(t("Failed to start tournament"));
       }
       const data = await response.json();
       setCountdown(180);
       setTimerStarted(true);
       socket.emit("tournament-starting", 180);
     } catch (error:any) {
-      setError(error.message || "Unknown error");
+      setError(error.message);
     }
   };
 
@@ -442,7 +444,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
 
       navigate('/game/ping-pong/tournament-game/tournament-join');
     } catch (error:any) {
-      setError(error.message || "Unknown error");
+      setError(t("Failed to delete tournament"));
     }
   };
 
@@ -500,16 +502,6 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
   const rounds = Object.keys(matchesByRound)
     .map(Number)
     .sort((a, b) => a - b);
-
-  const getRoundName = (round: number, totalRounds: number, maxPlayers: number) => {
-    const roundsFromEnd = totalRounds - round + 1;
-    
-    if (roundsFromEnd === 1) return "Final";
-    if (roundsFromEnd === 2) return "Semi-Final";
-    if (roundsFromEnd === 3) return "Quarter-Final";
-    if (roundsFromEnd === 4) return "Round of 16";
-    return `Round ${round}`;
-  };
 
   const generateMatchPreview = (playerIds: string[]) => {
     const pairs = [];
@@ -670,7 +662,7 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
           </div>
         )}
 
-        {isOwner && tournament.status === "in_progress" && winners.length !== 1 && !countdown && (
+        {isOwner && tournament.status === "in_progress" && (!tournament.matches.length || tournament.matches.every((match) => match.progress === "completed")) && winners.length !== 1 && !countdown && (
           <div className="mb-12 max-w-lg mx-auto p-8 rounded-3xl backdrop-blur-xl border border-white/20 transition-all duration-500 text-center" style={customStyles.secondaryBg}>
             <div className="flex items-center justify-center gap-3 mb-4">
               <LuCrown className="w-8 h-8 text-yellow-400" />
@@ -722,8 +714,6 @@ const TournamentBoard: React.FC<TournamentBoardProps> = ({ onStartNextRound }) =
         {rounds.length > 0 && (
           <div className="space-y-8">
             {rounds.map((round) => {
-              const totalRounds = rounds.length;
-              const roundName = getRoundName(round, totalRounds, tournament.maxPlayers);
               const roundMatches = matchesByRound[round];
               
               return (

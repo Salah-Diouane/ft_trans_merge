@@ -29,7 +29,10 @@ export default function setupSocketIO(fastify: FastifyInstance, io: IOServer) {
       inviteGameHandlers({ fastify, io, socket});
       
       socket.on("disconnect", () => {
-        console.log("---------------> User disconnected:", socket.id);
+        console.log("", socket.id);
+        console.log("---------------> User disconnected:", socket.user);
+        socket.online = false;
+
       });
     });
     startGameLoop({fastify, io});

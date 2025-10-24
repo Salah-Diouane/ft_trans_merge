@@ -9,7 +9,9 @@ export const home = {
 		draw: "Draw",
 		lose: "Lose",
 		level: "Level",
-		search: "Search ..."
+		search: "Search ...",
+		No_recent_matches : "No recent matches",
+		Play_games_to_see_your_match_history_here : "Play games to see your match history here!"
 	},
 
 	fr: {
@@ -22,7 +24,9 @@ export const home = {
 		draw: "Égalité",
 		lose: "Perdre",
 		level: "Niveau",
-		search: "Rechercher ..."
+		search: "Rechercher ...",
+		No_recent_matches : "Aucun match récent",
+		Play_games_to_see_your_match_history_here : "Jouez à des jeux pour voir votre historique de matchs ici !"
 	},
 
 	es: {
@@ -35,7 +39,9 @@ export const home = {
 		draw: "Empate",
 		lose: "Perder",
 		level: "Nivel",
-		search: "Buscar ..."
+		search: "Buscar ...",
+		No_recent_matches : "No hay partidos recientes",
+		Play_games_to_see_your_match_history_here : "¡Juega juegos para ver tu historial de partidos aquí!"
 	},
 };
 

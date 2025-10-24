@@ -62,14 +62,12 @@ const TournamentGameStart: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errData = await response.text();
-        throw new Error(errData || `HTTP error! status: ${response.status}`);
+        const errData = await response.json();
+        if (errData.error === "Tournament not found.")
+          throw new Error(t("trn_not_found"));
       }
 
       const text = await response.text();
-      if (!text) {
-        throw new Error("Empty response from the server.");
-      }
 
       const data = JSON.parse(text);
       console.log('✅ Check-in successful:', data);
@@ -100,7 +98,7 @@ const TournamentGameStart: React.FC = () => {
       });
   
       if (!response.ok) {
-        throw new Error("Failed to fetch users");
+        throw new Error(t("Failed_to_fetch_users"));
       }
   
       const responseData = await response.json();
@@ -177,11 +175,15 @@ const TournamentGameStart: React.FC = () => {
       })
       .catch((error) => {
         console.error("❌ Failed to load user profile:", error.message);
-        setError("Failed to load user profile");
+        setError(t("Failed_to_load_user_profile"));
         setLoading(false);
       });
 
     return () => {
+      if (!playerLeftGame && !gameEnded && joined) {
+        console.log('📤 Emitting playerLeft', userNameRef.current);
+        socket.emit('playerLeft', userNameRef.current);
+      }
       socket.off('profile-data', handleProfile);
       socket.off('playerLeft');
     };
@@ -229,21 +231,26 @@ const TournamentGameStart: React.FC = () => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   return () => {
+  //     console.log('🚪 Component unmounting', { 
+  //       playerLeftGame, 
+  //       joined, 
+  //       gameStarted,
+  //       gameEnded
+  //     });
+  //   };
+  // }, [location.pathname]);
+
   useEffect(() => {
     return () => {
-      console.log('🚪 Component unmounting', { 
-        playerLeftGame, 
-        joined, 
-        gameStarted,
-        gameEnded
-      });
-      
-      if (!playerLeftGame && !gameEnded && joined && userNameRef.current && !gameStarted) {
-        console.log('📤 Emitting playerLeft');
+      console.log(tournament, 'UNMOUNT TOURNAMENT GAME START');
+      if (!playerLeftGame && joined && userNameRef.current) {
         socket.emit('playerLeft', userNameRef.current);
+        // socket.disconnect();
       }
     };
-  }, [location.pathname]);
+  }, [location, joined]);
 
   const handleGoingBack = () => {
     setGameEnded(true);

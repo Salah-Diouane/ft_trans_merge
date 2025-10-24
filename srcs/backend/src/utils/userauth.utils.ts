@@ -17,6 +17,7 @@ export interface User {
 	twoFA_code?: number;
 	twoFA_count: number;
 	Language?: string;
+	twoFA_expiry?: string;
 }
 
 export async function getUserLanguage(fastify: FastifyInstance, username: string): Promise<string | null> {
@@ -35,9 +36,9 @@ export async function getUserLanguage(fastify: FastifyInstance, username: string
 export async function setTwoFACountById(fastify: FastifyInstance, id: number, value: number): Promise<void> {
 	return new Promise((resolve, reject) => {
 		fastify.db.run(
-			`UPDATE user_authentication
-       SET twoFA_count = ?
-       WHERE id = ?`,
+			`	UPDATE user_authentication
+       		 	SET twoFA_count = ?
+       			WHERE id = ?	`,
 			[value, id],
 			function (err: Error | null) {
 				if (err) return reject(err);
@@ -47,6 +48,7 @@ export async function setTwoFACountById(fastify: FastifyInstance, id: number, va
 	});
 }
 
+//================================================================================//
 export async function getuserid(fastify: FastifyInstance, username: string): Promise<number | null> {
 	return new Promise((resolve, rejects) => {
 		fastify.db.get(
@@ -54,15 +56,19 @@ export async function getuserid(fastify: FastifyInstance, username: string): Pro
 			[
 				username
 			],
-			(err: Error, row: { id: number }) => {
+			(err: Error | null, row: { id: number }) => {
 				if (err) rejects(err);
+				if (!row) {
+					console.warn(` No user found for username: ${username}`);
+					return resolve(null);
+				}
 				resolve(row.id);
 			}
 		);
 	})
 }
 
-export async function getUserName(fastify: FastifyInstance, id: string): Promise<string | null> {
+export async function getUserName(fastify: FastifyInstance, id: number): Promise<string | null> {
 	return new Promise((resolve, rejects) => {
 		fastify.db.get(
 			`SELECT username from user_authentication WHERE id = ? `,
@@ -71,13 +77,15 @@ export async function getUserName(fastify: FastifyInstance, id: string): Promise
 			],
 			(err: Error, row: { username: string }) => {
 				if (err) rejects(err);
+				if (!row)
+					return resolve(null);
 				resolve(row.username);
 			}
 		);
 	})
 }
 
-export async function getUserImage(fastify: FastifyInstance, id: string): Promise<string | null> {
+export async function getUserImage(fastify: FastifyInstance, id: number): Promise<string | null> {
 	return new Promise((resolve, rejects) => {
 		fastify.db.get(
 			`SELECT image_url from user_authentication WHERE id = ? `,
@@ -86,6 +94,8 @@ export async function getUserImage(fastify: FastifyInstance, id: string): Promis
 			],
 			(err: Error, row: { image_url: string }) => {
 				if (err) rejects(err);
+				if (!row)
+					return resolve(null);
 				resolve(row.image_url);
 			}
 		);
@@ -93,11 +103,15 @@ export async function getUserImage(fastify: FastifyInstance, id: string): Promis
 }
 
 export async function getuser(fastify: FastifyInstance, username: string): Promise<User | null> {
+	console.log("###### username username username : ", username);
 	return (new Promise((resolve, rejects) => {
 		fastify.db.get('SELECT * FROM user_authentication WHERE username = ?', [username],
 			(err: Error | null, rows: User) => {
-				if (err)
+				if (err) {
+					console.log("#### the error : ", err);
 					rejects(err);
+				}
+				console.log("##### the rows : ", rows);
 				resolve(rows);
 			})
 	}))
@@ -136,16 +150,19 @@ export async function getuser_email(fastify: FastifyInstance, email: string): Pr
 }
 
 export async function setTwofAcode(fastify: FastifyInstance, username: string, code: number): Promise<void> {
-	return new Promise((resolve, rejects) => {
+	return new Promise((resolve, reject) => {
+		const expiryDate = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+		const expiryString = expiryDate.toISOString().slice(0, 19).replace('T', ' '); // format: 'YYYY-MM-DD HH:mm:ss'
+		// example :// -> '2025-10-18T14:30:00.000Z'
 		fastify.db.run(
-			`UPDATE user_authentication SET twoFA_code = ? WHERE username = ?`,
-			[code, username],
+			`UPDATE user_authentication SET twoFA_code = ?, twoFA_expiry = ? WHERE username = ?`,
+			[code, expiryString, username],
 			(err) => {
 				if (err) {
-					return rejects(err);
+					return reject(err);
 				}
 				resolve();
 			}
 		);
-	})
+	});
 }

@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate, Navigate, Link } from "react-router-dom";
+import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import { useStore } from "../../store/store";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 
 export default function TwoFA() {
 	const [numbers, setNumbers] = useState(["", "", "", "", "", ""]);
-	const [currentFocus, setCurrentFocus] = useState(0);
-	const location = useLocation();
-	const navigate = useNavigate();
 	const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 	const [erros, seterros] = useState("");
+	const location = useLocation();
+	const navigate = useNavigate();
 	const state = location.state as
 		| { username: string; password: string }
 		| undefined;
 	const store = useStore();
-	const {t} = useTranslation();
+	const { t } = useTranslation();
 
 	if (!state) {
 		return <Navigate to="/login/Signin" replace />;
@@ -42,24 +41,29 @@ export default function TwoFA() {
 					body: JSON.stringify(body),
 					credentials: "include",
 				}
-			).then((res) => res.json())) as { message: string; login: boolean, twofa: boolean , type: string};
+			).then((res) => res.json())) as {
+				message: string;
+				login: boolean;
+				twofa: boolean;
+				type: string;
+			};
 
 			if (!response.login) {
 				if (response.twofa)
-					seterros(response.type ? t(`${response.type}`) : t('pongSettingsError'));
+					seterros(response.type ? t(`${response.type}`) : t("pongSettingsError"));
 				else {
-					toast.error(response.type ? t(`${response.type}`) : t('pongSettingsError'));
-					navigate('/login/Signin');
+					toast.error(response.type ? t(`${response.type}`) : t("pongSettingsError"));
+					navigate("/login/Signin");
 				}
 			} else {
 				await store.fetchUserInfo();
 				navigate("/");
 			}
 		} catch (err: any) {
-			toast.error(`${t('pongSettingsError')}`);
-			
+			toast.error(`${t("pongSettingsError")}`);
 		}
 	};
+
 	const inputClass = () => {
 		const defaultSytle =
 			"w-10 h-12 text-center text-xl border rounded focus:outline-none focus:ring-2 focus:ring-blue-400";
@@ -67,6 +71,7 @@ export default function TwoFA() {
 		const normalBorder = "border-gray-300";
 		return `${defaultSytle} ${erros !== "" ? errorBorder : normalBorder}`;
 	};
+
 	const writeError = () => {
 		if (erros === "") return null;
 		return (
@@ -76,24 +81,19 @@ export default function TwoFA() {
 			</>
 		);
 	};
+
 	const clearError = () => seterros("");
 
 	return (
 		<>
 			<br />
-			<h1 className="mb-4 text-xl font-russo  font-semibold">
-				{t('twoFactorAuthTitle')}
-			</h1>
-			<h6 className="text-xs">{t('emailSentMessage')} </h6>
+			<h1 className="mb-4 text-xl font-russo  font-semibold">Two-Factor Auth</h1>
+			<h6 className="text-xs">We Send a code to your email ****@gmail.com </h6>
 			<br />
 			<div className="flex flex-col">
 				<div className="flex space-x-2 mb-4">
 					{numbers.map((value, index) => (
-						<input
-							key={index}
-							maxLength={1}
-							value={value}
-							ref={(el) => (inputRefs.current[index] = el)}
+						<input key={index} maxLength={1} value={value} ref={(el) => (inputRefs.current[index] = el)}
 							onChange={(e) => {
 								const val = e.target.value;
 								const newNumbers = [...numbers];
@@ -106,28 +106,18 @@ export default function TwoFA() {
 							onKeyDown={(e) => {
 								if (e.key === "Backspace" && !numbers[index] && index > 0) {
 									const newNumbers = [...numbers];
-									newNumbers[index - 1] = "";
+									newNumbers[index - 1] = '';
 									setNumbers(newNumbers);
 									inputRefs.current[index - 1]?.focus();
 								}
 							}}
-							onFocus={() => {
-								clearError();
-							}}
-							className={inputClass()}
-						/>
+							onFocus={() => { clearError() }}
+							className={inputClass()} />
 					))}
-				</div>
-				{writeError()}
+				</div>{writeError()}
 				<br />
 				<div className="flex justify-center space-x-2">
-					<button
-						onClick={Donebutton}
-						className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-					>
-						{" "}
-						{t('verifyButton')}{" "}
-					</button>
+					<button onClick={Donebutton} className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition" > Verify </button>
 				</div>
 			</div>
 		</>

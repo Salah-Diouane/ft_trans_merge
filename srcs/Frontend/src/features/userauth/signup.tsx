@@ -24,7 +24,7 @@ export default function Signup() {
 		try {
 			const body = {
 				username: cleanUpString(username.current?.value) || "",
-				email: email.current?.value || "",
+				email: cleanUpString(email.current?.value) || "",
 				password: password.current?.value || "",
 				confirmpassword: confirmpassword.current?.value || "",
 				first_name: cleanUpString(first_name.current?.value) || "",

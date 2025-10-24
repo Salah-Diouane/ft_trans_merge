@@ -6,6 +6,7 @@ import { getUserImage, getUserName } from "../../../utils/userauth.utils";
 import { handlePlayerLeft } from "./tournamentUtils";
 import { getdisplay_name } from "../../../utils/settings.utils";
 import { getBlockUsers } from "../../../utils/friends.utils";
+import { create_tournament_schema, get_tournament_schema, get_users_schema } from "./tournament.schema";
 
 interface CreateTournamentBody {
   name: string;
@@ -19,7 +20,7 @@ interface JoinTournamentParams {
 }
 
 interface JoinTournamentBody {
-  user: string;
+  user: number;
 }
 
 interface userData {
@@ -29,14 +30,32 @@ interface userData {
 
 export default async function tournamentRoutes(app: FastifyInstance) {
   // CREATE TOURNAMENT
-  app.post('/tournament', async (
+  app.post('/tournament', {
+    schema: {
+      body: create_tournament_schema,
+    }
+  }, async (
     req: FastifyRequest<{ Body: CreateTournamentBody }>,
     res: FastifyReply
   ) => {
-    const { name, maxPlayers, ownerName, ownerPlays } = req.body;
+    const { name, maxPlayers, ownerPlays } = req.body;
 
+    const token = req.cookies.accessToken;
+    if (!token) {
+      return res
+        .code(401)
+        .send({
+          userinfo: false,
+          message: "No access token in cookies",
+          accesstoken: false,
+          refreshtoken: true,
+        });
+    }
+    const decode = app.jwt.decode(token) as { userid: number };
+
+    const ownerName = decode.userid.toString();
     if (!name || maxPlayers !== 4) {
-      return res.status(400).send({ error: "Tournament name and at least two players are required." });
+      return res.status(400).send({ error: "Tournament name and at least 4 players are required." });
     }
 
     if (ownerPlays && Object.values(tournaments).some(t => t.players.includes(ownerName))) {
@@ -72,11 +91,27 @@ export default async function tournamentRoutes(app: FastifyInstance) {
 
   // JOIN TOURNAMENT (PRIVATE ROOM EMIT)
   app.post('/tournaments/:id/join', async (
-    req: FastifyRequest<{ Params: JoinTournamentParams; Body: JoinTournamentBody }>,
+    req: FastifyRequest<{ Params: JoinTournamentParams }>,
     res: FastifyReply
   ) => {
     const { id } = req.params;
-    const { user } = req.body;
+
+    const token = req.cookies.accessToken;
+    if (!token) {
+      return res
+        .code(401)
+        .send({
+          userinfo: false,
+          message: "No access token in cookies",
+          accesstoken: false,
+          refreshtoken: true,
+        });
+    }
+    const decode = app.jwt.decode(token) as { userid: number };
+
+    const user = decode.userid.toString();
+
+    console.log("Join tournament request:", id, user);
     if (Object.values(tournaments).some(t => t.players.includes(user))) {
       return res.status(400).send({ error: "Player already in a tournament." });
     }
@@ -119,7 +154,21 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     res: FastifyReply
   ) => {
     const { id } = req.params;
-    const { user } = req.body;
+    
+    const token = req.cookies.accessToken;
+    if (!token) {
+      return res
+        .code(401)
+        .send({
+          userinfo: false,
+          message: "No access token in cookies",
+          accesstoken: false,
+          refreshtoken: true,
+        });
+    }
+    const decode = app.jwt.decode(token) as { userid: number };
+
+    const user = decode.userid.toString();
 
     const tournament = tournaments[id];
     if (!tournament) {
@@ -170,7 +219,11 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     return res.status(200).send(Object.values(tournaments));
   });
   // GET ALL USERS BY IDS
-  app.post('/users', async (req: FastifyRequest<{ Body: { ids: string[] } }>, res: FastifyReply) => {
+  app.post('/users', {
+    schema: {
+      body: get_users_schema,
+    }
+  }, async (req: FastifyRequest<{ Body: { ids: number[] } }>, res: FastifyReply) => {
     const { ids } = req.body;
     
     const users : string[] = [];
@@ -181,7 +234,11 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     return res.status(200).send({ users });
   });
 
-  app.post('/display-names', async (req: FastifyRequest<{ Body: { ids: string[] } }>, res: FastifyReply) => {
+  app.post('/display-names', {
+    schema: {
+      body: get_users_schema,
+    }
+  }, async (req: FastifyRequest<{ Body: { ids: number[] } }>, res: FastifyReply) => {
     const { ids } = req.body;
     
     const users : string[] = [];
@@ -349,14 +406,21 @@ export default async function tournamentRoutes(app: FastifyInstance) {
   });
 
   // GET USER IMAGE BY IDS
-  app.post('/user-image', async (
-    req: FastifyRequest<{ Body: { ids: string[] }}>,
+  app.post('/user-image',  {
+    schema: {
+      body: get_users_schema,
+    }
+  }, async (
+    req: FastifyRequest<{ Body: { ids: number[] }}>,
     res: FastifyReply
   ) => {
     const { ids } = req.body;
+    console.log("Fetching user images for IDs:", ids, typeof ids[0]);
     const users : userData[] = [];
     for (const id of ids) {
       const userImage = await getUserImage(app, id);
+      if (!userImage)
+        res.status(404).send({ error: `User image not found for ID: ${id}` });
       users.push({
         id,
         user_image:userImage || ""
@@ -378,8 +442,12 @@ export default async function tournamentRoutes(app: FastifyInstance) {
   })
 
   // GET ONGOING TOURNAMENT GAME FOR A PLAYER
-  app.post("/tournament-game", async (
-    req: FastifyRequest<{ Body: { tournamentId: string; playerId: string } }>,
+  app.post("/tournament-game", {
+    schema: {
+      body: get_tournament_schema,
+    }
+  }, async (
+    req: FastifyRequest<{ Body: { tournamentId: string; playerId: number } }>,
     res: FastifyReply
   ) => {
     const { tournamentId, playerId } = req.body;
@@ -415,7 +483,17 @@ export default async function tournamentRoutes(app: FastifyInstance) {
     });
   });
 
-  app.post("/get-blocked-users", async (
+  app.post("/get-blocked-users", {
+    schema: {
+      body: {
+        type: "object",
+        properties: {
+          userId: { type: "integer" },
+        },
+        required: ["userId"],
+      },
+    }
+  }, async (
     req: FastifyRequest<{ Body: { userId: number }}>,
     res: FastifyReply
   ) => {

@@ -136,7 +136,7 @@ export async function addNewHistory(fastify: FastifyInstance, Winner: string | n
 			Loserid: loserid,
 			Game: type,
 			Score: Sore.left.toString() + "-" + Sore.right.toString(),
-			date: today.toISOString().split('T')[0],
+			date: today.toISOString(),
 			draw: draw
 		};
 		await addNewMatch(fastify, matchinfo);

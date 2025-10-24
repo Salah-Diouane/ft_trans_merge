@@ -20,6 +20,7 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			twoFA_code INTEGER,
 			twoFA_count INTEGER DEFAULT  0,
 			Language VARCHAR(25) DEFAULT 'en',
+			twoFA_expiry DATETIME,
 			image_url VARCHAR(200) NOT NULL DEFAULT 'https://res.cloudinary.com/dgwo1ehtt/image/upload/v1754901100/defaultprofile.jpg',
 			cover_url VARCHAR(200) NOT NULL DEFAULT 'https://res.cloudinary.com/dgwo1ehtt/image/upload/v1754901213/defaultcover.jpg'
 	  	);
@@ -35,11 +36,6 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			FOREIGN KEY(user_id) REFERENCES user_authentication(id)
 	  	);
 	`;
-
-	// const [xColor, setXColor] = useState("#FF0000");
-	// const [oColor, setOColor] = useState("#0000FF");
-	// const [gridColor, setGridColor] = useState("#000000");
-	// const [boardColor, setBoardColor] = useState("#FFFFFF");
 
 	const ticTac_settings_table: string = `
 	CREATE TABLE IF NOT EXISTS ticTac_settings_table (
@@ -60,15 +56,6 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 			UNIQUE(blocker, blocked)
 		);
 	`;
-	// const createMessageTable: string = `
-	// 	CREATE TABLE IF NOT EXISTS messages (
-	// 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-	// 		sender TEXT NOT NULL,
-	// 		recipient TEXT NOT NULL,
-	// 		text TEXT NOT NULL,
-	// 		timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-	// 	);
-	// `;
 
 	const createMessageTable: string = `
 		CREATE TABLE IF NOT EXISTS messages (
@@ -135,6 +122,22 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 		);
 	`;
 
+	const prevent_reverse_duplicate_trigger = `
+		CREATE TRIGGER IF NOT EXISTS prevent_reverse_duplicate
+			BEFORE INSERT ON friendship
+			FOR EACH ROW
+			BEGIN
+    			SELECT
+    			CASE
+        			WHEN EXISTS (
+        	    		SELECT 1 FROM friendship 
+        	    		WHERE id_sender = NEW.id_receiver AND id_receiver = NEW.id_sender
+        		) THEN
+        	    RAISE(ABORT, 'Reverse friendship request already exists');
+    		END;
+		END;
+	`;
+
 	await new Promise<void>((resolve, reject) => {
 
 		db.run(player_state, (err) => {
@@ -176,10 +179,13 @@ const database_plugin: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 		})
 
 		db.run(friendship, (err) => {
-			if (err)
-				reject(err);
-			resolve();
-		})
+			if (err) return reject(err);
+			// Now create the trigger
+			db.run(prevent_reverse_duplicate_trigger, (err2) => {
+				if (err2) return reject(err2);
+				resolve();
+			});
+		});
 
 		db.run(ticTac_settings_table, (err) => {
 			if (err)

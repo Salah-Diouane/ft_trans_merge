@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";import OnlineStatusIcon from "../
 import { Clock, MessageCircle, Shield, UserCheck, UserX, X } from "lucide-react";
 ;
 interface FriendCardProps {
+    blockedUserIds?: Map<number, string>,
     name: string;
     id: number;
     status: "sent" | "request" | "blocked" | "all";
@@ -16,6 +17,7 @@ interface FriendCardProps {
   }
   
   const FriendCard: React.FC<FriendCardProps> = ({
+    blockedUserIds,
     name,
     id,
     status,
@@ -28,10 +30,19 @@ interface FriendCardProps {
   }) => {
     const {t} = useTranslation();
     const navigate = useNavigate();
-  
+    let isBlocked: boolean = false;
+    blockedUserIds?.forEach((value, key) => {
+      if (id === key){
+        console.log("key : ", key)
+        console.log("value : ", value)
+        isBlocked = true;
+      }
+    });
+    
     return (
-      <div className="flex items-center p-3 xs:p-4 bg-[#222831] m-2 h-16 rounded-3xl border border-[#393E46]/50 hover:border-[#0077FF]/50 transition-all duration-300 justify-between">
-        {status === "all" ? (
+      (!isBlocked && (
+        <div className="flex items-center p-3 xs:p-4 bg-[#222831] m-2 h-16 rounded-3xl border border-[#393E46]/50 hover:border-[#0077FF]/50 transition-all duration-300 justify-between">
+        {(status === "all") ? (
           <div className="flex items-center gap-2 xs:gap-4 flex-shrink min-w-0">
             <img
               src={image_url}
@@ -49,7 +60,7 @@ interface FriendCardProps {
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 flex-shrink min-w-0">
+           <div className="flex items-center gap-2 flex-shrink min-w-0">
             <img
               src={image_url}
               className="size-8 xs:size-10 sm:size-12 rounded-full border-2 border-white flex-shrink-0"
@@ -58,7 +69,8 @@ interface FriendCardProps {
             <p className="font-russo text-white truncate max-w-[200px] leading-tight p-2">
               {name}
             </p>
-          </div>
+          </div> 
+          
         )}
   
         <div className="flex items-center justify-end gap-2">
@@ -102,7 +114,7 @@ interface FriendCardProps {
             </button>
           )}
   
-          {status === "all" && (
+          {(status === "all" && !isBlocked) && (
             <button
               className="bg-[#0077FF] text-white py-2 px-4 rounded-full text-sm font-semibold flex items-center gap-2"
               onClick={() => navigate(`/chat/${name}`)}
@@ -112,6 +124,8 @@ interface FriendCardProps {
           )}
         </div>
       </div>
+      ))
+
     );
   };
 

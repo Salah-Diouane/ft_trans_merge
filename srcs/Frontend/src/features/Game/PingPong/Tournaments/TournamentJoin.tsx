@@ -95,15 +95,15 @@ const TournamentJoin: React.FC = () => {
     };
   }, [navigate, isProfileLoaded]);
 
-  const handleJoin = async (t: Tournament) => {
-    if (!userId) return alert("User not loaded yet");
-    const alreadyJoined = t.players.includes(userId);
-    if (alreadyJoined) return alert("You are already in this tournament!");
-    if (t.currentPlayers >= t.maxPlayers) return alert("Tournament is full!");
-    if (t.status !== "waiting") return alert("Tournament already started");
+  const handleJoin = async (tournament: Tournament) => {
+    if (!userId) return alert(t("User_not_loaded_yet"));
+    const alreadyJoined = tournament.players.includes(userId.toString());
+    if (alreadyJoined) return alert(t("You_are_already_in_this_tournament"));
+    if (tournament.currentPlayers >= tournament.maxPlayers) return alert(t("Tournament_is_full"));
+    if (tournament.status !== "waiting") return alert(t("Tournament_already_started"));
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${t.id}/join`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${tournament.id}/join`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -121,15 +121,14 @@ const TournamentJoin: React.FC = () => {
     }
   };
 
-  const handleLeave = async (t: Tournament) => {
-    if (!userId) return alert("User not loaded yet");
+  const handleLeave = async (tournament: Tournament) => {
+    if (!userId) return alert(t("User_not_loaded_yet"));
 
-    const isParticipant = t.players.includes(userId) || (t.ownerPlays && t.owner === userId);
-    if (!isParticipant) return alert("You are not part of this tournament!");
-    if (t.status !== "waiting") return alert("Tournament already started");
+    const isParticipant = tournament.players.includes(userId.toString()) || (tournament.ownerPlays && tournament.owner === userId);
+    if (tournament.status !== "waiting") return alert(t("Tournament_already_started"));
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${t.id}/leave`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${tournament.id}/leave`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -137,6 +136,12 @@ const TournamentJoin: React.FC = () => {
       });
       if (!res.ok) {
         const err = await res.json();
+        if (err.error === "Tournament not found.")
+          return alert(t("Tournament_not_found"));
+        else if (err.error === "Tournament already started.")
+          return alert(t("Tournament_already_started"));
+        else if (err.error === "Player not in tournament.")
+          return alert(t("Player_not_in_tournament"));
         return alert(err.message || "Error leaving tournament");
       }
       console.log(res);
@@ -145,30 +150,6 @@ const TournamentJoin: React.FC = () => {
       setPlayerJoinedTournament(false);
     } catch (e: any) {
       alert(e?.message || "Error leaving tournament");
-    }
-  };
-
-  const handleStart = async (t: Tournament) => {
-    if (!userId) return alert("User not loaded yet");
-    if (t.owner !== userId) return alert("Only the owner can start");
-    if (t.status !== "waiting") return alert("Tournament already started");
-
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tournaments/${t.id}/start`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user: userId }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        return alert(err.message || "Error starting tournament");
-      }
-      const updated: Tournament = await res.json();
-      setTournaments((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
-      // Backend will emit tournament:matchStarted for each R1 match with 2 players; listener above will navigate.
-    } catch (e: any) {
-      alert(e?.message || "Error starting tournament");
     }
   };
 
@@ -207,7 +188,8 @@ const TournamentJoin: React.FC = () => {
         ) : (
           <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 pb-16">
             {tournaments.map((to) => {
-              const isJoined = (!!userId && to.players.includes(userId));
+              const isJoined = (!!userId && to.players.includes(userId.toString())) || (to.ownerPlays && to.owner === userId);
+              console.log("Tournament:", to.id, "User joined:", );
               const isOwner = !!userId && to.owner === userId;
               const isFull = to.currentPlayers >= to.maxPlayers;
               const canJoin = !isJoined && !isFull && to.status === "waiting" && !playerJoinedTournament;
