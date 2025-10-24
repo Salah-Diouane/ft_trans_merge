@@ -2,6 +2,7 @@ import OnlineStatusIcon from "./OnlineStatusIcon";
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
 interface HeaderProps {
   isMobile: boolean;
   user: { username: string; id: number; image_url: string; online: boolean };
@@ -11,9 +12,20 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ isMobile, user, onBack }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  // console.log("isMobile : ",isMobile)
+  
+  const [ mobile, setMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [])
+  
+
   return (
     <div className="flex items-center gap-x-6">
-      {isMobile && (
+      {mobile && (
         <button onClick={onBack} className="text-white  transition-colors">
           <IoIosArrowBack className="size-7  rounded-full p-0.5" />
         </button>

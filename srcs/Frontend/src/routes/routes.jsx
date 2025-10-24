@@ -25,7 +25,7 @@ const RemotePong = lazy(() => import('../features/Game/PingPong/Remote/RemotePon
 const GameSettings = lazy(() => import('../features/Settings/Game'));
 const ProfileSetting = lazy(() => import('../features/Settings/Profile'));
 const SecurtitySettings = lazy(() => import('../features/Settings/Security'));
-const Friends = lazy(() => import('../features/Friends/friends'));
+const Friends = lazy(() => import('../features/Friends/Friends'));
 const Notification = lazy(() => import('../features/Notifications/Notification'));
 const TournamentPong = lazy(() => import('../features/Game/PingPong/Tournaments/TournamentPong'));
 const TournamentCreate = lazy(() => import('../features/Game/PingPong/Tournaments/TournamentCreate'));

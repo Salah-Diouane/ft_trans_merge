@@ -62,11 +62,12 @@ const ChatLayout: React.FC<Props> = ({
         onSend={onSend}
         onBack={() => setShowContactList(true)}
         loggedInUserId={loggedInUserId}
-      />
-    );
-
-  return (
-    <>
+        setShowContactList={setShowContactList}
+        />
+      );
+      
+      return (
+        <>
       <ContactList
         users={filteredUsers}
         messages={messages}
@@ -75,15 +76,16 @@ const ChatLayout: React.FC<Props> = ({
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         unreadCounts={unreadCounts}
-      />
+        />
       {selectedUser ? (
         <Conversation
-          user={selectedUser}
-          messages={userMessages}
-          input={input}
-          setInput={setInput}
-          onSend={onSend}
-          loggedInUserId={loggedInUserId}
+        user={selectedUser}
+        messages={userMessages}
+        input={input}
+        setInput={setInput}
+        onSend={onSend}
+        loggedInUserId={loggedInUserId}
+        setShowContactList={setShowContactList}
         />
       ) : (
         <EmptyState />

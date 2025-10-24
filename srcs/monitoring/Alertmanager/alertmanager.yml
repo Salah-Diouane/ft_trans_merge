@@ -11,10 +11,10 @@ route:
 receivers:
   - name: 'email-alert'
     email_configs:
-      - to: 'salahdiouane964@gmail.com'
-        from: 'salahdiouane964@gmail.com'
+      - to: ${sender_gmail}
+        from: ${sender_gmail}
         smarthost: 'smtp.gmail.com:587'
-        auth_username: 'salahdiouane964@gmail.com'
-        auth_identity: 'salahdiouane964@gmail.com'
-        auth_password: 'ojpw rhvd wbhz poyd'
+        auth_username: ${sender_gmail}
+        auth_identity: ${sender_gmail}
+        auth_password: ${gmail_pwd}
         require_tls: true

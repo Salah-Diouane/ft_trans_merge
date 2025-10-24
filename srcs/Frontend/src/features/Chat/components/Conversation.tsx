@@ -10,7 +10,8 @@ import DeleteMessage from "./Utils/DeleteMessage";
 import BlockUser from "./Utils/BlockUser";
 import InputSend from "./Utils/InputSend";
 import InputBlocked from "./Utils/InputBlocked";
-
+import gf from "../Assets/gf4.gif";
+import { useTranslation } from "react-i18next";
 
 interface ConversationProps {
   user: { username: string; id: number; image_url: string; online: boolean };
@@ -21,6 +22,8 @@ interface ConversationProps {
   onSend: () => void;
   onBack?: () => void;
   loggedInUserId: number;
+  setShowContactList: (value: boolean) => void;
+
 }
 
 const Conversation: FC<ConversationProps> = ({
@@ -31,6 +34,7 @@ const Conversation: FC<ConversationProps> = ({
   onSend,
   onBack,
   loggedInUserId,
+  setShowContactList,
 }) => {
 
   const isMobile = typeof window !== "undefined" && window.outerWidth < 1024;
@@ -43,6 +47,7 @@ const Conversation: FC<ConversationProps> = ({
     string | number | null
   >(null);
   const [allBlocked, setAllBlocked] = useState<User[]>([]);
+  const {t} = useTranslation();
 
   useEffect(() => {
     const allBlocked_fct = async () => {
@@ -110,12 +115,8 @@ const Conversation: FC<ConversationProps> = ({
     setShowInvBlockmenu(false);
   };
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center h-full bg-[#121418] text-white rounded-2xl">
-        <p className="text-white text-lg">Select a Contact</p>
-      </div>
-    );
+  if (!user){
+    setShowContactList(true)
   }
 
   return (
