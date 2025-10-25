@@ -7,7 +7,6 @@
 # CMD ["--web.external-url=http://localhost:9093", "--config.file=/etc/alertmanager/alertmanager.yml"]
 
 
-# Use Debian slim so we can install envsubst
 FROM debian:12-slim
 
 # Install required tools: wget, tar, envsubst (gettext), ca-certificates
@@ -27,6 +26,7 @@ RUN wget https://github.com/prometheus/alertmanager/releases/download/v${ALERT_V
 
 # Copy config and entrypoint
 COPY alertmanager.yml /etc/alertmanager/alertmanager.yml
+
 COPY entrypoint.sh /entrypoint.sh
 
 # Make entrypoint executable

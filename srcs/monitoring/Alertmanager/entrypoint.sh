@@ -4,7 +4,6 @@ set -e
 envsubst < /etc/alertmanager/alertmanager.yml > /tmp/alertmanager.yml
 
 exec /bin/alertmanager \
-  --web.external-url=http://localhost:9093 \
+  --web.external-url=${EXTERNAL_URL} \
   --config.file=/tmp/alertmanager.yml \
   --storage.path=/alertmanager
-

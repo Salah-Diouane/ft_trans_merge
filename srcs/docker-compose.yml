@@ -44,38 +44,55 @@ services:
     depends_on:
       - frontend
       - backend
-      - alertmanager
       - grafana
       - prometheus
+      - alertmanager
     networks:
       - frontend_backend
       - monitoring
 
   prometheus:
-    build:
-      context: ./monitoring/prometheus
-      dockerfile: Dockerfile
-    ports:
-      - "9090:9090"
-    networks:
-      - monitoring
-      - frontend_backend
+      build:
+        context: ./monitoring/prometheus
+        dockerfile: Dockerfile
+      command:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+        - '--storage.tsdb.path=/prometheus'
+        - '--web.console.libraries=/usr/share/prometheus/console_libraries' #the web UI
+        - '--web.console.templates=/usr/share/prometheus/consoles'
+        - '--web.external-url=https://e3r10p2.1337.ma/prometheus' #for  Nginx sub-path
+      networks:
+        - monitoring
+        - frontend_backend
+      restart: always
 
   grafana:
     build:
       context: ./monitoring/grafana
       dockerfile: Dockerfile
-    ports:
-      - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
-      - GF_SERVER_ROOT_URL=https://e3r11p2.1337.ma/grafana/
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SERVER_ROOT_URL=https://e3r10p2.1337.ma/grafana # Tells Grafana what the external public URL is (important when it’s behind a reverse proxy like Nginx or Traefik)
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true # Must be true if Grafana is served from a subpath (like /grafana instead of /)
     env_file:
       - .env
     networks:
       - monitoring
+
+  alertmanager:
+    build:
+      context: ./monitoring/Alertmanager
+      dockerfile: Dockerfile
+    volumes:
+      - alertmanager_data:/alertmanager
+    environment:
+      - EXTERNAL_URL=https://e3r10p2.1337.ma/alertmanager
+    env_file:
+      - .env
+    networks:
+      - monitoring
+      - frontend_backend
 
   nginx_exporter:
     build:
@@ -98,19 +115,6 @@ services:
     networks:
       - monitoring
 
-  alertmanager:
-    build:
-      context: ./monitoring/Alertmanager
-      dockerfile: Dockerfile
-    ports:
-      - "9093:9093"
-    volumes:
-      - alertmanager_data:/alertmanager
-    networks:
-      - monitoring
-      - frontend_backend
-    env_file:
-      - .env
 
 
 
