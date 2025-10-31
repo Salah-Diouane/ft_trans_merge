@@ -41,16 +41,26 @@ It’s a modern reinvention of the **classic Pong** game — featuring multiplay
 - Secure login via **JWT** and **OAuth2**  
 - Optional **2FA** for enhanced security  
 - Player statistics and match history tracking  
-- Tournament and friend system support  
+- Friend system and user blocking  
+- Global leaderboard  
 
 ---
 
 ### Gameplay & Matchmaking
+
+#### 🏓 Pong Game  
 - Real-time Pong gameplay using **Socket.IO**
 - Remote matchmaking and multiplayer support  
-- Customizable gameplay (speed, color, mode…)  
+- Customizable gameplay (color, speed, power-ups, etc.)  
 - Smooth handling of lag and reconnections  
+- **Tournament Mode** – organize multi-round competitions between players  
 - Includes a **bonus mini-game**
+
+#### ❌⭕ Tic Tac Toe Game  
+- Classic Tic Tac Toe implemented with **real-time multiplayer**  
+- Challenge friends or play with random opponents  
+- Simple, responsive design  
+- Integrated chat and game invitations  
 
 ---
 
@@ -58,13 +68,13 @@ It’s a modern reinvention of the **classic Pong** game — featuring multiplay
 - Real-time chat between players  
 - Notifications for messages, friend requests, and matches  
 - Option to block users  
-- Send game invitations directly from chat  
+- Send game or tournament invitations directly from chat  
 
 ---
 
 ### Database (SQLite)
 - Lightweight, file-based database  
-- Stores users, matches, chat, and configurations  
+- Stores users, matches, chat, tournaments, and configurations  
 
 ---
 
@@ -87,9 +97,9 @@ It’s a modern reinvention of the **classic Pong** game — featuring multiplay
 
 ---
 
-##  Conclusion  
+## 🏁 Conclusion  
 
 **ft_transcendence** is a full-stack, real-time web platform combining gaming, authentication, and observability.  
-It demonstrates complete mastery of web technologies — from backend systems and real-time communication to monitoring and DevOps.
+Now featuring **Pong with Tournament mode** and **Tic Tac Toe multiplayer**, it showcases mastery in **real-time web technologies**, **system monitoring**, and **modern DevOps practices**.
 
-Built with passion and precision.  
+Built with passion and precision. ❤️  
