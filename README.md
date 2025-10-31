@@ -13,7 +13,7 @@ It’s a modern reinvention of the **classic Pong** game — featuring multiplay
 
 ## ⚙️ Tech Stack  
 
-|-----------------|---------------------------------------|
+
 | Layer           |             Technologies              |
 |-----------------|---------------------------------------|
 | **Frontend**    | React.js • TailwindCSS • TypeScript   |
@@ -21,7 +21,7 @@ It’s a modern reinvention of the **classic Pong** game — featuring multiplay
 | **Database**    | SQLite                                |
 | **Deployment**  | Docker • Nginx • HTTPS                |
 | **Monitoring**  | Prometheus • Grafana                  |
-|-----------------|---------------------------------------|
+
 
 ---
 
