@@ -1,10 +1,10 @@
-# 🕹️ ft_transcendence
+# 📌 ft_transcendence
 
 ---
 
 ## 🚀 Overview  
 
-**ft_transcendence** is the final project of the **42 Network curriculum**, where you build a **full-stack real-time web application**.  
+**ft_transcendence** is the final project of the **42 Network curriculum**, where we build a **full-stack real-time web application**.  
 It’s a modern reinvention of the **classic Pong** game — featuring multiplayer gameplay, live chat, authentication, monitoring, and deployment.
 
 > This project brings together backend APIs, real-time systems, authentication, frontend frameworks, containerization, and observability.
@@ -87,7 +87,7 @@ It’s a modern reinvention of the **classic Pong** game — featuring multiplay
 
 ---
 
-## 🏁 Conclusion  
+##  Conclusion  
 
 **ft_transcendence** is a full-stack, real-time web platform combining gaming, authentication, and observability.  
 It demonstrates complete mastery of web technologies — from backend systems and real-time communication to monitoring and DevOps.
