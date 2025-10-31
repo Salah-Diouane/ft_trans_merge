@@ -1,106 +1,95 @@
 # 🕹️ ft_transcendence
 
-[![Made with Fastify](https://img.shields.io/badge/Backend-Fastify-FF9800?logo=fastify&logoColor=white)](https://www.fastify.io/)
-[![Frontend React](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![Socket.IO](https://img.shields.io/badge/Realtime-Socket.IO-black?logo=socket.io&logoColor=white)](https://socket.io/)
-[![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Docker](https://img.shields.io/badge/Container-Docker-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![Monitoring](https://img.shields.io/badge/Monitoring-Prometheus%20%26%20Grafana-F46800?logo=grafana&logoColor=white)](https://grafana.com/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
 ---
 
 ## 🚀 Overview  
 
 **ft_transcendence** is the final project of the **42 Network curriculum**, where you build a **full-stack real-time web application**.  
-It’s a modern reinvention of the **classic Pong** game — featuring multiplayer gameplay, chat, authentication, monitoring, and deployment.
+It’s a modern reinvention of the **classic Pong** game — featuring multiplayer gameplay, live chat, authentication, monitoring, and deployment.
 
-> 🧠 This project brings together everything from backend APIs, real-time systems, and authentication to frontend frameworks, containerization, and observability.
+> This project brings together backend APIs, real-time systems, authentication, frontend frameworks, containerization, and observability.
 
 ---
 
 ## ⚙️ Tech Stack  
 
-| Layer | Technologies |
-|:------|:--------------|
-| **Frontend** | React.js • TailwindCSS • TypeScript |
-| **Backend** | Fastify.js • Socket.IO • JWT • OAuth2 |
-| **Database** | SQLite |
-| **Deployment** | Docker • Nginx • HTTPS |
-| **Monitoring** | Prometheus • Grafana |
+|-----------------|---------------------------------------|
+| Layer           |             Technologies              |
+|-----------------|---------------------------------------|
+| **Frontend**    | React.js • TailwindCSS • TypeScript   |
+| **Backend**     | Fastify.js • Socket.IO • JWT • OAuth2 |
+| **Database**    | SQLite                                |
+| **Deployment**  | Docker • Nginx • HTTPS                |
+| **Monitoring**  | Prometheus • Grafana                  |
+|-----------------|---------------------------------------|
 
 ---
 
 ## ✨ Features  
 
-### 🧩 Backend (Fastify + Socket.IO)
-- ⚡ Fast, scalable backend using **Fastify**
-- 🔌 Real-time gameplay powered by **Socket.IO**
-- 🔒 Authentication with **JWT** and **2FA**
-- 🌐 **OAuth2** for remote login (Google)
-- 🧱 Modular, production-ready architecture (Docker + Nginx)
+### Backend (Fastify + Socket.IO)
+- Fast, scalable backend with **Fastify**
+- Real-time gameplay powered by **Socket.IO**
+- Authentication using **JWT** and **Two-Factor Authentication (2FA)**
+- **OAuth2** integration for Google login
+- Modular, production-ready architecture (Docker + Nginx)
 
 ---
 
-### 👥 User Management & Authentication
-- 🧍 User registration and profile management  
-- 🔑 Login via **JWT** and **OAuth2**  
-- 🔐 Enable **Two-Factor Authentication (2FA)**  
-- 🏆 Manage users across tournaments  
-- 📜 View match history, wins/losses, and statistics  
+### User Management & Authentication
+- User registration and profile management  
+- Secure login via **JWT** and **OAuth2**  
+- Optional **2FA** for enhanced security  
+- Player statistics and match history tracking  
+- Tournament and friend system support  
 
 ---
 
-### 🕹️ Gameplay & Matchmaking
-- 🎮 Real-time Pong gameplay with **Socket.IO**
-- 🌍 Play remotely against other players
-- ⚙️ Customizable gameplay (speed, color, mode…)  
-- 🔄 Handles lag and reconnections gracefully  
-- 🧠 Includes a **second bonus game**
+### Gameplay & Matchmaking
+- Real-time Pong gameplay using **Socket.IO**
+- Remote matchmaking and multiplayer support  
+- Customizable gameplay (speed, color, mode…)  
+- Smooth handling of lag and reconnections  
+- Includes a **bonus mini-game**
 
 ---
 
-### 💬 Live Chat
-- 💭 Real-time chat between players  
-- 🔔 Notifications for friend requests, matches, and messages  
-- 🚫 Block unwanted users  
-- 🕹️ Send game invitations directly from chat  
+### Live Chat
+- Real-time chat between players  
+- Notifications for messages, friend requests, and matches  
+- Option to block users  
+- Send game invitations directly from chat  
 
 ---
 
-### 🗄️ Database (SQLite)
-- 🪶 Lightweight and portable database  
-- 💾 Stores users, chats, matches, and configurations  
+### Database (SQLite)
+- Lightweight, file-based database  
+- Stores users, matches, chat, and configurations  
 
 ---
 
-### 🎨 Frontend (React + TailwindCSS + TypeScript)
-- ⚛️ Built with **React.js** and **TypeScript**  
-- 📱 Responsive across **desktop, tablet, and mobile**  
-- ⚡ Real-time UI updates with **Socket.IO**  
-- 🧭 Clean, modular, and maintainable architecture  
+### Frontend (React + TailwindCSS + TypeScript)
+- Built with **React** and **TypeScript**
+- Fully responsive design for desktop, tablet, and mobile  
+- Real-time updates through **Socket.IO**
+- Clean and maintainable architecture  
 
 ---
 
-### 📊 Monitoring & Deployment
-- 🧠 **Prometheus** collects metrics from **Node Exporter** (system metrics: CPU, RAM, disk usage) and **Nginx Exporter** (web server performance)  
-- 📈 **Grafana** visualizes real-time dashboards for system and network performance  
-- 🚨 **Alerting**: Prometheus triggers alerts based on Node and Nginx metrics (e.g., high CPU usage, low memory, server down)  
-- 🐳 **Dockerized** for easy deployment  
-- 🌐 **Nginx** ensures HTTPS and reverse proxy routing  
-
----
-
-### 🌍 Cross-Platform Support
-- 💻 Works on all modern browsers  
-- 📱 Fully responsive and mobile-friendly  
-- 🈳 Multilingual support (EN / FR / ES)
+### Monitoring & Deployment
+- **Prometheus** collects metrics from  
+  - **Node Exporter** (system metrics: CPU, RAM, disk usage)  
+  - **Nginx Exporter** (web server performance)  
+- **Grafana** visualizes real-time dashboards for performance and health  
+- **Alerting** via Prometheus for critical events (e.g., high CPU, low memory, downtime)  
+- **Dockerized** for simple setup and deployment  
+- **Nginx** provides HTTPS and reverse proxy configuration  
 
 ---
 
 ## 🏁 Conclusion  
 
-**ft_transcendence** is a full-stack, real-time web app that combines gaming, authentication, and observability into one modern platform.  
-It’s designed to demonstrate complete mastery of web technologies — from frontend to backend, infrastructure to UX.
+**ft_transcendence** is a full-stack, real-time web platform combining gaming, authentication, and observability.  
+It demonstrates complete mastery of web technologies — from backend systems and real-time communication to monitoring and DevOps.
 
-💡 Built with passion, code, and a bit of Pong magic. 🏓
+Built with passion and precision.  
