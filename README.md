@@ -51,16 +51,14 @@ It’s a modern reinvention of the **classic Pong** game — featuring multiplay
 #### 🏓 Pong Game  
 - Real-time Pong gameplay using **Socket.IO**
 - Remote matchmaking and multiplayer support  
-- Customizable gameplay (color, speed, power-ups, etc.)  
+- Customizable gameplay  
 - Smooth handling of lag and reconnections  
 - **Tournament Mode** – organize multi-round competitions between players  
-- Includes a **bonus mini-game**
 
 #### ❌⭕ Tic Tac Toe Game  
 - Classic Tic Tac Toe implemented with **real-time multiplayer**  
-- Challenge friends or play with random opponents  
+- Play with random opponents  
 - Simple, responsive design  
-- Integrated chat and game invitations  
 
 ---
 
