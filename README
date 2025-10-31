@@ -1,16 +1,88 @@
-Modules :
-* Major module: Use a framework to build the backend.
-* Major module: Standard user management, authentication, users across tournaments
-* Major module: Implementing a remote authentication.<---
-* Major module: Remote players
-* Major module: Add another game with user history and matchmaking.
-* Major module: Live chat.
-* Major module: Implement Two-Factor Authentication (2FA) and JWT.<---
+# 🏓 ft_transcendence
 
-* Minor module: Use a database for the backend.
-* Minor module: Game customization options
-* Minor module: Monitoring system.
-* Minor module: Support on all devices
-* Minor module: Supports multiple languages
-* Minor module: Expanding browser compatibility.
-* Minor module: Use a framework or toolkit to build the front-end.
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Salah-Diouane/ft_transcendence/main.yml?style=for-the-badge)](https://github.com/Salah-Diouane/ft_transcendence/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Top Language](https://img.shields.io/github/languages/top/Salah-Diouane/ft_transcendence?style=for-the-badge)](https://github.com/Salah-Diouane/ft_transcendence)
+
+A real-time multiplayer web application built as the final 42 project.
+Featuring online gameplay, chat, and advanced authentication — powered by Socket.IO, JWT, and modern web frameworks.
+
+## 🚀 Overview
+
+**ft_transcendence** is a full-stack web platform that allows authenticated users to play games, chat, and compete with others online — all in real time.
+
+It demonstrates mastery of modern web technologies, robust authentication systems (JWT + 2FA + OAuth), and a scalable architecture using WebSockets.
+
+## ✨ Sneak Peek
+
+
+*(Add a screenshot or GIF of your application here!)*
+
+## 🧩 Features
+
+* **⚙️ Modern Backend Framework:** Built with **NestJS** (or Express.js), providing:
+    * A robust RESTful API for all core actions.
+    * WebSocket-based real-time events via **Socket.IO**.
+    * A modular and scalable server architecture.
+
+* **👥 Secure User Management:**
+    * Secure user registration and login.
+    * **JWT-based** session management for persistent authentication.
+
+* **🌍 Remote Authentication (OAuth2):**
+    * Integration with a remote OAuth2 provider (e.g., **42 API**, Google).
+    * Allows external identity verification and seamless login.
+
+* **🎮 Real-time Multiplayer:**
+    * Live matchmaking and gameplay synchronization using **Socket.IO**.
+    * A smooth, low-latency experience for remote users.
+
+* **🕹️ Multiple Games & History:**
+    * Includes the classic game **Pong** plus at least one other game.
+    * Persistent game history tracking and user statistics.
+
+* **💬 Live Chat:**
+    * Real-time global and private chat channels.
+    * Integrated chat functionality within game rooms and lobbies.
+
+* **🔐 Advanced Security:**
+    * Optional **Two-Factor Authentication (2FA)** for stronger account security.
+    * Stateless session authentication using JWT tokens.
+
+* **⚛️ Modern Frontend:**
+    * Developed using **React** or **Next.js**.
+    * Real-time UI updates driven by Socket.IO events.
+    * A clean and modern UX styled with **TailwindCSS**.
+
+* **🗄️ Database Integration:**
+    * Persistent data storage using **PostgreSQL**.
+    * Data managed efficiently with **Prisma ORM** (or TypeORM).
+
+* **📱 Responsive & Accessible:**
+    * Fully responsive design for desktop, tablet, and mobile.
+    * Multi-language support (e.g., English, French, Arabic).
+    * Cross-browser compatibility (Chrome, Firefox, Edge, Safari).
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | Next.js / React, TailwindCSS, Socket.IO Client |
+| **Backend** | NestJS / Express.js, Socket.IO, JWT, OAuth2 |
+| **Database** | PostgreSQL + Prisma ORM |
+| **Auth** | JWT, 2FA, OAuth (42 API / Google) |
+| **Deployment** | Docker, Nginx, HTTPS |
+| **Monitoring** | Prometheus, Grafana (optional) |
+
+## ⚙️ Installation & Setup
+
+### Prerequisites
+
+* **Docker** and **Docker Compose**
+* **Git**
+
+### 1. Clone the Repository
+
+```bash
+git clone git@github.com:Salah-Diouane/ft_transcendence.git
+cd ft_transcendence
